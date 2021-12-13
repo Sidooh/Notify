@@ -1,1 +1,4 @@
-# sidooh-notify
+# Sidooh Notify
+
+---
+### Sidooh's notification system.
