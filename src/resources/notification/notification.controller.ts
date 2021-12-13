@@ -4,7 +4,8 @@ import validationMiddleware from '@/middleware/validation.middleware'
 import validate from '@/resources/notification/notification.validation'
 import HttpException from "@/utils/exceptions/http.exception";
 import NotificationService from "@/resources/notification/notification.service";
-import Notification from "@/resources/notification/notification.interface";
+import INotification from "@/resources/notification/notification.interface";
+import Mail from "@/services/mail/mail";
 
 class NotificationController implements Controller {
     path: string = '/notifications';
@@ -29,17 +30,19 @@ class NotificationController implements Controller {
                 next(new HttpException(500, 'Unable to send notification.'))
             }
 
-            if(this.#send(notification)) return res.status(200).send(notification)
+            if(await this.#send(notification)) return res.status(200).send(notification)
         } catch (e: any) {
             next(new HttpException(400, e.message))
         }
     }
 
-    #send = (notification:Notification): boolean => {
+    #send = async (notification: INotification): Promise<boolean> => {
         try {
             const {channel, to, content} = notification
 
-            console.log(channel, to, content)
+            if (channel === 'email') {
+                await new Mail(notification).send()
+            }
 
             return true
         } catch (e: any) {
