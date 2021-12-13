@@ -8,8 +8,6 @@ export default function validateEnv(): void {
         MONGO_HOST: str(),
         MONGO_PORT: str(),
         MONGO_DATABASE: str(),
-        MONGO_PASSWORD: str(),
-        MONGO_USER: str(),
         PORT: port({default: 3000})
     })
 }

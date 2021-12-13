@@ -1,5 +1,5 @@
 import {model, Schema} from "mongoose";
-import IPost from "@/resources/post/post.interface";
+import IPost from "@/resources/notification/notification.interface";
 
 const PostSchema = new Schema(
     {

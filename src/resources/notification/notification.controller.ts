@@ -1,14 +1,14 @@
 import {NextFunction, Request, Response, Router} from "express";
 import Controller from "@/utils/interfaces/controller.interface";
 import validationMiddleware from '@/middleware/validation.middleware'
-import validate from '@/resources/post/post.validation'
+import validate from '@/resources/notification/notification.validation'
 import HttpException from "@/utils/exceptions/http.exception";
-import PostService from "@/resources/post/post.service";
+import NotificationService from "@/resources/notification/notification.service";
 
-class PostController implements Controller {
-    path: string = '/posts';
+class NotificationController implements Controller {
+    path: string = '/notifications';
     router: Router = Router();
-    #PostService = new PostService()
+    #NotificationService = new NotificationService()
 
     constructor() {
         this.#initRoutes()
@@ -22,7 +22,7 @@ class PostController implements Controller {
         try {
             const {title, body} = req.body
 
-            const post = await this.#PostService.create(title, body)
+            const post = await this.#NotificationService.create(title, body)
 
             res.status(201).json({post})
         } catch (e: any) {
@@ -31,4 +31,4 @@ class PostController implements Controller {
     }
 }
 
-export default PostController
+export default NotificationController

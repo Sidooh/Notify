@@ -1,16 +1,16 @@
-import Post from "@/resources/post/post.model";
-import IPost from "@/resources/post/post.interface";
+import Notification from "@/resources/notification/notification.model";
+import INotification from "@/resources/notification/notification.interface";
 
-class PostService {
+class NotificationService {
     /*
-    * Create new post*/
-    async create(title:string, body:string): Promise<IPost> {
+    * Create new notification*/
+    async create(title:string, body:string): Promise<INotification> {
         try {
-            return await Post.create({title, body});
+            return await Notification.create({title, body});
         } catch (e) {
-            throw new Error('Unable to create post')
+            throw new Error('Unable to create notification')
         }
     }
 }
 
-export default PostService
+export default NotificationService
