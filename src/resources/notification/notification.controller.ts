@@ -20,17 +20,17 @@ class NotificationController implements Controller {
         this.router.post(`${this.path}`, validationMiddleware(validate.create), this.#store)
     }
 
-    #store = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
+    #store = async (req: Request, res: Response, next: NextFunction): Promise<Response|void> => {
         try {
             const {channel, to, content} = req.body
 
             const notification = await this.#NotificationService.create(channel, to, content)
 
-            if(!notification) {
+            if (!notification) {
                 next(new HttpException(500, 'Unable to send notification.'))
             }
 
-            if(await this.#send(notification)) return res.status(200).send(notification)
+            if (await this.#send(notification)) return res.status(200).send(notification)
         } catch (e: any) {
             next(new HttpException(400, e.message))
         }

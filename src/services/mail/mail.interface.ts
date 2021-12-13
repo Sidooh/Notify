@@ -6,4 +6,4 @@ export default interface Mail {
     subject: string;
     text: string;
     message: string;
-}
+};

@@ -11,7 +11,9 @@ export default class Mail {
     }
 
     send = async () => {
-        this.#mail.from('Sidooh').to(this.notification.to).message(this.notification.content).send()
-        console.log(this.notification)
+        this.#mail.from('sidooh@gmail.com')
+            .to(this.notification.to)
+            .html(this.notification.content)
+            .send()
     }
 }
