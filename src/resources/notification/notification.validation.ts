@@ -1,13 +1,9 @@
 import Joi from 'joi'
 
 const create = Joi.object({
-    title: Joi.string().required(),
-    body: Joi.string().required()
+    channel: Joi.string().required(),
+    to: Joi.string().required(),
+    content: Joi.string().required(),
 })
 
-const update = Joi.object({
-    title: Joi.string().required(),
-    body: Joi.string().required()
-})
-
-export default {create, update}
+export default {create}

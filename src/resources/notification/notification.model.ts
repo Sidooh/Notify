@@ -1,13 +1,17 @@
 import {model, Schema} from "mongoose";
-import IPost from "@/resources/notification/notification.interface";
+import INotification from "@/resources/notification/notification.interface";
 
-const PostSchema = new Schema(
+const NotificationSchema = new Schema(
     {
-        title: {
+        channel: {
             type: String,
             required: true
         },
-        body: {
+        to: {
+            type: String,
+            required: true
+        },
+        content: {
             type: String,
             required: true
         }
@@ -20,4 +24,4 @@ const PostSchema = new Schema(
     }
 )
 
-export default model<IPost>('Post', PostSchema)
+export default model<INotification>('Notification', NotificationSchema)
