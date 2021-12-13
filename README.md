@@ -2,4 +2,4 @@
 
 ---
 ### Sidooh's notification system.
-* Node, Express & Typescript
+* Node, Express & Typescript.
