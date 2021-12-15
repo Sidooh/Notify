@@ -1,9 +1,8 @@
 export default interface Mail {
     from: string;
-    to: string;
+    destination: string;
     cc: string;
     bcc: string;
     subject: string;
-    text: string;
-    message: string;
+    content: string;
 };

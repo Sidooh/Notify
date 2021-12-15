@@ -2,26 +2,26 @@ import nodemailer from 'nodemailer'
 
 export default class MailService {
     fromAddress: string[] = [];
-    fromName: string = "";
-    toAddress: string|string[];
-    mailSubject: string|undefined;
+    fromName: string|null = null;
+    recipientAddress: string|string[];
+    mailSubject: string|undefined = "Attention!";
     mailText: string|undefined;
     mailHtml: string|undefined;
 
     constructor() {
-        this.toAddress = []
+        this.recipientAddress = []
         this.mailText = "Hello world?"
         this.mailHtml = "<b>Hello world?</b>"
     }
 
-    from(from: string) {
-        this.fromAddress.push(from)
+    from(senderAddress: string) {
+        this.fromAddress.push(senderAddress)
 
         return this;
     }
 
-    to(to: string) {
-        this.toAddress = to
+    to(recipientAddress: string) {
+        this.recipientAddress = recipientAddress
 
         return this;
     }
@@ -50,22 +50,23 @@ export default class MailService {
         // send mail with defined transport object
         return await transporter.sendMail({
             from: {
-                name: this.fromName,
+                name: this.fromName ?? String(process.env.MAIL_FROM_NAME) ?? "Hoodis Notify",
                 address: this.fromAddress.join(',')
             },
-            to: this.toAddress, // list of receivers
-            subject: this.mailSubject, // Subject line
-            text: this.mailText, // plain text body
+            to: this.recipientAddress,
+            subject: this.mailSubject,
+            text: this.mailText,
             html: this.mailHtml,
         });
     }
 
     #getTransporter = () => {
         // create reusable transporter object using the default SMTP transport
+
         return nodemailer.createTransport({
             service: "Gmail",
-            host: "smtp.gmail.com",
-            port: 587,
+            host: process.env.MAIL_HOST,
+            port: Number(process.env.MAIL_PORT) | 587,
             secure: true, // true for 465, false for other ports
             auth: {
                 user: process.env.MAIL_USERNAME, // generated ethereal user

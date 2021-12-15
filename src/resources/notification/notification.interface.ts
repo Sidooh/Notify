@@ -1,7 +1,9 @@
 import {Document} from "mongoose";
 
-export default interface Post extends Document {
+export default interface INotification extends Document {
     channel: string;
-    to: string;
+    channel_id: bigint;
+    destination: string;
     content: string;
+    status: string
 }

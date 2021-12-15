@@ -7,13 +7,19 @@ const NotificationSchema = new Schema(
             type: String,
             required: true
         },
-        to: {
+        channel_id: {
+            type: Number,
+        },
+        destination: {
             type: String,
             required: true
         },
         content: {
             type: String,
             required: true
+        },
+        status: {
+            type: String,
         }
     },
     {

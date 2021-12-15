@@ -5,7 +5,10 @@ import validate from '@/resources/notification/notification.validation'
 import HttpException from "@/utils/exceptions/http.exception";
 import NotificationService from "@/resources/notification/notification.service";
 import INotification from "@/resources/notification/notification.interface";
-import Mail from "@/services/mail/mail";
+import Mail from "@/services/mail";
+import IMail from "@/services/mail/mail.interface";
+import ISlack from "@/services/slack/slack.interface";
+import Slack from "@/services/slack";
 
 class NotificationController implements Controller {
     path: string = '/notifications';
@@ -22,26 +25,26 @@ class NotificationController implements Controller {
 
     #store = async (req: Request, res: Response, next: NextFunction): Promise<Response|void> => {
         try {
-            const {channel, to, content} = req.body
+            const {channel, destination, content} = req.body
 
-            const notification = await this.#NotificationService.create(channel, to, content)
+            const notification = await this.#NotificationService.create(channel, destination, content)
 
             if (!notification) {
                 next(new HttpException(500, 'Unable to send notification.'))
             }
 
-            if (await this.#send(notification)) return res.status(200).send(notification)
+            if (await this.#send(notification, req.body)) return res.status(200).send(notification)
         } catch (e: any) {
             next(new HttpException(400, e.message))
         }
     }
 
-    #send = async (notification: INotification): Promise<boolean> => {
+    #send = async (notification: INotification, channelData: IMail | ISlack): Promise<boolean> => {
         try {
-            const {channel, to, content} = notification
-
-            if (channel === 'email') {
-                await new Mail(notification).send()
+            if (notification.channel === 'email') {
+                await new Mail(channelData as IMail, notification).send()
+            } else {
+                await new Slack(channelData as ISlack, notification).send()
             }
 
             return true
