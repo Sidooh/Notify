@@ -1,14 +1,14 @@
 import {NextFunction, Request, Response, Router} from "express";
 import ControllerInterface from "@/utils/interfaces/controller.interface";
 import validationMiddleware from '@/middleware/validation.middleware'
-import validate from '@/resources/notification/notification.validation'
 import HttpException from "@/utils/exceptions/http.exception";
-import NotificationService from "@/resources/notification/notification.service";
-import INotification from "@/resources/notification/notification.interface";
+import {NotificationService, INotification, validate} from "@/resources/notification";
 import Mail from "@/services/mail";
 import IMail from "@/services/mail/mail.interface";
 import ISlack from "@/services/slack/slack.interface";
 import Slack from "@/services/slack";
+import IAfricasTalking from "@/services/sms/AT/AT.interface";
+import SMS from "@/services/sms";
 
 class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -44,6 +44,8 @@ class NotificationController implements ControllerInterface {
     #send = async (notification: INotification, channelData: IMail|ISlack): Promise<void> => {
         if (notification.channel === 'mail') {
             await new Mail(channelData as IMail, notification).send()
+        } else if(notification.channel === 'sms') {
+            await new SMS(channelData as IAfricasTalking, notification).send()
         } else {
             await new Slack(channelData as ISlack, notification).send()
         }

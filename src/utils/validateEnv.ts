@@ -2,9 +2,12 @@ import {cleanEnv, num, port, str, url} from "envalid";
 
 export default function validateEnv(): void {
     cleanEnv(process.env, {
+        PORT: port({default: 3000}),
+
         NODE_ENV: str({
             choices: ['development', 'production']
         }),
+
         MONGO_HOST: str(),
         MONGO_PORT: str(),
         MONGO_DATABASE: str(),
@@ -16,7 +19,8 @@ export default function validateEnv(): void {
         MAIL_USERNAME: str(),
         MAIL_PASSWORD: str(),
 
-        SLACK_HOOK_URL: url(),
-        PORT: port({default: 3000})
+        AT_USERNAME: str(),
+
+        SLACK_HOOK_URL: url()
     })
 }
