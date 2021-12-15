@@ -11,7 +11,7 @@ const NotificationSchema = new Schema(
             type: Number,
         },
         destination: {
-            type: String,
+            type: Array,
             required: true
         },
         content: {

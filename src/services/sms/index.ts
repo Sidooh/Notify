@@ -15,7 +15,7 @@ export default class SMS implements NotificationInterface {
     }
 
     send = async () => {
-        this.#ATService.message(this.data.content).send()
+        this.#ATService.to([+254110039317]).message(this.data.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
                 await this.notification.save()

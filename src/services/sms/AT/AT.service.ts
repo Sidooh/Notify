@@ -12,11 +12,17 @@ export default class ATService implements ServiceInterface {
 
         const config: ATConfig = {
             username: String(process.env.AT_USERNAME) ?? 'sandbox',
-            apiKey: 'string',
+            apiKey: String(process.env.AT_API_KEY),
             from: String(process.env.APP_NAME) ?? 'Sidooh'
         }
 
         this.#AT = new AfricasTalking(config, 'sandbox');
+    }
+
+    to = (to: string|string[]|number|number[]) => {
+        this.#to = to
+
+        return this;
     }
 
     message = (message: string) => {

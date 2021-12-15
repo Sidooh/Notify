@@ -8,7 +8,6 @@ const create = Joi.object({
         then: Joi.alternatives().try(Joi.array().items(Joi.number()), Joi.number()),
         otherwise: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string())
     }).required(),
-    phone: Joi.number().when('channel', {is: 'sms', then: Joi.required()})
 })
 
 export default {create}
