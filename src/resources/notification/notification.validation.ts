@@ -10,8 +10,7 @@ const create = Joi.object({
         }).when('channel', {
             is: 'mail',
             then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email())
-        })
-        .required(),
+        }).required(),
 })
 
 export default {create}
