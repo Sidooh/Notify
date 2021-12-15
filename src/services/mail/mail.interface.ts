@@ -1,4 +1,4 @@
-export default interface Mail {
+export default interface IMail {
     from: string;
     destination: string;
     cc: string;

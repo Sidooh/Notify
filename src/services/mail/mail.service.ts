@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer'
+import ServiceInterface from "@/utils/interfaces/service.interface";
 
-export default class MailService {
+export default class MailService implements ServiceInterface {
     fromAddress: string[] = [];
     fromName: string|null = null;
     recipientAddress: string|string[];

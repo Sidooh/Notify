@@ -1,7 +1,8 @@
 import axios from 'axios';
 import log from "@/utils/logger";
+import ServiceInterface from "@/utils/interfaces/service.interface";
 
-export default class SlackService {
+export default class SlackService implements ServiceInterface {
     #message: string|string[];
 
     constructor() {

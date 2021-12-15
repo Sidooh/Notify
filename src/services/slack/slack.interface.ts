@@ -1,3 +1,3 @@
-export default interface Slack {
+export default interface ISlack {
     content: string;
 };

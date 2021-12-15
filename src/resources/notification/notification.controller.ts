@@ -1,5 +1,5 @@
 import {NextFunction, Request, Response, Router} from "express";
-import Controller from "@/utils/interfaces/controller.interface";
+import ControllerInterface from "@/utils/interfaces/controller.interface";
 import validationMiddleware from '@/middleware/validation.middleware'
 import validate from '@/resources/notification/notification.validation'
 import HttpException from "@/utils/exceptions/http.exception";
@@ -10,7 +10,7 @@ import IMail from "@/services/mail/mail.interface";
 import ISlack from "@/services/slack/slack.interface";
 import Slack from "@/services/slack";
 
-class NotificationController implements Controller {
+class NotificationController implements ControllerInterface {
     path: string = '/notifications';
     router: Router = Router();
     #NotificationService = new NotificationService()
@@ -33,23 +33,19 @@ class NotificationController implements Controller {
                 next(new HttpException(500, 'Unable to send notification.'))
             }
 
-            if (await this.#send(notification, req.body)) return res.status(200).send(notification)
+            await this.#send(notification, req.body)
+
+            return res.status(200).send(notification)
         } catch (e: any) {
             next(new HttpException(400, e.message))
         }
     }
 
-    #send = async (notification: INotification, channelData: IMail | ISlack): Promise<boolean> => {
-        try {
-            if (notification.channel === 'email') {
-                await new Mail(channelData as IMail, notification).send()
-            } else {
-                await new Slack(channelData as ISlack, notification).send()
-            }
-
-            return true
-        } catch (e: any) {
-            return false
+    #send = async (notification: INotification, channelData: IMail|ISlack): Promise<void> => {
+        if (notification.channel === 'mail') {
+            await new Mail(channelData as IMail, notification).send()
+        } else {
+            await new Slack(channelData as ISlack, notification).send()
         }
     }
 }

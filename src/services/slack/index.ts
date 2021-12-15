@@ -1,8 +1,9 @@
 import SlackService from "@/services/slack/slack.service";
 import ISlack from "@/services/slack/slack.interface";
 import INotification from "@/resources/notification/notification.interface";
+import NotificationInterface from "@/utils/interfaces/notification.interface";
 
-export default class Slack {
+export default class Slack implements NotificationInterface {
     notification: INotification
     data: ISlack
     #SlackService
