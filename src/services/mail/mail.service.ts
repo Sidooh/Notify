@@ -21,7 +21,7 @@ export default class MailService implements ServiceInterface {
         return this;
     }
 
-    to(recipientAddress: string) {
+    to(recipientAddress: string[]) {
         this.recipientAddress = recipientAddress
 
         return this;

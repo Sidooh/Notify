@@ -13,7 +13,11 @@ export default class SMS implements NotificationInterface {
     }
 
     send = async () => {
-        this.#ATService.to(["+254110039317"]).message(this.notification.content).send()
+        let destinations:string[] = this.notification.destination.map(phone => {
+            return `+${phone.toString()}`
+        })
+
+        this.#ATService.to(destinations).message(this.notification.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
                 await this.notification.save()
