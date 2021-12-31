@@ -1,3 +1,4 @@
+import ISlack from "@/services/slack/slack.interface";
 import INotification from "@/resources/notification/notification.interface";
 import NotificationInterface from "@/utils/interfaces/notification.interface";
 import WebSMSService from "@/services/sms/WebSMS/WebSMS.service";
