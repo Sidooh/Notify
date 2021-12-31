@@ -8,13 +8,13 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "node dist/index.js",
-    "dev": "tsc-watch --onSuccess \"node ./dist/index.js\"",
+    "prod": "node dist/src/index.js",
+    "dev": "tsc-watch --onSuccess \"node ./dist/src/index.js\"",
     "build": "tsc",
     "postinstall": "yarn run build"
   },
   "dependencies": {
-    "@osenco/africastalking": "^0.1.1",
+    "africastalking": "^0.5.4",
     "axios": "^0.24.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
@@ -47,9 +47,9 @@
     "typescript": "^4.5.3"
   },
   "_moduleAliases": {
-    "@/resources": "dist/resources",
-    "@/utils": "dist/utils",
-    "@/middleware": "dist/middleware",
-    "@/services": "dist/services"
+    "@/resources": "dist/src/resources",
+    "@/utils": "dist/src/utils",
+    "@/middleware": "dist/src/middleware",
+    "@/services": "dist/src/services"
   }
 }

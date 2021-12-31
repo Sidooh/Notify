@@ -4,7 +4,6 @@ import ISlack from "@/services/slack/slack.interface";
 
 export default interface NotificationInterface {
     notification: INotification;
-    data: IMail | ISlack
 
     send(): Promise<void>;
 }

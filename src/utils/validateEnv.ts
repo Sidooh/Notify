@@ -19,7 +19,9 @@ export default function validateEnv(): void {
         MAIL_USERNAME: str(),
         MAIL_PASSWORD: str(),
 
-        AT_USERNAME: str(),
+        AT_SMS_API_KEY: str(),
+        AT_SMS_FROM: str(),
+        AT_SMS_USERNAME: str(),
 
         SLACK_HOOK_URL: url()
     })

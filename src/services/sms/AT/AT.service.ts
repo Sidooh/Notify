@@ -1,25 +1,22 @@
-import {AfricasTalking, ATConfig} from '@osenco/africastalking'
-import log from "@/utils/logger";
 import ServiceInterface from "@/utils/interfaces/service.interface";
 
 export default class ATService implements ServiceInterface {
     #message: string;
-    #to: string|string[]|number|number[] = [];
+    #to: string|string[] = [];
     #AT
 
     constructor() {
         this.#message = "Hello world"
 
-        const config: ATConfig = {
-            username: String(process.env.AT_USERNAME) ?? 'sandbox',
-            apiKey: String(process.env.AT_API_KEY),
-            from: String(process.env.APP_NAME) ?? 'Sidooh'
-        }
+        const credentials = {
+            apiKey: String(process.env.AT_SMS_API_KEY),
+            username: String(process.env.AT_SMS_USERNAME),
+        };
 
-        this.#AT = new AfricasTalking(config, 'sandbox');
+        this.#AT = require('africastalking')(credentials).SMS
     }
 
-    to = (to: string|string[]|number|number[]) => {
+    to = (to: string|string[]) => {
         this.#to = to
 
         return this;
@@ -32,14 +29,19 @@ export default class ATService implements ServiceInterface {
     }
 
     send = async (): Promise<{ status: string }> => {
-        return this.#AT.sms(this.#message).to(this.#to).send()
-            .then(response => {
-                console.log(response)
-                return {status: 'success'}
-            }).catch(error => {
-                log.error(error, error.message);
+        const options = {
+            to: this.#to,
+            message: this.#message
+        }
 
-                return {status: 'failed'}
+        return this.#AT.send(options)
+            .then((response: any) => {
+                console.log(response.SMSMessageData);
+                return {status: 'success'}
             })
+            .catch((error: any) => {
+                console.log(error);
+                return {status: 'failed'}
+            });
     }
 }

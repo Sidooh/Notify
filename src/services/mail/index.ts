@@ -6,19 +6,17 @@ import NotificationInterface from "@/utils/interfaces/notification.interface";
 
 export default class Mail implements NotificationInterface {
     notification: INotification
-    data: IMail
     #MailService
 
-    constructor(mail: IMail, notification: INotification) {
+    constructor(notification: INotification) {
         this.notification = notification
-        this.data = mail
         this.#MailService = new MailService()
     }
 
     send = async () => {
         this.#MailService.from('sidooh@gmail.com')
-            .to(this.data.destination)
-            .html(this.data.content)
+            .to(this.notification.destination)
+            .html(this.notification.content)
             .send().then(response => {
             return {status: !!response.accepted ? 'success' : 'failed'}
         }).catch(error => {

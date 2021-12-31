@@ -5,17 +5,15 @@ import NotificationInterface from "@/utils/interfaces/notification.interface";
 
 export default class Slack implements NotificationInterface {
     notification: INotification
-    data: ISlack
     #SlackService
 
     constructor(slack: ISlack, notification: INotification) {
         this.notification = notification
-        this.data = slack
         this.#SlackService = new SlackService()
     }
 
     send = async () => {
-        this.#SlackService.message(this.data.content).send()
+        this.#SlackService.message(this.notification.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
                 await this.notification.save()
