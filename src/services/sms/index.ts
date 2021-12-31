@@ -1,15 +1,17 @@
-import ISlack from "@/services/slack/slack.interface";
 import INotification from "@/resources/notification/notification.interface";
 import NotificationInterface from "@/utils/interfaces/notification.interface";
+import WebSMSService from "@/services/sms/WebSMS/WebSMS.service";
 import ATService from "@/services/sms/AT/AT.service";
 
 export default class SMS implements NotificationInterface {
     notification: INotification
-    #ATService
+    #SMSService
 
     constructor(notification: INotification) {
         this.notification = notification
-        this.#ATService = new ATService()
+
+        //TODO(Add logic to select service based on settings)
+        this.#SMSService = new WebSMSService()
     }
 
     send = async () => {
@@ -17,9 +19,10 @@ export default class SMS implements NotificationInterface {
             return `+${phone.toString()}`
         })
 
-        this.#ATService.to(destinations).message(this.notification.content).send()
+        this.#SMSService.to(destinations).message(this.notification.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
+
                 await this.notification.save()
             })
     }
