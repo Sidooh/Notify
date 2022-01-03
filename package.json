@@ -53,6 +53,9 @@
   "jest": {
     "rootDir": "./tests",
     "preset": "ts-jest",
+    "moduleNameMapper": {
+      "@/(.*)$": "<rootDir>../src/$1"
+    },
     "setupFilesAfterEnv": [
       "./setup.ts"
     ]

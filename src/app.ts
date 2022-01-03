@@ -5,8 +5,8 @@ import morgan from 'morgan'
 import Controller from '@/utils/interfaces/controller.interface'
 import helmet from 'helmet'
 import mongoose from "mongoose";
-import log from './utils/logger'
-import ErrorMiddleware from "./middleware/error.middleware";
+import log from '@/utils/logger'
+import ErrorMiddleware from "@/middleware/error.middleware";
 
 class App {
     public express: Application
