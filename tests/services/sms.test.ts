@@ -1,8 +1,8 @@
 import request from 'supertest'
-import {app} from "../../src";
+import App from "../../src/app";
 
 it('should return a 201 on successful notification creation', async function () {
-    await request(app)
+    await request(App)
         .post('/notifications')
         .send({
             channel: 'mail'
