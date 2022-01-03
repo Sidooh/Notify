@@ -1,6 +1,6 @@
-import Notification from "@/resources/notification/notification.model";
-import INotification from "@/resources/notification/notification.interface";
+import Notification from "@/models/notification.model";
 import log from "@/utils/logger";
+import {INotification} from "@/models/interfaces";
 
 class NotificationService {
     // Create new notification

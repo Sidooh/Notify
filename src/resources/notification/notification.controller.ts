@@ -2,30 +2,33 @@ import {NextFunction, Request, Response, Router} from "express";
 import ControllerInterface from "@/utils/interfaces/controller.interface";
 import validationMiddleware from '@/middleware/validation.middleware'
 import HttpException from "@/utils/exceptions/http.exception";
-import {INotification, NotificationService, validate} from "@/resources/notification";
 import Mail from "@/services/mail";
 import IMail from "@/services/mail/mail.interface";
 import ISlack from "@/services/slack/slack.interface";
 import Slack from "@/services/slack";
 import SMS from "@/services/sms";
+import NotificationService from "./notification.service";
+import {validateNotification} from "@/resources/notification/notification.validation";
+import {INotification} from "@/models/interfaces";
+import {Help} from "@/utils/helpers/helpers";
 
 class NotificationController implements ControllerInterface {
     path: string = '/notifications';
     router: Router = Router();
-    #NotificationService = new NotificationService()
+    #service = new NotificationService()
 
     constructor() {
         this.#initRoutes()
     }
 
     #initRoutes(): void {
-        this.router.post(`${this.path}`, validationMiddleware(validate.create), this.#store)
+        this.router.post(`${this.path}`, validationMiddleware(validateNotification.create), this.#store)
     }
 
     #store = async (req: Request, res: Response, next: NextFunction): Promise<Response|void> => {
         try {
             const {channel, destination, content} = req.body
-            const notification = await this.#NotificationService.create(channel, destination, content)
+            const notification = await this.#service.create(channel, destination, content)
 
             if (!notification) next(new HttpException(500, 'Unable to send notification.'))
 
@@ -41,7 +44,9 @@ class NotificationController implements ControllerInterface {
         if (notification.channel === 'mail') {
             await new Mail(notification).send()
         } else if(notification.channel === 'sms') {
-            await new SMS(notification).send()
+            const smsProvider = await Help.getSetting('default_sms_provider')
+
+            await new SMS(notification, smsProvider).send()
         } else {
             await new Slack(channelData as ISlack, notification).send()
         }

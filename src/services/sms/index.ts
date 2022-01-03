@@ -1,25 +1,27 @@
-import INotification from "@/resources/notification/notification.interface";
 import NotificationInterface from "@/utils/interfaces/notification.interface";
 import WebSMSService from "@/services/sms/WebSMS/WebSMS.service";
+import {INotification} from "@/models/interfaces";
 import ATService from "@/services/sms/AT/AT.service";
 
 export default class SMS implements NotificationInterface {
     notification: INotification
     #SMSService
 
-    constructor(notification: INotification) {
+    constructor(notification: INotification, provider: string|undefined) {
         this.notification = notification
 
-        //TODO(Add logic to select service based on settings)
-        this.#SMSService = new WebSMSService()
+        //TODO(Add better logic to select service based on settings)
+        switch (provider) {
+            case 'africastalking':
+                this.#SMSService = new ATService()
+                break;
+            default:
+                this.#SMSService = new WebSMSService()
+        }
     }
 
     send = async () => {
-        let destinations:string[] = this.notification.destination.map(phone => {
-            return `+${phone.toString()}`
-        })
-
-        this.#SMSService.to(destinations).message(this.notification.content).send()
+        this.#SMSService.to(this.notification.destination).message(this.notification.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
 

@@ -23,6 +23,12 @@ export default function validateEnv(): void {
         AT_SMS_FROM: str(),
         AT_SMS_USERNAME: str(),
 
+        WEBSMS_API_URL: url(),
+        WEBSMS_ACCESS_KEY: str(),
+        WEBSMS_API_KEY: str(),
+        WEBSMS_CLIENT_ID: str(),
+        WEBSMS_SENDER_ID: str(),
+
         SLACK_HOOK_URL: url()
     })
 }

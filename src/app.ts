@@ -7,7 +7,6 @@ import ErrorMiddleware from '@/middleware/error.middleware'
 import helmet from 'helmet'
 import mongoose from "mongoose";
 import log from '@/utils/logger'
-import {string} from "joi";
 
 class App {
     public express: Application

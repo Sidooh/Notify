@@ -6,7 +6,14 @@ export type WebSmsConfig = {
 }
 
 export type WebSmsPayload = {
-    to: string | string[],
-    from: string | number | null,
+    to: string|string[],
+    from: string|number|null,
     message: string
+}
+
+export type WebSmsCallback = {
+    status: string,
+    response: {
+        Data: Array<Object>
+    }
 }

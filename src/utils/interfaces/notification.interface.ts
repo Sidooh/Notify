@@ -1,4 +1,4 @@
-import INotification from "@/resources/notification/notification.interface";
+import {INotification} from "@/models/interfaces";
 
 export default interface NotificationInterface {
     notification: INotification;

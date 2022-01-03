@@ -1,7 +1,7 @@
 import SlackService from "@/services/slack/slack.service";
 import ISlack from "@/services/slack/slack.interface";
-import INotification from "@/resources/notification/notification.interface";
 import NotificationInterface from "@/utils/interfaces/notification.interface";
+import {INotification} from "@/models/interfaces";
 
 export default class Slack implements NotificationInterface {
     notification: INotification

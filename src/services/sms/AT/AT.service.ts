@@ -1,13 +1,13 @@
 import ServiceInterface from "@/utils/interfaces/service.interface";
+import {ATCallback} from "@/models/at_callbacks.model";
+
 
 export default class ATService implements ServiceInterface {
-    #message: string;
-    #to: string|string[] = [];
+    #message: string = "";
+    #to: string[] = [];
     #AT
 
     constructor() {
-        this.#message = "Hello world"
-
         const credentials = {
             apiKey: String(process.env.AT_SMS_API_KEY),
             username: String(process.env.AT_SMS_USERNAME),
@@ -16,8 +16,11 @@ export default class ATService implements ServiceInterface {
         this.#AT = require('africastalking')(credentials).SMS
     }
 
-    to = (to: string|string[]) => {
-        this.#to = to
+    to = (to: string[]) => {
+        this.#to = to.map(phone => {
+            phone = phone.toString()
+            return `+254${(phone.length > 9 ? phone.slice(-9) : phone)}`;
+        })
 
         return this;
     }
@@ -34,14 +37,31 @@ export default class ATService implements ServiceInterface {
             message: this.#message
         }
 
-        return this.#AT.send(options)
+        return await this.#AT.send(options)
             .then((response: any) => {
-                console.log(response.SMSMessageData);
+                this.#saveCallback(response.SMSMessageData)
+
                 return {status: 'success'}
             })
             .catch((error: any) => {
                 console.log(error);
                 return {status: 'failed'}
             });
+    }
+
+    #saveCallback = async (callback: any) => {
+        const callbacks = callback.Recipients.map((recipient: any) => {
+            let regex = /[+-]?\d+(\.\d+)?/g;
+
+            return {
+                message_id: recipient.messageId,
+                phone: recipient.number,
+                cost: parseFloat(recipient.cost.match(regex)[0]),
+                status: recipient.status,
+                status_code: recipient.statusCode
+            }
+        })
+
+        await ATCallback.insertMany(callbacks)
     }
 }

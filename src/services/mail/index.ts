@@ -1,7 +1,6 @@
 import MailService from "@/services/mail/mail.service";
 import log from "@/utils/logger";
-import IMail from "@/services/mail/mail.interface";
-import INotification from "@/resources/notification/notification.interface";
+import {INotification} from "@/models/interfaces";
 import NotificationInterface from "@/utils/interfaces/notification.interface";
 
 export default class Mail implements NotificationInterface {
