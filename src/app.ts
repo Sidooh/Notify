@@ -3,10 +3,10 @@ import compression from "compression";
 import cors from 'cors'
 import morgan from 'morgan'
 import Controller from '@/utils/interfaces/controller.interface'
-import ErrorMiddleware from '@/middleware/error.middleware'
 import helmet from 'helmet'
 import mongoose from "mongoose";
-import log from '@/utils/logger'
+import log from './utils/logger'
+import ErrorMiddleware from "./middleware/error.middleware";
 
 class App {
     public express: Application
@@ -32,9 +32,7 @@ class App {
     }
 
     #initControllers(controllers: Controller[]): void {
-        controllers.forEach((controller: Controller) => {
-            this.express.use('/api', controller.router)
-        })
+        controllers.forEach((controller: Controller) => this.express.use('/api', controller.router))
     }
 
     #initErrorHandling(): void {
@@ -44,17 +42,12 @@ class App {
     static #initDatabase(): void {
         const {MONGO_PORT, MONGO_DATABASE, MONGO_HOST} = process.env
 
-        mongoose.connect(
-            `mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}`
-        ).then(() => {
-            log.info("Database connected!")
-        })
+        mongoose.connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}`)
+            .then(() => log.info("Database connected!"))
     }
 
     listen(): void {
-        this.express.listen(this.port, () => {
-            console.log(`App listening on port: ${this.port}`)
-        })
+        this.express.listen(this.port, () => console.log(`App listening on port: ${this.port}`))
     }
 }
 
