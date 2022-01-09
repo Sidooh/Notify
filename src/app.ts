@@ -7,6 +7,8 @@ import helmet from 'helmet'
 import mongoose from "mongoose";
 import log from '@/utils/logger'
 import ErrorMiddleware from "@/middleware/error.middleware";
+import NotificationController from "@/resources/notification/notification.controller";
+import SettingController from "@/resources/settings/setting.controller";
 
 class App {
     public express: Application
@@ -14,9 +16,9 @@ class App {
 
     constructor(controllers: Controller[], port: number) {
         this.express = express();
+        this.express.set('trust proxy', true)
         this.port = port
 
-        App.#initDatabase();
         this.#initMiddleware();
         this.#initControllers(controllers);
         this.#initErrorHandling();
@@ -39,11 +41,13 @@ class App {
         this.express.use(ErrorMiddleware)
     }
 
-    static #initDatabase(): void {
+    initDatabase(): App {
         const {MONGO_PORT, MONGO_DATABASE, MONGO_HOST} = process.env
 
         mongoose.connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}`)
             .then(() => log.info("Database connected!"))
+
+        return this
     }
 
     listen(): void {
@@ -51,4 +55,9 @@ class App {
     }
 }
 
-export default App
+const app = new App([
+    new NotificationController(),
+    new SettingController(),
+], Number(process.env.PORT))
+
+export default app
