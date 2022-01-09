@@ -42,9 +42,9 @@ class App {
     }
 
     initDatabase(): App {
-        const {MONGO_PORT, MONGO_DATABASE, MONGO_HOST} = process.env
+        const {MONGO_URL} = process.env
 
-        mongoose.connect(`mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}`)
+        mongoose.connect(`${MONGO_URL}`)
             .then(() => log.info("Database connected!"))
 
         return this

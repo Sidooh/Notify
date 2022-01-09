@@ -67,5 +67,8 @@
     "@/utils": "dist/src/utils",
     "@/middleware": "dist/src/middleware",
     "@/services": "dist/src/services"
+  },
+  "engines": {
+    "node": "16.13.0"
   }
 }
