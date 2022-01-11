@@ -9,9 +9,6 @@ export default function validateEnv(): void {
         }),
 
         MONGO_URL: url(),
-        // MONGO_HOST: str(),
-        // MONGO_PORT: str(),
-        // MONGO_DATABASE: str(),
 
         MAIL_HOST: str(),
         MAIL_PORT: num({
@@ -21,8 +18,8 @@ export default function validateEnv(): void {
         MAIL_PASSWORD: str(),
 
         AT_SMS_API_KEY: str(),
-        AT_SMS_FROM: str(),
         AT_SMS_USERNAME: str(),
+        AT_SMS_FROM: str(),
 
         WEBSMS_API_URL: url(),
         WEBSMS_ACCESS_KEY: str(),
