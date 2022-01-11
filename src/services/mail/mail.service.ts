@@ -5,7 +5,7 @@ export default class MailService implements ServiceInterface {
     fromAddress: string[] = [];
     fromName: string|null = null;
     recipientAddress: string|string[];
-    mailSubject: string|undefined = "Attention!";
+    mailSubject: string|undefined = "Hello!";
     mailText: string|undefined;
     mailHtml: string|undefined;
 
