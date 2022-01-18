@@ -5,6 +5,8 @@ export interface INotification extends Document {
     channel_id: bigint;
     destination: string[];
     content: string;
+    event_type:string,
+    provider:string,
     status: string
 }
 

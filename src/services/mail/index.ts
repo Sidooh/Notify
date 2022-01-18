@@ -24,6 +24,7 @@ export default class Mail implements NotificationInterface {
             return {status: 'failed'}
         }).then(async ({status}) => {
             this.notification.status = status
+            this.notification.provider = 'GMAIL'
             await this.notification.save()
         })
     }

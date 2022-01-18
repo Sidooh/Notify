@@ -22,8 +22,9 @@ export default class SMS implements NotificationInterface {
 
     send = async () => {
         this.#SMSService.to(this.notification.destination).message(this.notification.content).send()
-            .then(async ({status}) => {
+            .then(async ({status, provider}) => {
                 this.notification.status = status
+                this.notification.provider = provider
 
                 await this.notification.save()
             })
