@@ -1,8 +1,18 @@
-import Notification from "@/models/notification.model";
-import log from "@/utils/logger";
-import {INotification} from "@/models/interfaces";
+import Notification from '@/models/notification.model';
+import log from '@/utils/logger';
+import { INotification } from '@/models/interfaces';
 
 class NotificationService {
+    // Fetch all notifications
+    async fetchAll() {
+        try {
+            return await Notification.find({})
+        } catch (err) {
+            log.error(err)
+            throw new Error('Unable to fetch notifications')
+        }
+    }
+
     // Create new notification
     async create(channel: string, destination: string, content: string, event_type: string): Promise<INotification> {
         try {
