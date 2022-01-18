@@ -4,6 +4,7 @@ export const validateNotification = {
     create: Joi.object({
         channel: Joi.string().valid('slack', 'sms', 'mail', 'app').required(),
         content: Joi.string().required(),
+        event_type: Joi.string().valid('AirtimePurchased', 'UtilityPayment', 'SubscriptionPayment', 'MerchantPayment', 'AccountSuspended').required(),
         destination: Joi
             .when('channel', {
                 is: 'sms',

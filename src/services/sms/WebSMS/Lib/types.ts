@@ -13,6 +13,7 @@ export type WebSmsPayload = {
 
 export type WebSmsCallback = {
     status: string,
+    provider:string,
     response: {
         Data: Array<Object>
     }

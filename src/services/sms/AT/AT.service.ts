@@ -31,14 +31,14 @@ export default class ATService implements ServiceInterface {
         return this;
     }
 
-    send = async (): Promise<{ status: string }> => {
+    send = async (): Promise<{ status: string, provider: string }> => {
         const options = {
             to: this.#to,
             from: String(process.env.AT_SMS_FROM),
             message: this.#message
         }
 
-        return await this.#AT.send(options)
+        const response = await this.#AT.send(options)
             .then((response: any) => {
                 this.#saveCallback(response.SMSMessageData)
 
@@ -48,6 +48,8 @@ export default class ATService implements ServiceInterface {
                 console.log(error);
                 return {status: 'failed'}
             });
+
+        return {...response, provider: 'AFRICASTALKING'}
     }
 
     #saveCallback = async (callback: any) => {

@@ -32,10 +32,10 @@ export default class WebSMSService implements ServiceInterface {
         return this;
     }
 
-    send = async (): Promise<{ status: string }> => {
-        const callback:WebSmsCallback = await this.#WebSMS.sms(this.#message).to(this.#to).send()
+    send = async (): Promise<{ status: string, provider: string }> => {
+        const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
             .then(response => {
-                if(response.ErrorCode !== 0) {
+                if (response.ErrorCode !== 0) {
                     response = {
                         Data: [{
                             MessageErrorCode: response.ErrorCode,
@@ -51,12 +51,14 @@ export default class WebSMSService implements ServiceInterface {
                 return {status: 'failed', response: error}
             })
 
+        const callback: WebSmsCallback = {...response, provider: 'WEBSMS'}
+
         await this.#saveCallback(callback)
 
         return callback
     }
 
-    #saveCallback = async (callback: WebSmsCallback ) => {
+    #saveCallback = async (callback: WebSmsCallback) => {
         const callbacks = callback.response.Data.map((response: any) => {
             return {
                 message_id: response.MessageId,

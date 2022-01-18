@@ -27,8 +27,8 @@ class NotificationController implements ControllerInterface {
 
     #store = async (req: Request, res: Response, next: NextFunction): Promise<Response|void> => {
         try {
-            const {channel, destination, content} = req.body
-            const notification = await this.#service.create(channel, destination, content)
+            const {channel, destination, content, event_type} = req.body
+            const notification = await this.#service.create(channel, destination, content, event_type)
 
             if (!notification) next(new HttpException(500, 'Unable to send notification.'))
 

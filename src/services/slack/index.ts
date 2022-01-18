@@ -16,6 +16,7 @@ export default class Slack implements NotificationInterface {
         this.#SlackService.message(this.notification.content).send()
             .then(async ({status}) => {
                 this.notification.status = status
+                this.notification.provider = 'SLACK'
                 await this.notification.save()
             })
     }

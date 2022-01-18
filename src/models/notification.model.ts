@@ -7,9 +7,7 @@ const NotificationSchema = new Schema(
             type: String,
             required: true
         },
-        channel_id: {
-            type: Number,
-        },
+        channel_id: Number,
         destination: {
             type: Array,
             required: true
@@ -18,9 +16,12 @@ const NotificationSchema = new Schema(
             type: String,
             required: true
         },
-        status: {
+        event_type: {
             type: String,
-        }
+            required: true
+        },
+        provider: String,
+        status: String
     },
     {
         timestamps: {
