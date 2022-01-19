@@ -38,19 +38,19 @@ const pages = {
             icon: icons.IconBellRinging,
             children: [
                 {
-                    id: 'all',
-                    title: 'All notifications',
+                    id: 'list',
+                    title: 'List',
                     type: 'item',
                     url: '/notifications',
                 },
                 {
-                    id: 'successful',
-                    title: 'Successful',
+                    id: 'create',
+                    title: 'Create',
                     type: 'item',
-                    url: '/notifications/success',
-                }
+                    url: '/notifications/create',
+                },
             ]
-        }
+        },
     ]
 };
 

@@ -3,6 +3,7 @@ import { lazy } from "react";
 // project imports
 import MainLayout from "layout/MainLayout";
 import Loadable from "ui-component/Loadable";
+import Notifications from "../views/notifications";
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -32,6 +33,11 @@ const MainRoutes = {
             element: <DashboardDefault />
         },
         {
+            path: '/notifications',
+            element: <Notifications />
+        },
+
+        {
             path: '/utils/util-typography',
             element: <UtilsTypography />
         },
@@ -51,10 +57,6 @@ const MainRoutes = {
             path: '/icons/material-icons',
             element: <UtilsMaterialIcons />
         },
-        {
-            path: '/sample-page',
-            element: <SamplePage />
-        }
     ]
 };
 
