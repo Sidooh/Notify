@@ -1,5 +1,5 @@
-import {model, Schema} from "mongoose";
-import {INotification} from "@/models/interfaces";
+import { model, Schema } from 'mongoose';
+import { INotification } from '@/models/interfaces';
 
 const NotificationSchema = new Schema(
     {
@@ -20,6 +20,14 @@ const NotificationSchema = new Schema(
             type: String,
             required: true
         },
+        notifiable_id: {
+            type: Schema.Types.ObjectId,
+            refPath: 'notifiable_type'
+        },
+        notifiable_type: {
+            type: String,
+            enum: ['AFRICASTALKING', 'WEBSMS', 'GMAIL', 'SLACK', 'SAFARICOM']
+        },
         provider: String,
         status: String
     },
@@ -29,6 +37,6 @@ const NotificationSchema = new Schema(
             updatedAt: 'updated_at'
         }
     }
-)
+);
 
-export default model<INotification>('Notification', NotificationSchema)
+export default model<INotification>('Notification', NotificationSchema);
