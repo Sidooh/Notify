@@ -1,56 +1,57 @@
-import ServiceInterface from "@/utils/interfaces/service.interface";
-import {ATCallback} from "@/models/at_callbacks.model";
+import ServiceInterface from '@/utils/interfaces/service.interface';
+import { ATCallback } from '@/models/at_callbacks.model';
+import { Schema } from 'mongoose';
 
 
 export default class ATService implements ServiceInterface {
-    #message: string = "";
+    #message: string = '';
     #to: string[] = [];
-    #AT
+    #AT;
 
     constructor() {
         const credentials = {
             apiKey: String(process.env.AT_SMS_API_KEY),
-            username: String(process.env.AT_SMS_USERNAME),
+            username: String(process.env.AT_SMS_USERNAME)
         };
 
-        this.#AT = require('africastalking')(credentials).SMS
+        this.#AT = require('africastalking')(credentials).SMS;
     }
 
     to = (to: string[]) => {
         this.#to = to.map(phone => {
-            phone = phone.toString()
+            phone = phone.toString();
             return `+254${(phone.length > 9 ? phone.slice(-9) : phone)}`;
-        })
+        });
 
         return this;
-    }
+    };
 
     message = (message: string) => {
-        this.#message = message
+        this.#message = message;
 
         return this;
-    }
+    };
 
-    send = async (): Promise<{ status: string, provider: string }> => {
+    send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
         const options = {
             to: this.#to,
             from: String(process.env.AT_SMS_FROM),
             message: this.#message
-        }
+        };
 
         const response = await this.#AT.send(options)
-            .then((response: any) => {
-                this.#saveCallback(response.SMSMessageData)
+            .then(async (response: any) => {
+                const atCallback = await this.#saveCallback(response.SMSMessageData);
 
-                return {status: 'success'}
+                return { status: 'success', notifiable_id: atCallback.id };
             })
             .catch((error: any) => {
                 console.log(error);
-                return {status: 'failed'}
+                return { status: 'failed', notifiable_id: null };
             });
 
-        return {...response, provider: 'AFRICASTALKING'}
-    }
+        return { ...response, notifiable_type: 'ATCallback', provider: 'AFRICASTALKING' };
+    };
 
     #saveCallback = async (callback: any) => {
         const callbacks = callback.Recipients.map((recipient: any) => {
@@ -62,9 +63,9 @@ export default class ATService implements ServiceInterface {
                 cost: parseFloat(recipient.cost.match(regex)[0]),
                 status: recipient.status,
                 status_code: recipient.statusCode
-            }
-        })
+            };
+        });
 
-        await ATCallback.insertMany(callbacks)
-    }
+        return await ATCallback.create({ data: callbacks });
+    };
 }

@@ -6,7 +6,7 @@ class NotificationService {
     // Fetch all notifications
     async fetchAll() {
         try {
-            return await Notification.find({})
+            return await Notification.find({}).sort('-_id').populate('notifiable_id')
         } catch (err) {
             log.error(err)
             throw new Error('Unable to fetch notifications')
