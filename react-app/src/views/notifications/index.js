@@ -13,6 +13,7 @@ import { NotificationService } from "../../services/notification.service";
 import { Delete, Mail, Refresh, Telegram } from "@mui/icons-material";
 import { IconBrandSlack } from "@tabler/icons";
 import moment from "moment";
+import { Help } from "../../utils/helpers.utils";
 
 const theme = createTheme({
     components: {
@@ -51,7 +52,7 @@ const theme = createTheme({
 
 const ChipArray = ({ notification, channel }) => {
     let data, icon;
-    if (channel === "sms") {
+    if (channel === "sms" && notification.notifiable_id) {
         data = notification.notifiable_id.data.map(notif => ({ ...notif, recipient: notif.phone }));
     } else {
         data = notification.destination.map(notif => ({ recipient: notif, status: notification.status }));
@@ -87,6 +88,15 @@ const Notifications = () => {
         const response = await NotificationService.index();
 
         const data = response.map(notification => {
+            let date;
+            if (Help.isToday(moment(notification.created_at))) {
+                date = "Today";
+            } else if (Help.isYesterday(moment(notification.created_at))) {
+                date = "Yesterday";
+            } else {
+                date = moment(notification.created_at).format("D.M.y");
+            }
+
             return [
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.channel.toUpperCase()}</Typography>,
                 <Typography variant={"body2"} style={{
@@ -99,11 +109,13 @@ const Notifications = () => {
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.provider}</Typography>,
                 <div style={{ textAlign: "end" }}>
                     <strong>{moment(notification.created_at).format("LTS")}</strong><br />
-                    <Typography variant={"caption"}>{moment(notification.created_at).format("D.M.y")}</Typography>
+                    <Typography variant={"caption"}>
+                        {date}
+                    </Typography>
                 </div>,
                 () => (<>
                     <IconButton aria-label='delete' size={"small"} color={"primary"}>
-                        <Refresh/>
+                        <Refresh />
                     </IconButton>
                     <IconButton aria-label='delete' size={"small"} color={"error"}>
                         <Delete />
