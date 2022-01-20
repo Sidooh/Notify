@@ -65,7 +65,7 @@ const Customization = () => {
             break;
         case `'Roboto', sans-serif`:
         default:
-            initialFont = 'Roboto';
+            initialFont = 'Varela Round';
             break;
     }
 
@@ -82,7 +82,7 @@ const Customization = () => {
                 break;
             case 'Roboto':
             default:
-                newFont = `'Roboto', sans-serif`;
+                newFont = `'Varela Round', cursive`;
                 break;
         }
         dispatch({ type: SET_FONT_FAMILY, fontFamily: newFont });

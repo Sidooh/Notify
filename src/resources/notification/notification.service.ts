@@ -7,7 +7,7 @@ class NotificationService {
     async fetchAll() {
         try {
             return await Notification.find({})
-                .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'notifiable_type'])
+                .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
                 .sort('-_id').populate('notifiable_id', ['data']);
         } catch (err) {
             log.error(err);
