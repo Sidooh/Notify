@@ -99,11 +99,12 @@ const Notifications = () => {
 
             return [
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.channel.toUpperCase()}</Typography>,
-                <Typography variant={"body2"} style={{
+                <Typography variant={"body2"} title={notification.content} style={{
                     display: "-webkit-box",
                     overflow: "hidden",
                     WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 2
+                    WebkitLineClamp: 2,
+                    cursor:'context-menu'
                 }}>{notification.content}</Typography>,
                 <ChipArray notification={notification} channel={notification.channel} />,
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.provider}</Typography>,
