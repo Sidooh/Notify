@@ -41,6 +41,8 @@ export default class ATService implements ServiceInterface {
 
         const response = await this.#AT.send(options)
             .then(async (response: any) => {
+                // const hasError = response.SMSMessageData.Recipients.some((recipient: any) => recipient.statusCode !== 101);
+                // console.log(hasError);
                 const atCallback = await this.#saveCallback(response.SMSMessageData);
 
                 return { status: 'success', notifiable_id: atCallback.id };
@@ -61,7 +63,8 @@ export default class ATService implements ServiceInterface {
                 message_id: recipient.messageId,
                 phone: recipient.number,
                 cost: parseFloat(recipient.cost.match(regex)[0]),
-                status: recipient.status,
+                status: recipient.statusCode === 101 ? 'success' : 'failed',
+                description: recipient.status,
                 status_code: recipient.statusCode
             };
         });

@@ -13,6 +13,7 @@ const ATCallbackSchema = new Schema(
         data: [{
             message_id: String,
             phone: String,
+            description: String,
             status_code: Number,
             status: String
         }]

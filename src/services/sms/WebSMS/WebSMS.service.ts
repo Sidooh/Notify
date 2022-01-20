@@ -68,9 +68,10 @@ export default class WebSMSService implements ServiceInterface {
                 phone: response.MobileNumber,
                 description: response.MessageErrorDescription,
                 status_code: response.MessageErrorCode,
-                status: callback.status
+                status: response.MessageErrorCode === 0 ? 'success' : 'failed'
             };
         });
+
 
         return await WebsmsCallback.create({ data: callbacks });
     };

@@ -1,5 +1,5 @@
 // material-ui
-import { Chip, Grid, Typography } from "@mui/material";
+import { Chip, Grid, IconButton, Typography } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -10,7 +10,7 @@ import SecondaryAction from "ui-component/cards/CardSecondaryAction";
 import { gridSpacing } from "store/constant";
 import { useEffect, useState } from "react";
 import { NotificationService } from "../../services/notification.service";
-import { Mail, Telegram } from "@mui/icons-material";
+import { Delete, Mail, Refresh, Telegram } from "@mui/icons-material";
 import { IconBrandSlack } from "@tabler/icons";
 import moment from "moment";
 
@@ -43,31 +43,36 @@ const theme = createTheme({
                 root: {
                     maxWidth: "13rem",
                     fontFamily: `'Varela Round', cursive`
-                },
+                }
             }
         }
     }
 });
 
-const ChipArray = ({ destinations, channel }) => {
+const ChipArray = ({ notification, channel }) => {
+    let data, icon;
+    if (channel === "sms") {
+        data = notification.notifiable_id.data.map(notif => ({ ...notif, recipient: notif.phone }));
+    } else {
+        data = notification.destination.map(notif => ({ recipient: notif, status: notification.status }));
+    }
+
+    if (channel === "mail") {
+        icon = <Mail fontSize={"small"} style={{ paddingLeft: "7px" }} />;
+    } else if (channel === "sms") {
+        icon = <Telegram fontSize={"small"} style={{ paddingLeft: "7px" }} />;
+    } else {
+        icon = <IconBrandSlack size={20} style={{ paddingLeft: "7px" }} />;
+    }
+
     return (
         <>
-            {destinations.map((dest, i) => {
-                let icon;
-
-                if (channel === "mail") {
-                    icon = <Mail fontSize={"small"} style={{ paddingLeft: "7px" }} />;
-                } else if (channel === "sms") {
-                    icon = <Telegram fontSize={"small"} style={{ paddingLeft: "7px" }} />;
-                } else {
-                    icon = <IconBrandSlack size={20} style={{ paddingLeft: "7px" }} />;
-                }
-
+            {data.map((data, i) => {
                 return (
                     <Chip key={i} size={"small"} variant={"outlined"}
                           icon={icon} style={{ margin: "1px" }}
-                          label={dest} color={"secondary"}
-                          onClick={() => console.log(dest)} />
+                          label={data.recipient} color={data.status === "success" ? "success" : "error"}
+                          onClick={() => console.log(data)} />
                 );
             })}
         </>
@@ -83,21 +88,27 @@ const Notifications = () => {
 
         const data = response.map(notification => {
             return [
-                <Typography variant={'body2'} fontWeight={'bold'}>{notification.channel.toUpperCase()}</Typography>,
+                <Typography variant={"body2"} fontWeight={"bold"}>{notification.channel.toUpperCase()}</Typography>,
                 <Typography variant={"body2"} style={{
                     display: "-webkit-box",
-                    overflow:'hidden',
+                    overflow: "hidden",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: 2
                 }}>{notification.content}</Typography>,
-                <ChipArray destinations={notification.destination} channel={notification.channel} />,
-                <Typography variant={'body2'} fontWeight={'bold'}>{notification.provider}</Typography>,
-                <Chip size={"small"} color={notification.status === "success" ? "success" : "error"}
-                      label={notification.status} />,
-                <div style={{textAlign:'end'}}>
-                    <strong>{moment(notification.created_at).format('LTS')}</strong><br/>
-                    <Typography variant={'caption'}>{moment(notification.created_at).format('D.M.y')}</Typography>
+                <ChipArray notification={notification} channel={notification.channel} />,
+                <Typography variant={"body2"} fontWeight={"bold"}>{notification.provider}</Typography>,
+                <div style={{ textAlign: "end" }}>
+                    <strong>{moment(notification.created_at).format("LTS")}</strong><br />
+                    <Typography variant={"caption"}>{moment(notification.created_at).format("D.M.y")}</Typography>
                 </div>,
+                () => (<>
+                    <IconButton aria-label='delete' size={"small"} color={"primary"}>
+                        <Refresh/>
+                    </IconButton>
+                    <IconButton aria-label='delete' size={"small"} color={"error"}>
+                        <Delete />
+                    </IconButton>
+                </>)
             ];
         });
 
@@ -117,8 +128,8 @@ const Notifications = () => {
                                           "MESSAGE",
                                           "DESTINATION(S)",
                                           "PROVIDER",
-                                          "STATUS",
-                                          { name: "DATE" }
+                                          { name: "DATE" },
+                                          "ACTIONS"
                                       ]}
                                       options={{ filterType: "checkbox" }} />
                     </ThemeProvider>

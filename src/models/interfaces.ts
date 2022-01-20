@@ -20,6 +20,7 @@ export interface IATCallback extends Document {
     data: {
         message_id: string
         phone: string
+        description: string
         status_code: number
         status: string
     }
@@ -34,7 +35,7 @@ export interface IWebsmsCallback extends Document {
     data: {
         message_id: string
         phone: string
-        description: string,
+        description: string
         status_code: number
         status: string
     }

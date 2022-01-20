@@ -1,8 +1,5 @@
 // assets
-import { IconBrandChrome, IconHelp } from "@tabler/icons";
-
-// constant
-const icons = { IconBrandChrome, IconHelp };
+import * as icons from "@tabler/icons";
 
 // ==============================|| SAMPLE PAGE & DOCUMENTATION MENU ITEMS ||============================== //
 
@@ -11,6 +8,13 @@ const other = {
     type: 'group',
     children: [
         {
+            id: 'settings',
+            title: 'Settings',
+            type: 'item',
+            url: '/settings',
+            icon: icons.IconSettings,
+        },
+        {
             id: 'documentation',
             title: 'Documentation',
             type: 'item',
@@ -18,7 +22,7 @@ const other = {
             icon: icons.IconHelp,
             external: true,
             target: true
-        }
+        },
     ]
 };
 

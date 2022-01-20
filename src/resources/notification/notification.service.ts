@@ -18,6 +18,8 @@ class NotificationService {
     // Create new notification
     async create(channel: string, destination: string, content: string, event_type: string): Promise<INotification> {
         try {
+            if (channel === 'slack') destination = 'Sidooh';
+
             return await Notification.create({ channel, destination, content, event_type });
         } catch (e) {
             log.error(e);
