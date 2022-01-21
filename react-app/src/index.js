@@ -11,6 +11,8 @@ import { store } from "store";
 
 // style + assets
 import "assets/scss/style.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "index.css";
 
 // ==============================|| REACT DOM RENDER  ||============================== //
 

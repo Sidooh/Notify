@@ -1,13 +1,20 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.toastify {
+  font-weight: bolder;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.toastify.success {
+  background: linear-gradient(30deg, rgb(10, 170, 30), rgba(10, 170, 100, .8), #73a5ff);
+}
+
+.toastify.info {
+  background: linear-gradient(30deg, rgb(37, 157, 138), rgba(37, 157, 138, .8), #73a5ff);
+}
+
+.toastify.warning {
+  background: linear-gradient(30deg, rgb(235, 166, 18), rgba(235, 166, 18, .8), #73a5ff);
+  color: rgb(30, 30, 30);
+}
+
+.toastify.danger {
+  background: linear-gradient(30deg, rgb(200, 20, 10), rgba(1200, 20, 10, .8), #73a5ff);
 }

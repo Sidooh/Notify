@@ -10,6 +10,8 @@ import { gridSpacing } from "store/constant";
 import { useEffect, useState } from "react";
 import { Delete, Edit } from "@mui/icons-material";
 import { SettingService } from "../../services/setting.service";
+import Popup from "../../components/Popup";
+import SettingsForm from "../../ui-component/forms/SettingsForm";
 
 const theme = createTheme({
     components: {
@@ -48,47 +50,77 @@ const theme = createTheme({
 
 const Notifications = () => {
     const [settings, setSettings] = useState(null);
+    const [settingForEdit, setSettingForEdit] = useState(null);
+    const [openPopup, setOpenPopup] = useState(false);
 
     useEffect(async () => {
-        const response = await SettingService.index();
+        await initTable();
+    }, []);
 
-        const data = response.map(setting => {
+    const initTable = async () => {
+        const response = await SettingService.all();
+
+        const tableData = response.map(setting => {
             return [
                 <Typography variant={"body2"} fontWeight={"bold"}>{setting.type.toUpperCase()}</Typography>,
                 <Typography variant={"body2"}>{setting.value.toUpperCase()}</Typography>,
                 () => (<>
-                    <IconButton aria-label='delete' size={"small"} color={"primary"}>
-                        <Edit/>
+                    <IconButton onClick={() => openInPopup(setting)} aria-label="delete" size={"small"}
+                                color={"primary"}>
+                        <Edit />
                     </IconButton>
-                    <IconButton aria-label='delete' size={"small"} color={"error"}>
+                    <IconButton aria-label="delete" size={"small"} color={"error"}>
                         <Delete />
                     </IconButton>
                 </>)
             ];
         });
 
-        setSettings(data);
-    }, []);
+        setSettings(tableData);
+    };
 
-    return (<MainCard title='Settings'
-                      secondary={<SecondaryAction link='https://next.material-ui.com/system/shadows/' />}>
-        <Grid container spacing={gridSpacing}>
-            <Grid item xs={12}>
-                {
-                    settings &&
-                    <ThemeProvider theme={theme}>
-                        <MUIDataTable data={settings}
-                                      columns={[
-                                          { name: "TYPE" },
-                                          "VALUE",
-                                          { name: "ACTIONS" }
-                                      ]}
-                                      options={{ filterType: "checkbox" }} />
-                    </ThemeProvider>
-                }
+    const updateOrCreate = async (setting, resetForm) => {
+        Boolean(setting.id)
+            ? await SettingService.update(setting)
+            : await SettingService.create(setting);
+
+        setOpenPopup(false);
+        resetForm();
+
+        await initTable();
+    };
+
+    const openInPopup = setting => {
+        setSettingForEdit(setting);
+        setOpenPopup(true);
+    };
+
+    return (
+        <MainCard title="Settings"
+                  secondary={<SecondaryAction link="https://next.material-ui.com/system/shadows/" />}>
+            <Grid container spacing={gridSpacing}>
+                <Grid item xs={12}>
+                    {
+                        settings &&
+                        <ThemeProvider theme={theme}>
+                            <MUIDataTable data={settings}
+                                          columns={[
+                                              { name: "TYPE" },
+                                              "VALUE",
+                                              { name: "ACTIONS" }
+                                          ]}
+                                          options={{ filterType: "checkbox" }} />
+                        </ThemeProvider>
+                    }
+                </Grid>
             </Grid>
-        </Grid>
-    </MainCard>);
+
+            <Popup open={openPopup} size={"xs"} setOpen={setOpenPopup}
+                   title={(settingForEdit ? "Update" : "New") + " Setting"}>
+                <SettingsForm setting={settingForEdit} showPopup={setOpenPopup} updateOrCreate={updateOrCreate} />
+            </Popup>
+        </MainCard>
+    );
 };
 
 export default Notifications;
