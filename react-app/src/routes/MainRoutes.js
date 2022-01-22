@@ -12,6 +12,7 @@ const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')
 
 // pages routing
 const Notifications = Loadable(lazy(() => import('views/notifications')));
+const NotificationView = Loadable(lazy(() => import('views/notifications/Show')));
 
 // other routing
 const Settings = Loadable(lazy(() => import('views/settings')));
@@ -35,10 +36,13 @@ const MainRoutes = {
             element: <Notifications />
         },
         {
+            path: '/notifications/show',
+            element: <NotificationView />
+        },
+        {
             path: '/settings',
             element: <Settings />
         },
-
         {
             path: '/utils/util-typography',
             element: <UtilsTypography />

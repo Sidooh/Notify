@@ -1,6 +1,7 @@
 import Notification from '@/models/notification.model';
 import log from '@/utils/logger';
 import { INotification } from '@/models/interfaces';
+import { Schema } from 'mongoose';
 
 class NotificationService {
     // Fetch all notifications
@@ -12,6 +13,15 @@ class NotificationService {
         } catch (err) {
             log.error(err);
             throw new Error('Unable to fetch notifications');
+        }
+    }
+
+    async findOne(id: Schema.Types.ObjectId) {
+        try {
+            return await Notification.findById(id).populate('notifiable_id', ['data']);
+        } catch (err) {
+            log.error(err);
+            throw new Error('Unable to find notification');
         }
     }
 

@@ -15,5 +15,8 @@ export const validateNotification = {
                 is: 'mail',
                 then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email())
             }).required(),
+    }),
+    retry: Joi.object({
+        id: Joi.string().required()
     })
 }

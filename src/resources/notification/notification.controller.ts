@@ -24,6 +24,7 @@ class NotificationController implements ControllerInterface {
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
         this.router.post(`${this.path}`, validationMiddleware(validateNotification.create), this.#store);
+        this.router.post(`${this.path}/retry`, validationMiddleware(validateNotification.retry), this.#retry);
     }
 
     #index = async (req: Request, res: Response) => {
@@ -47,16 +48,32 @@ class NotificationController implements ControllerInterface {
         }
     };
 
-    #send = async (notification: INotification, channelData: IMail | ISlack): Promise<void> => {
+    #retry = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const notification = await this.#service.findOne(req.body.id);
+
+            const isSuccessful = await this.#send(notification, notification, true)
+
+            console.log(isSuccessful);
+            res.send({status:isSuccessful})
+        } catch (err: any) {
+            next(new HttpException(500, err.message));
+        }
+    };
+
+    #send = async (notification: INotification, channelData: IMail | ISlack, retry = false): Promise<void|boolean> => {
+        let providerResponse;
         if (notification.channel === 'mail') {
-            await new Mail(notification).send();
+            providerResponse = await new Mail(notification).send();
         } else if (notification.channel === 'sms') {
             const smsProvider = await Help.getSetting('default_sms_provider');
 
-            await new SMS(notification, smsProvider).send();
+            providerResponse = await new SMS(notification, smsProvider).send(retry);
         } else {
-            await new Slack(channelData as ISlack, notification).send();
+            providerResponse = await new Slack(channelData as ISlack, notification).send();
         }
+
+        if(retry) return providerResponse
     };
 }
 

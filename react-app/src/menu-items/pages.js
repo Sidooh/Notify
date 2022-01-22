@@ -27,6 +27,12 @@ const pages = {
                     type: 'item',
                     url: '/notifications/create',
                 },
+                {
+                    id: 'show',
+                    title: 'Show',
+                    type: 'item',
+                    url: '/notifications/show',
+                },
             ]
         },
     ]

@@ -1,8 +1,8 @@
 // material-ui
-import { Chip, Grid, IconButton, Typography } from "@mui/material";
+import { Box, Chip, Grid, IconButton, LinearProgress, Typography } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
+import { Mail, ReadMore, Telegram } from "@mui/icons-material";
 
 // project imports
 import MainCard from "ui-component/cards/MainCard";
@@ -10,10 +10,11 @@ import SecondaryAction from "ui-component/cards/CardSecondaryAction";
 import { gridSpacing } from "store/constant";
 import { useEffect, useState } from "react";
 import { NotificationService } from "../../services/notification.service";
-import { Delete, Mail, Refresh, Telegram } from "@mui/icons-material";
 import { IconBrandSlack } from "@tabler/icons";
 import moment from "moment";
 import { Help } from "../../utils/helpers.utils";
+import CircularLoadingBtn from "../../components/CircularLoadingBtn";
+import { Link } from "react-router-dom";
 
 const theme = createTheme({
     components: {
@@ -50,17 +51,17 @@ const theme = createTheme({
     }
 });
 
-const ChipArray = ({ notification, channel }) => {
+export const NotificationChipArray = ({ notification }) => {
     let data, icon;
-    if (channel === "sms" && notification.notifiable_id) {
+    if (notification.channel === "sms" && notification.notifiable_id) {
         data = notification.notifiable_id.data.map(notif => ({ ...notif, recipient: notif.phone }));
     } else {
         data = notification.destination.map(notif => ({ recipient: notif, status: notification.status }));
     }
 
-    if (channel === "mail") {
+    if (notification.channel === "mail") {
         icon = <Mail fontSize={"small"} style={{ paddingLeft: "7px" }} />;
-    } else if (channel === "sms") {
+    } else if (notification.channel === "sms") {
         icon = <Telegram fontSize={"small"} style={{ paddingLeft: "7px" }} />;
     } else {
         icon = <IconBrandSlack size={20} style={{ paddingLeft: "7px" }} />;
@@ -80,14 +81,25 @@ const ChipArray = ({ notification, channel }) => {
     );
 };
 
-
 const Notifications = () => {
     const [notifications, setNotifications] = useState(null);
 
-    useEffect(async () => {
+    const fetchData = async () => {
         const response = await NotificationService.index();
 
-        const data = response.map(notification => {
+        setNotifications(buildTable(response));
+    };
+
+    useEffect(() => fetchData(), []);
+
+    function buildTable(data) {
+        const retryNotification = notification => {
+            NotificationService.retry(notification).then(async response => {
+                if (response) await fetchData();
+            });
+        };
+
+        return data.map(notification => {
             let date;
             if (Help.isToday(moment(notification.created_at))) {
                 date = "Today";
@@ -97,6 +109,13 @@ const Notifications = () => {
                 date = moment(notification.created_at).format("D.M.y");
             }
 
+            let hasError;
+            if (notification.channel === "sms" && notification.notifiable_id) {
+                hasError = notification.notifiable_id.data.some(recipient => recipient.status !== "success");
+            } else {
+                hasError = notification.status !== "success";
+            }
+
             return [
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.channel.toUpperCase()}</Typography>,
                 <Typography variant={"body2"} title={notification.content} style={{
@@ -104,49 +123,52 @@ const Notifications = () => {
                     overflow: "hidden",
                     WebkitBoxOrient: "vertical",
                     WebkitLineClamp: 2,
-                    cursor:'context-menu'
+                    cursor: "context-menu"
                 }}>{notification.content}</Typography>,
-                <ChipArray notification={notification} channel={notification.channel} />,
+                <NotificationChipArray notification={notification} />,
                 <Typography variant={"body2"} fontWeight={"bold"}>{notification.provider}</Typography>,
                 <div style={{ textAlign: "end" }}>
                     <strong>{moment(notification.created_at).format("LTS")}</strong><br />
-                    <Typography variant={"caption"}>
-                        {date}
-                    </Typography>
+                    <Typography variant={"caption"}>{date}</Typography>
                 </div>,
-                () => (<>
-                    <IconButton aria-label='delete' size={"small"} color={"primary"}>
-                        <Refresh />
-                    </IconButton>
-                    <IconButton aria-label='delete' size={"small"} color={"error"}>
-                        <Delete />
-                    </IconButton>
-                </>)
+                () => (
+                    <>
+                        <Link to={"/notifications/show"} state={notification}><ReadMore /></Link>
+                        {hasError && <IconButton aria-label="delete" size={"small"} color={"error"}
+                                                 onClick={() => retryNotification(notification)}>
+                            <CircularLoadingBtn title={"retry"} />
+                        </IconButton>}
+                    </>
+                )
             ];
         });
+    }
 
-        setNotifications(data);
-    }, []);
-
-    return (<MainCard title='Notifications'
-                      secondary={<SecondaryAction link='https://next.material-ui.com/system/shadows/' />}>
+    return (<MainCard title="Notifications"
+                      secondary={<SecondaryAction link="https://next.material-ui.com/system/shadows/" />}>
         <Grid container spacing={gridSpacing}>
             <Grid item xs={12}>
-                {
-                    notifications &&
-                    <ThemeProvider theme={theme}>
-                        <MUIDataTable data={notifications}
-                                      columns={[
-                                          { name: "CHANNEL" },
-                                          "MESSAGE",
-                                          "DESTINATION(S)",
-                                          "PROVIDER",
-                                          { name: "DATE" },
-                                          "ACTIONS"
-                                      ]}
-                                      options={{ filterType: "checkbox" }} />
-                    </ThemeProvider>
-                }
+                <ThemeProvider theme={theme}>
+                    {!notifications
+                        ? <Grid container alignItems="center" justifyContent="center">
+                            <Grid item width={'70%'}>
+                                <Box sx={{ width: '100%' }}>
+                                    <LinearProgress color={'secondary'}/>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                        : <MUIDataTable data={notifications}
+                                        columns={[
+                                            { name: "CHANNEL" },
+                                            "MESSAGE",
+                                            "DESTINATION(S)",
+                                            "PROVIDER",
+                                            { name: "DATE" },
+                                            "ACTIONS"
+                                        ]}
+                                        options={{ filterType: "checkbox" }} />}
+
+                </ThemeProvider>
             </Grid>
         </Grid>
     </MainCard>);
