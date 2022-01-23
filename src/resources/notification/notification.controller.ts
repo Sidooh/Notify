@@ -25,6 +25,7 @@ class NotificationController implements ControllerInterface {
         this.router.get(`${this.path}`, this.#index);
         this.router.post(`${this.path}`, validationMiddleware(validateNotification.create), this.#store);
         this.router.post(`${this.path}/retry`, validationMiddleware(validateNotification.retry), this.#retry);
+        this.router.get(`${this.path}/:id`, this.#show);
     }
 
     #index = async (req: Request, res: Response) => {
@@ -42,9 +43,20 @@ class NotificationController implements ControllerInterface {
 
             await this.#send(notification, req.body);
 
-            return res.status(200).send(notification);
-        } catch (e: any) {
-            next(new HttpException(400, e.message));
+            return res.status(201).send(notification);
+        } catch (err: any) {
+            next(new HttpException(400, err.message));
+        }
+    };
+
+    #show = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params,
+                notification = await this.#service.findOne(id);
+
+            res.send(notification);
+        } catch (err: any) {
+            next(new HttpException(500, err.message));
         }
     };
 
@@ -52,16 +64,16 @@ class NotificationController implements ControllerInterface {
         try {
             const notification = await this.#service.findOne(req.body.id);
 
-            const isSuccessful = await this.#send(notification, notification, true)
+            const isSuccessful = await this.#send(notification, notification, true);
 
             console.log(isSuccessful);
-            res.send({status:isSuccessful})
+            res.send({ status: isSuccessful });
         } catch (err: any) {
             next(new HttpException(500, err.message));
         }
     };
 
-    #send = async (notification: INotification, channelData: IMail | ISlack, retry = false): Promise<void|boolean> => {
+    #send = async (notification: INotification, channelData: IMail | ISlack, retry = false): Promise<void | boolean> => {
         let providerResponse;
         if (notification.channel === 'mail') {
             providerResponse = await new Mail(notification).send();
@@ -73,7 +85,7 @@ class NotificationController implements ControllerInterface {
             providerResponse = await new Slack(channelData as ISlack, notification).send();
         }
 
-        if(retry) return providerResponse
+        if (retry) return providerResponse;
     };
 }
 

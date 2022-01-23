@@ -1,8 +1,7 @@
-import express, { Application } from 'express';
+import express, { Express } from 'express';
 import compression from 'compression';
 import cors from 'cors';
 import morgan from 'morgan';
-import Controller from '@/utils/interfaces/controller.interface';
 import helmet from 'helmet';
 import mongoose from 'mongoose';
 import log from '@/utils/logger';
@@ -10,18 +9,18 @@ import ErrorMiddleware from '@/middleware/error.middleware';
 import NotificationController from '@/resources/notification/notification.controller';
 import SettingController from '@/resources/settings/setting.controller';
 import path from 'path';
+import IController from '@/utils/interfaces/controller.interface';
 
 class App {
-    public express: Application;
+    public express: Express;
     public port: number;
 
-    constructor(controllers: Controller[], port: number) {
+    constructor(port: number) {
         this.express = express();
-        this.express.set('trust proxy', true);
         this.port = port;
 
         this.#initMiddleware();
-        this.#initControllers(controllers);
+        this.#initControllers();
         this.#initErrorHandling();
     }
 
@@ -36,8 +35,11 @@ class App {
         this.express.use(compression());
     }
 
-    #initControllers(controllers: Controller[]): void {
-        controllers.forEach((controller: Controller) => this.express.use('/api', controller.router));
+    #initControllers(): void {
+        [
+            new NotificationController(),
+            new SettingController()
+        ].forEach((controller: IController) => this.express.use('/api', controller.router));
 
         this.express.get('*', function(req, res) {
             res.sendFile(path.resolve(__dirname, '../../react-app/build', 'index.html'));
@@ -62,9 +64,4 @@ class App {
     }
 }
 
-const app = new App([
-    new NotificationController(),
-    new SettingController()
-], Number(process.env.PORT));
-
-export default app;
+export default App;

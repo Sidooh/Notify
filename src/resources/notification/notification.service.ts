@@ -16,7 +16,7 @@ class NotificationService {
         }
     }
 
-    async findOne(id: Schema.Types.ObjectId) {
+    async findOne(id: Schema.Types.ObjectId | string) {
         try {
             return await Notification.findById(id).populate('notifiable_id', ['data']);
         } catch (err) {

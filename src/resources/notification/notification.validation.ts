@@ -10,11 +10,11 @@ export const validateNotification = {
                 is: 'sms',
                 then: Joi.alternatives().try(
                     Joi.array().items(Joi.number().integer()),
-                    Joi.number().integer()),
+                    Joi.number().integer()).required(),
             }).when('channel', {
                 is: 'mail',
-                then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email())
-            }).required(),
+                then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email()).required()
+            }),
     }),
     retry: Joi.object({
         id: Joi.string().required()
