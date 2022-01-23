@@ -62,11 +62,10 @@ class NotificationController implements ControllerInterface {
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const notification = await this.#service.findOne(req.body.id);
+            const notification: INotification = await this.#service.findOne(req.body.id);
 
             const isSuccessful = await this.#send(notification, notification, true);
 
-            console.log(isSuccessful);
             res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
             next(new HttpException(500, err.message));

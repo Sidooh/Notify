@@ -1,4 +1,4 @@
-import Notification from '@/models/notification.model';
+import { Notification } from '@/models/notification.model';
 import log from '@/utils/logger';
 import { INotification } from '@/models/interfaces';
 import { Schema } from 'mongoose';

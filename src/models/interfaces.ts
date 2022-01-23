@@ -7,7 +7,7 @@ export interface INotification extends Document {
     content: string;
     event_type:string,
     provider:string,
-    notifiable_id: Schema.Types.ObjectId|null
+    notifiable_id: Schema.Types.ObjectId|any|null
     notifiable_type: string,
     status: string
 }
@@ -17,13 +17,13 @@ export interface IATCallback extends Document {
     // phone: string
     // status_code: number
     // status: string,
-    data: {
+    data: [{
         message_id: string
         phone: string
         description: string
         status_code: number
         status: string
-    }
+    }]
 }
 
 export interface IWebsmsCallback extends Document {
@@ -32,13 +32,13 @@ export interface IWebsmsCallback extends Document {
     // description: string
     // status_code: number
     // status: string
-    data: {
+    data: [{
         message_id: string
         phone: string
         description: string
         status_code: number
         status: string
-    }
+    }]
 }
 
 export interface ISetting extends Document {

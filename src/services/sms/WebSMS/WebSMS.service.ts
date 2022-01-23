@@ -4,9 +4,11 @@ import { WebSmsConfig } from '@/services/sms/WebSMS/Lib/types';
 import { WebSms } from '@/services/sms/WebSMS/Lib/client';
 import { WebsmsCallback } from '@/models/websms_callbacks.model';
 import { Schema } from 'mongoose';
+import { INotification } from '@/models/interfaces';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
+    #notification: INotification | null = null;
     #to: string[] = [];
     #WebSMS;
 
@@ -29,6 +31,12 @@ export default class WebSMSService implements ServiceInterface {
 
     message = (message: string) => {
         this.#message = message;
+
+        return this;
+    };
+
+    notification = (notification: INotification) => {
+        this.#notification = notification;
 
         return this;
     };
@@ -72,6 +80,16 @@ export default class WebSMSService implements ServiceInterface {
             };
         });
 
+        if (this.#notification) {
+            const webSmsCallback = await WebsmsCallback.findById(this.#notification.notifiable_id);
+
+            if (webSmsCallback) {
+                const callback = webSmsCallback.data.map((obj: any) => callbacks.find((o: any) => o.phone === obj.phone) || obj);
+
+                await WebsmsCallback.updateOne({ _id: this.#notification.notifiable_id }, { $set: { data: callback } }, { upsert: true });
+                return { id: this.#notification.notifiable_id };
+            }
+        }
 
         return await WebsmsCallback.create({ data: callbacks });
     };

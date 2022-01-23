@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { INotification } from '@/models/interfaces';
+import { IATCallback } from '@/models/interfaces';
 
 const ATCallbackSchema = new Schema(
     {
@@ -34,4 +34,4 @@ const ATCallbackSchema = new Schema(
     }
 );
 
-export const ATCallback = model<INotification>('ATCallback', ATCallbackSchema);
+export const ATCallback = model<IATCallback>('ATCallback', ATCallbackSchema);

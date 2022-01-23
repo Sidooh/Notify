@@ -1,10 +1,12 @@
 import ServiceInterface from '@/utils/interfaces/service.interface';
 import { ATCallback } from '@/models/at_callbacks.model';
 import { Schema } from 'mongoose';
+import { INotification } from '@/models/interfaces';
 
 
 export default class ATService implements ServiceInterface {
     #message: string = '';
+    #notification: INotification | null = null;
     #to: string[] = [];
     #AT;
 
@@ -28,6 +30,12 @@ export default class ATService implements ServiceInterface {
 
     message = (message: string) => {
         this.#message = message;
+
+        return this;
+    };
+
+    notification = (notification: INotification) => {
+        this.#notification = notification;
 
         return this;
     };
@@ -68,6 +76,17 @@ export default class ATService implements ServiceInterface {
                 status_code: recipient.statusCode
             };
         });
+
+        if (this.#notification?.notifiable_id) {
+            const atCallback = await ATCallback.findById(this.#notification.notifiable_id);
+
+            if (atCallback) {
+                const callback = atCallback.data.map((obj: any) => callbacks.find((o: any) => o.phone === obj.phone) || obj);
+
+                await ATCallback.updateOne({ _id: this.#notification.notifiable_id }, { $set: { data: callback } }, {upsert: true});
+                return { id: this.#notification.notifiable_id };
+            }
+        }
 
         return await ATCallback.create({ data: callbacks });
     };
