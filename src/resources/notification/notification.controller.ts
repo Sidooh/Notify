@@ -67,7 +67,7 @@ class NotificationController implements ControllerInterface {
             const isSuccessful = await this.#send(notification, notification, true);
 
             console.log(isSuccessful);
-            res.send({ status: isSuccessful });
+            res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
             next(new HttpException(500, err.message));
         }
