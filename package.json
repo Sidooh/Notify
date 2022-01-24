@@ -13,9 +13,7 @@
     "prod": "node dist/src/index.js",
     "start": "tsc-watch --onSuccess \"nodemon ./dist/src/index.js\"",
     "build": "tsc",
-    "postinstall": "yarn run build",
-    "react-install": "cd react-app && npm i && npm run build",
-    "heroku-postbuild": "yarn run react-install"
+    "postinstall": "yarn run build"
   },
   "dependencies": {
     "africastalking": "^0.5.4",
