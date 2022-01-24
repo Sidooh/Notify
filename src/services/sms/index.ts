@@ -1,32 +1,44 @@
-import NotificationInterface from "@/utils/interfaces/notification.interface";
-import WebSMSService from "@/services/sms/WebSMS/WebSMS.service";
-import {INotification} from "@/models/interfaces";
-import ATService from "@/services/sms/AT/AT.service";
+import NotificationInterface from '@/utils/interfaces/notification.interface';
+import WebSMSService from '@/services/sms/WebSMS/WebSMS.service';
+import { INotification } from '@/models/interfaces';
+import ATService from '@/services/sms/AT/AT.service';
 
 export default class SMS implements NotificationInterface {
-    notification: INotification
-    #SMSService
+    notification: INotification;
+    #SMSService;
 
-    constructor(notification: INotification, provider: string|undefined) {
-        this.notification = notification
+    constructor(notification: INotification, provider: string | undefined) {
+        this.notification = notification;
 
         //TODO(Add better logic to select service based on settings)
         switch (provider) {
             case 'africastalking':
-                this.#SMSService = new ATService()
+                this.#SMSService = new ATService();
                 break;
             default:
-                this.#SMSService = new WebSMSService()
+                this.#SMSService = new WebSMSService();
         }
     }
 
-    send = async () => {
-        this.#SMSService.to(this.notification.destination).message(this.notification.content).send()
-            .then(async ({status, provider}) => {
-                this.notification.status = status
-                this.notification.provider = provider
+    send = async (retry: boolean) => {
+        let destinations = this.notification.destination;
+        if (retry) {
+            destinations = this.notification.notifiable_id.data.filter((notification: any) => notification.status === 'failed')
+                .map((recipient: any) => recipient.phone.replace(/\+/g, ' '));
+        }
 
-                await this.notification.save()
-            })
-    }
+        const SMS = this.#SMSService.to(destinations).message(this.notification.content);
+
+        if (retry) SMS.notification(this.notification);
+
+        SMS.send()
+            .then(async ({ status, provider, notifiable_id, notifiable_type }) => {
+                this.notification.status = status;
+                this.notification.provider = provider;
+                this.notification.notifiable_id = notifiable_id;
+                this.notification.notifiable_type = notifiable_type;
+
+                await this.notification.save();
+            });
+    };
 }

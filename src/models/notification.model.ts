@@ -1,8 +1,7 @@
-import {model, Schema} from "mongoose";
-import {INotification} from "@/models/interfaces";
+import { model, Schema } from 'mongoose';
+import { INotification } from '@/models/interfaces';
 
-const NotificationSchema = new Schema(
-    {
+const NotificationSchema = new Schema({
         channel: {
             type: String,
             required: true
@@ -20,6 +19,14 @@ const NotificationSchema = new Schema(
             type: String,
             required: true
         },
+        notifiable_id: {
+            type: Schema.Types.ObjectId,
+            refPath: 'notifiable_type'
+        },
+        notifiable_type: {
+            type: String,
+            enum: ['ATCallback', 'WebsmsCallback', 'SafaricomCallback']
+        },
         provider: String,
         status: String
     },
@@ -27,8 +34,16 @@ const NotificationSchema = new Schema(
         timestamps: {
             createdAt: 'created_at',
             updatedAt: 'updated_at'
+        },
+        toJSON: {
+            transform(doc, ret) {
+                ret.id = ret._id
+
+                delete ret._id
+                delete ret.__v
+            }
         }
     }
-)
+);
 
-export default model<INotification>('Notification', NotificationSchema)
+export const Notification = model<INotification>('Notification', NotificationSchema);

@@ -1,3 +1,5 @@
+import { INotification } from '@/models/interfaces';
+
 export default interface ServiceInterface {
-    send(): Promise<any>;
+    send(retry?:INotification): Promise<any>;
 }

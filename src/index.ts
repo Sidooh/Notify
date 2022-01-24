@@ -1,8 +1,9 @@
-import 'dotenv/config'
-import 'module-alias/register'
-import validateEnv from './utils/validateEnv'
-import app from "./app";
+import 'dotenv/config';
+import 'module-alias/register';
+import validateEnv from './utils/validateEnv';
+import App from './app';
 
 validateEnv()
 
+const app = new App(Number(process.env.PORT || 4000));
 app.initDatabase().listen()

@@ -1,7 +1,7 @@
-import MailService from "@/services/mail/mail.service";
-import log from "@/utils/logger";
-import {INotification} from "@/models/interfaces";
-import NotificationInterface from "@/utils/interfaces/notification.interface";
+import MailService from '@/services/mail/mail.service';
+import log from '@/utils/logger';
+import { INotification } from '@/models/interfaces';
+import NotificationInterface from '@/utils/interfaces/notification.interface';
 
 export default class Mail implements NotificationInterface {
     notification: INotification
@@ -26,6 +26,8 @@ export default class Mail implements NotificationInterface {
             this.notification.status = status
             this.notification.provider = 'GMAIL'
             await this.notification.save()
+
+            return status === 'success'
         })
     }
 }
