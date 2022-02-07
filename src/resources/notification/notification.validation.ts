@@ -9,7 +9,7 @@ export const validateNotification = {
                 'UTILITY_PAYMENT', 'UTILITY_PAYMENT_FAILURE',
                 'VOUCHER_PURCHASE', 'VOUCHER_REFUND',
                 'WITHDRAWAL_PAYMENT', 'WITHDRAWAL_FAILURE',
-                'REFERRAL INVITE', 'REFERRAL_JOINED',
+                'REFERRAL_INVITE', 'REFERRAL_JOINED',
                 'SUBSCRIPTION_PAYMENT',
                 'MERCHANT_PAYMENT',
                 'PAYMENT_FAILURE',
