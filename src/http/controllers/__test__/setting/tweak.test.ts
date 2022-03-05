@@ -4,20 +4,12 @@ import App from '../../../../app';
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
 
-const createSetting = (type: string, value: string) => {
+it('should return a 404 if provided setting is invalid.', async function() {
     return request
         .post('/api/settings')
-        .send({ type, value });
-};
-
-it('should fetch a list of settings.', async function() {
-    await createSetting('default_sms_provider', 'africastalking');
-    await createSetting('default_mail_provider', 'gmail');
-
-    const response = await request
-        .get('/api/settings')
-        .send()
+        .send({
+            type: 'default_sms_provider',
+            value: 'africastalking'
+        })
         .expect(200);
-
-    expect(response.body.length).toEqual(2);
 });

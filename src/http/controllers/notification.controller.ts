@@ -32,7 +32,7 @@ export class NotificationController implements ControllerInterface {
                 .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
                 .sort('-_id').populate('notifiable_id', ['data']);
 
-            return res.status(200).send(notifications);
+            return res.send(notifications);
         } catch (err) {
             log.error(err);
             throw new BadRequestError('Unable to fetch notifications!');
@@ -48,7 +48,7 @@ export class NotificationController implements ControllerInterface {
 
         const notification = await Notification.create({ channel, destination, content, event_type });
 
-        await this.#send(notification, req.body);
+        this.#send(notification, req.body);
 
         return res.status(201).send(notification);
     };
