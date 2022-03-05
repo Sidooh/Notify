@@ -1,23 +1,19 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import ControllerInterface from '@/utils/interfaces/controller.interface';
-import validationMiddleware from '@/http/middleware/validation.middleware';
-import HttpException from '@/utils/exceptions/http.exception';
-import Mail from '@/channels/mail';
-import IMail from '@/channels/mail/mail.interface';
-import ISlack from '@/channels/slack/slack.interface';
-import Slack from '@/channels/slack';
-import SMS from '@/channels/sms';
-import NotificationService from '../services/notification.service';
-import { NotificationRequest } from '@/http/requests/notification.request';
-import { Help } from '@/utils/helpers/helpers';
-import { NotFoundError } from '@nabz.tickets/common';
-import { Notification, NotificationDoc } from '@/models/notification.model';
-import { log } from '@/utils/logger';
+import { BadRequestError, NotFoundError } from '@nabz.tickets/common';
+import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { ValidationMiddleware } from '../middleware/validation.middleware';
+import { Help } from '../../utils/helpers/helpers';
+import Slack from '../../channels/slack';
+import SMS from '../../channels/sms';
+import { Notification, NotificationDoc } from '../../models/notification.model';
+import { NotificationRequest } from '../requests/notification.request';
+import { log } from '../../utils/logger';
+import HttpException from '@nabz.tickets/common/build/exceptions/http.exception';
+import { Mail } from '../../channels/mail';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
     router: Router = Router();
-    #service = new NotificationService();
 
     constructor() {
         this.#initRoutes();
@@ -25,20 +21,32 @@ export class NotificationController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validationMiddleware(NotificationRequest.store), this.#store);
-        this.router.post(`${this.path}/retry`, validationMiddleware(NotificationRequest.retry), this.#retry);
+        this.router.post(`${this.path}`, ValidationMiddleware(NotificationRequest.store), this.#store);
+        this.router.post(`${this.path}/retry`, ValidationMiddleware(NotificationRequest.retry), this.#retry);
         this.router.get(`${this.path}/:id`, this.#show);
     }
 
     #index = async (req: Request, res: Response) => {
-        const notifications = await this.#service.fetchAll();
+        try {
+            const notifications = await Notification.find({})
+                .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
+                .sort('-_id').populate('notifiable_id', ['data']);
 
-        return res.status(200).send(notifications);
+            return res.status(200).send(notifications);
+        } catch (err) {
+            log.error(err);
+            throw new BadRequestError('Unable to fetch notifications!');
+        }
     };
 
-    #store = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-        const { channel, destination, content, event_type } = req.body;
-        const notification = await this.#service.create(channel, destination, content, event_type);
+    #store = async (req: Request, res: Response): Promise<Response | void> => {
+        let { channel, destination, content, event_type } = req.body;
+
+        log.info(`CREATE ${channel} NOTIFICATION: for ${event_type}`);
+
+        if (channel === 'slack') destination = 'Sidooh';
+
+        const notification = await Notification.create({ channel, destination, content, event_type });
 
         await this.#send(notification, req.body);
 
@@ -55,9 +63,9 @@ export class NotificationController implements ControllerInterface {
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const notification = await this.#service.findOne(req.body.id);
+            const notification = await Notification.findById(req.body.id).populate('notifiable_id', ['data']);
 
-            const isSuccessful = await this.#send(notification, notification, true);
+            const isSuccessful = await this.#send(notification as NotificationDoc, notification, true);
 
             res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
@@ -65,7 +73,7 @@ export class NotificationController implements ControllerInterface {
         }
     };
 
-    #send = async (notification: NotificationDoc, channelData: IMail | ISlack, retry = false): Promise<void | boolean> => {
+    #send = async (notification: NotificationDoc, channelData: any, retry = false): Promise<void | boolean> => {
         log.info(`SEND ${notification.channel} NOTIFICATION to ${notification.destination}`);
 
         let providerResponse;
@@ -76,7 +84,7 @@ export class NotificationController implements ControllerInterface {
 
             providerResponse = await new SMS(notification, smsProvider).send(retry);
         } else {
-            providerResponse = await new Slack(channelData as ISlack, notification).send();
+            providerResponse = await new Slack(channelData, notification).send();
         }
 
         if (retry) return providerResponse;

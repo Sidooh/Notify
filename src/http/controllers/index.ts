@@ -1,2 +1,2 @@
-export * from '@/http/controllers/notification.controller';
-export * from '@/http/controllers/setting.controller';
+export * from './notification.controller';
+export * from './setting.controller';

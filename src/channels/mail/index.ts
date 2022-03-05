@@ -1,9 +1,9 @@
-import MailService from '@/channels/mail/mail.service';
-import { log } from '@/utils/logger';
-import NotificationInterface from '@/utils/interfaces/notification.interface';
-import { NotificationDoc } from '@/models/notification.model';
+import MailService from './mail.service';
+import { NotificationDoc } from '../../models/notification.model';
+import NotificationInterface from '../../utils/interfaces/notification.interface';
+import { log } from '../../utils/logger';
 
-export default class Mail implements NotificationInterface {
+export class Mail implements NotificationInterface {
     notification
     #MailService
 

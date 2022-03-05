@@ -4,13 +4,20 @@ import App from '../../../../app';
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
 
-it('should return a 201 on successful mail notification creation', async function() {
-    await request
-        .post('/api/notifications')
-        .send({
-            channel: 'mail',
-            destination: ['nabcellent.dev@gmail.com'],
-            content: 'Hello!'
-        })
-        .expect(201);
+const createSetting = (type: string, value: string) => {
+    return request
+        .post('/api/settings')
+        .send({ type, value });
+};
+
+it('should fetch a list of settings.', async function() {
+    await createSetting('default_sms_provider', 'africastalking');
+    await createSetting('default_mail_provider', 'gmail');
+
+    const response = await request
+        .get('/api/settings')
+        .send()
+        .expect(200);
+
+    expect(response.body.length).toEqual(2);
 });
