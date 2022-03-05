@@ -21,8 +21,8 @@ export const log = createLogger({
         new SlackHook({ webhookUrl: String(process.env.SLACK_HOOK_URL) })
     ],
     transports: [
-        new transports.File({ filename: 'logs/notify.log', level: process.env.LOG_LEVEL }),
-        new transports.Console({ level: 'silly' }),
+        new transports.File({ filename: 'logs/notify.log', level: process.env.LOG_LEVEL || 'info' }),
+        new transports.Console({ level: 'debug' }),
         new SlackHook({
             level: 'error',
             webhookUrl: String(process.env.SLACK_HOOK_URL),
