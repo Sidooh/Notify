@@ -1,7 +1,7 @@
 import Joi from 'joi';
 
-export const validateNotification = {
-        create: Joi.object({
+export const NotificationRequest = {
+        store: Joi.object({
             channel: Joi.string().valid('slack', 'sms', 'mail', 'app').required(),
             content: Joi.string().required(),
             event_type: Joi.string().valid(

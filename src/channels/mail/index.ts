@@ -1,5 +1,5 @@
-import MailService from '@/services/mail/mail.service';
-import log from '@/utils/logger';
+import MailService from '@/channels/mail/mail.service';
+import { log } from '@/utils/logger';
 import { INotification } from '@/models/interfaces';
 import NotificationInterface from '@/utils/interfaces/notification.interface';
 

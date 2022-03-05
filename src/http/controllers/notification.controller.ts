@@ -1,18 +1,21 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import ControllerInterface from '@/utils/interfaces/controller.interface';
-import validationMiddleware from '@/middleware/validation.middleware';
+import validationMiddleware from '@/http/middleware/validation.middleware';
 import HttpException from '@/utils/exceptions/http.exception';
-import Mail from '@/services/mail';
-import IMail from '@/services/mail/mail.interface';
-import ISlack from '@/services/slack/slack.interface';
-import Slack from '@/services/slack';
-import SMS from '@/services/sms';
-import NotificationService from './notification.service';
-import { validateNotification } from '@/resources/notification/notification.validation';
+import Mail from '@/channels/mail';
+import IMail from '@/channels/mail/mail.interface';
+import ISlack from '@/channels/slack/slack.interface';
+import Slack from '@/channels/slack';
+import SMS from '@/channels/sms';
+import NotificationService from '../services/notification.service';
+import { NotificationRequest } from '@/http/requests/notification.request';
 import { INotification } from '@/models/interfaces';
 import { Help } from '@/utils/helpers/helpers';
+import { NotFoundError } from '@nabz.tickets/common';
+import { Notification } from '@/models/notification.model';
+import { log } from '@/utils/logger';
 
-class NotificationController implements ControllerInterface {
+export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
     router: Router = Router();
     #service = new NotificationService();
@@ -23,8 +26,8 @@ class NotificationController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validationMiddleware(validateNotification.create), this.#store);
-        this.router.post(`${this.path}/retry`, validationMiddleware(validateNotification.retry), this.#retry);
+        this.router.post(`${this.path}`, validationMiddleware(NotificationRequest.store), this.#store);
+        this.router.post(`${this.path}/retry`, validationMiddleware(NotificationRequest.retry), this.#retry);
         this.router.get(`${this.path}/:id`, this.#show);
     }
 
@@ -35,29 +38,20 @@ class NotificationController implements ControllerInterface {
     };
 
     #store = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-        try {
-            const { channel, destination, content, event_type } = req.body;
-            const notification = await this.#service.create(channel, destination, content, event_type);
+        const { channel, destination, content, event_type } = req.body;
+        const notification = await this.#service.create(channel, destination, content, event_type);
 
-            if (!notification) next(new HttpException(500, 'Unable to send notification.'));
+        await this.#send(notification, req.body);
 
-            await this.#send(notification, req.body);
-
-            return res.status(201).send(notification);
-        } catch (err: any) {
-            next(new HttpException(400, err.message));
-        }
+        return res.status(201).send(notification);
     };
 
-    #show = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { id } = req.params,
-                notification = await this.#service.findOne(id);
+    #show = async (req: Request, res: Response) => {
+        const notification = await Notification.findById(req.params.id).populate('notifiable_id', ['data']);
 
-            res.send(notification);
-        } catch (err: any) {
-            next(new HttpException(500, err.message));
-        }
+        if (!notification) throw new NotFoundError();
+
+        res.send(notification);
     };
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
@@ -73,6 +67,8 @@ class NotificationController implements ControllerInterface {
     };
 
     #send = async (notification: INotification, channelData: IMail | ISlack, retry = false): Promise<void | boolean> => {
+        log.info(`SEND ${notification.channel} NOTIFICATION to ${notification.destination}`);
+
         let providerResponse;
         if (notification.channel === 'mail') {
             providerResponse = await new Mail(notification).send();
@@ -87,5 +83,3 @@ class NotificationController implements ControllerInterface {
         if (retry) return providerResponse;
     };
 }
-
-export default NotificationController;

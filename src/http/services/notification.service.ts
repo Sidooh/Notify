@@ -1,7 +1,8 @@
 import { Notification } from '@/models/notification.model';
-import log from '@/utils/logger';
+import { log } from '@/utils/logger';
 import { INotification } from '@/models/interfaces';
 import { Schema } from 'mongoose';
+import { BadRequestError } from '@nabz.tickets/common';
 
 class NotificationService {
     // Fetch all notifications
@@ -12,7 +13,7 @@ class NotificationService {
                 .sort('-_id').populate('notifiable_id', ['data']);
         } catch (err) {
             log.error(err);
-            throw new Error('Unable to fetch notifications');
+            throw new BadRequestError('Unable to fetch notifications!');
         }
     }
 
@@ -21,19 +22,21 @@ class NotificationService {
             return await Notification.findById(id).populate('notifiable_id', ['data']);
         } catch (err) {
             log.error(err);
-            throw new Error('Unable to find notification');
+            throw new BadRequestError('Unable to find notification!');
         }
     }
 
     // Create new notification
     async create(channel: string, destination: string, content: string, event_type: string): Promise<INotification> {
         try {
+            log.info(`CREATE ${channel} NOTIFICATION: for ${event_type}`);
+
             if (channel === 'slack') destination = 'Sidooh';
 
             return await Notification.create({ channel, destination, content, event_type });
         } catch (e) {
             log.error(e);
-            throw new Error('Unable to send notification');
+            throw new BadRequestError('Unable to create notification!');
         }
     }
 
@@ -42,7 +45,8 @@ class NotificationService {
         try {
             return Notification.updateOne({ _id: notification._id }, { $set: notification });
         } catch (e) {
-            throw new Error('Unable to send notification');
+            log.error(e);
+            throw new BadRequestError('Unable to update notification!');
         }
     }
 }

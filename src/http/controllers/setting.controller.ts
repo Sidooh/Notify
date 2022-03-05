@@ -1,11 +1,11 @@
-import ControllerInterface from "@/utils/interfaces/controller.interface";
-import {NextFunction, Request, Response, Router} from "express";
-import validationMiddleware from "@/middleware/validation.middleware";
-import {validateSetting} from "@/resources/settings/setting.validation";
-import HttpException from "@/utils/exceptions/http.exception";
-import SettingService from "@/resources/settings/setting.service";
+import ControllerInterface from '@/utils/interfaces/controller.interface';
+import { NextFunction, Request, Response, Router } from 'express';
+import validationMiddleware from '@/http/middleware/validation.middleware';
+import { SettingRequest } from '@/http/requests/setting.request';
+import HttpException from '@/utils/exceptions/http.exception';
+import SettingService from '@/http/services/setting.service';
 
-export default class SettingController implements ControllerInterface {
+export class SettingController implements ControllerInterface {
     path: string = '/settings';
     router: Router = Router();
     #service = new SettingService()
@@ -16,7 +16,7 @@ export default class SettingController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index)
-        this.router.post(`${this.path}`, validationMiddleware(validateSetting.create), this.#tweak)
+        this.router.post(`${this.path}`, validationMiddleware(SettingRequest.create), this.#tweak)
     }
 
     #index = async (req: Request, res: Response) => {

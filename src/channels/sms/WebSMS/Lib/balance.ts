@@ -1,4 +1,4 @@
-import {WebSms} from "./client";
+import { WebSms } from './client';
 
 export class Balance {
     private client: WebSms;

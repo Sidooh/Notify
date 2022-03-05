@@ -1,22 +1,21 @@
-import express, { Express } from 'express';
+import express, { Express, json, urlencoded } from 'express';
 import compression from 'compression';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import mongoose from 'mongoose';
-import log from '@/utils/logger';
-import ErrorMiddleware from '@/middleware/error.middleware';
-import NotificationController from '@/resources/notification/notification.controller';
-import SettingController from '@/resources/settings/setting.controller';
-import path from 'path';
+import { log } from '@/utils/logger';
+import 'express-async-errors';
+import cookieSession from 'cookie-session';
 import IController from '@/utils/interfaces/controller.interface';
+import { NotificationController, SettingController } from '@/http/controllers';
+import { errorHandler, NotFoundError } from '@nabz.tickets/common';
 
 class App {
-    public express: Express;
+    public app: Express;
     public port: number;
 
     constructor(port: number) {
-        this.express = express();
+        this.app = express();
         this.port = port;
 
         this.#initMiddleware();
@@ -25,42 +24,35 @@ class App {
     }
 
     #initMiddleware(): void {
-        this.express.use(helmet());
-        this.express.use(cors());
-        this.express.use(morgan('dev'));
-        this.express.use(express.json());
-        this.express.use(express.urlencoded({ extended: false }));
-        this.express.use(express.static(path.join(__dirname, 'public')));
-        this.express.use(express.static(path.resolve(__dirname, '../../react-app/build')));
-        this.express.use(compression());
+        this.app.use(helmet());
+        this.app.use(cors());
+        this.app.use(morgan('dev'));
+        this.app.use(json());
+        this.app.use(urlencoded({ extended: false }));
+        this.app.use(cookieSession({
+            signed: false,
+            secure: process.env.NODE_ENV !== 'test'
+        }))
+        this.app.use(compression());
     }
 
     #initControllers(): void {
         [
             new NotificationController(),
             new SettingController()
-        ].forEach((controller: IController) => this.express.use('/api', controller.router));
+        ].forEach((controller: IController) => this.app.use('/api', controller.router));
 
-        this.express.get('*', function(req, res) {
-            res.sendFile(path.resolve(__dirname, '../../react-app/build', 'index.html'));
-        });
+        this.app.all('*', async () => {
+            throw new NotFoundError();
+        })
     }
 
     #initErrorHandling(): void {
-        this.express.use(ErrorMiddleware);
-    }
-
-    initDatabase(): App {
-        const { MONGO_URL } = process.env;
-
-        mongoose.connect(`${MONGO_URL}`)
-            .then(() => log.info('Database connected!'));
-
-        return this;
+        this.app.use(errorHandler);
     }
 
     listen(): void {
-        this.express.listen(this.port, () => console.log(`App listening on port: ${this.port}`));
+        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`));
     }
 }
 

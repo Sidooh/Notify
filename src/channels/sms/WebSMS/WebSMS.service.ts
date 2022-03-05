@@ -1,7 +1,7 @@
-import log from '@/utils/logger';
+import { log } from '@/utils/logger';
 import ServiceInterface from '@/utils/interfaces/service.interface';
-import { WebSmsConfig } from '@/services/sms/WebSMS/Lib/types';
-import { WebSms } from '@/services/sms/WebSMS/Lib/client';
+import { WebSmsConfig } from '@/channels/sms/WebSMS/Lib/types';
+import { WebSms } from '@/channels/sms/WebSMS/Lib/client';
 import { WebsmsCallback } from '@/models/websms_callbacks.model';
 import { Schema } from 'mongoose';
 import { INotification } from '@/models/interfaces';
@@ -42,9 +42,15 @@ export default class WebSMSService implements ServiceInterface {
     };
 
     send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
+        log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
+
         const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
             .then(response => {
+                log.info(`WEBSMS: RESPONSE`, response);
+
                 if (response.ErrorCode !== 0) {
+                    log.alert(response.ErrorDescription, response)
+
                     response = {
                         Data: [{
                             MessageErrorCode: response.ErrorCode,
@@ -55,12 +61,13 @@ export default class WebSMSService implements ServiceInterface {
 
                 return { status: 'success', response: response };
             }).catch(error => {
-                log.error(error, error.message);
+                log.error(error);
 
                 return { status: 'failed', response: error };
             });
 
         const webSmsCallback = await this.#saveCallback(response);
+
         return {
             ...response,
             provider: 'WEBSMS',

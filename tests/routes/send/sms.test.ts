@@ -1,8 +1,8 @@
 import App from '../../../src/app';
 import supertest from 'supertest';
 
-const app = new App(Number(process.env.PORT || 4000));
-const request = supertest(app.express);
+const { app } = new App(Number(process.env.PORT || 4000));
+const request = supertest(app);
 
 it('should return a 201 on successful sms notification creation', async function() {
     await request

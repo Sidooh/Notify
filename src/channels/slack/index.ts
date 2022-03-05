@@ -1,5 +1,5 @@
-import SlackService from '@/services/slack/slack.service';
-import ISlack from '@/services/slack/slack.interface';
+import SlackService from '@/channels/slack/slack.service';
+import ISlack from '@/channels/slack/slack.interface';
 import NotificationInterface from '@/utils/interfaces/notification.interface';
 import { INotification } from '@/models/interfaces';
 

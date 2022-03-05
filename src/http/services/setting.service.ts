@@ -1,6 +1,6 @@
-import {Setting} from "@/models/setting.model";
-import log from "@/utils/logger";
-import {ISetting} from "@/models/interfaces";
+import { Setting } from '@/models/setting.model';
+import { log } from '@/utils/logger';
+import { ISetting } from '@/models/interfaces';
 
 class SettingService {
     // Fetch all settings

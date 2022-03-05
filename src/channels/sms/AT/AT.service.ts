@@ -2,6 +2,7 @@ import ServiceInterface from '@/utils/interfaces/service.interface';
 import { ATCallback } from '@/models/at_callbacks.model';
 import { Schema } from 'mongoose';
 import { INotification } from '@/models/interfaces';
+import { log } from '@/utils/logger';
 
 
 export default class ATService implements ServiceInterface {
@@ -46,6 +47,8 @@ export default class ATService implements ServiceInterface {
             from: String(process.env.AT_SMS_FROM),
             message: this.#message
         };
+
+        log.info('AT: SEND NOTIFICATION - ', options)
 
         const response = await this.#AT.send(options)
             .then(async (response: any) => {

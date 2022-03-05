@@ -1,7 +1,7 @@
-import {WebSmsConfig} from "./types";
-import {Balance} from "./balance";
-import {Sms} from "./sms";
-import axios, {AxiosInstance} from "axios";
+import { WebSmsConfig } from './types';
+import { Balance } from './balance';
+import { Sms } from './sms';
+import axios, { AxiosInstance } from 'axios';
 
 export class WebSms {
     #env = "live";

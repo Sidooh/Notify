@@ -1,4 +1,4 @@
-import {WebSms} from "./client";
+import { WebSms } from './client';
 
 export class Sms {
     #client: WebSms;

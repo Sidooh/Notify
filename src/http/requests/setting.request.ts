@@ -1,6 +1,6 @@
-import Joi from 'joi'
+import Joi from 'joi';
 
-export const validateSetting = {
+export const SettingRequest = {
     create: Joi.object({
         type: Joi.string().valid('default_sms_provider', 'default_mail_provider').required(),
         value: Joi.string()
