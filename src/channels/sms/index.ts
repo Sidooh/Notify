@@ -1,8 +1,8 @@
-import NotificationInterface from '@/utils/interfaces/notification.interface';
-import WebSMSService from '@/channels/sms/WebSMS/WebSMS.service';
-import ATService from '@/channels/sms/AT/AT.service';
-import { log } from '@/utils/logger';
-import { NotificationDoc } from '@/models/notification.model';
+import { NotificationDoc } from '../../models/notification.model';
+import NotificationInterface from '../../utils/interfaces/notification.interface';
+import WebSMSService from './WebSMS/WebSMS.service';
+import ATService from './AT/AT.service';
+import { log } from '../../utils/logger';
 
 export default class SMS implements NotificationInterface {
     notification;

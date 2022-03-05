@@ -1,10 +1,10 @@
-import { log } from '@/utils/logger';
-import ServiceInterface from '@/utils/interfaces/service.interface';
-import { WebSmsConfig } from '@/channels/sms/WebSMS/Lib/types';
-import { WebSms } from '@/channels/sms/WebSMS/Lib/client';
-import { WebsmsCallback } from '@/models/websms_callbacks.model';
 import { Schema } from 'mongoose';
-import { NotificationDoc } from '@/models/notification.model';
+import { WebsmsCallback } from '../../../models/websms_callbacks.model';
+import ServiceInterface from '../../../utils/interfaces/service.interface';
+import { WebSms } from './Lib/client';
+import { NotificationDoc } from '../../../models/notification.model';
+import { WebSmsConfig } from './Lib/types';
+import { log } from '../../../utils/logger';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';

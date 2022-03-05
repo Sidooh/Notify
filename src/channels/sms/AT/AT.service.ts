@@ -1,8 +1,8 @@
-import ServiceInterface from '@/utils/interfaces/service.interface';
-import { ATCallback } from '@/models/at_callbacks.model';
 import { Schema } from 'mongoose';
-import { log } from '@/utils/logger';
-import { NotificationDoc } from '@/models/notification.model';
+import ServiceInterface from '../../../utils/interfaces/service.interface';
+import { ATCallback } from '../../../models/at_callbacks.model';
+import { NotificationDoc } from '../../../models/notification.model';
+import { log } from '../../../utils/logger';
 
 
 export default class ATService implements ServiceInterface {

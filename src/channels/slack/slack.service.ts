@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { log } from '@/utils/logger';
-import ServiceInterface from '@/utils/interfaces/service.interface';
+import ServiceInterface from '../../utils/interfaces/service.interface';
+import { log } from '../../utils/logger';
 
 export default class SlackService implements ServiceInterface {
     #message: string;

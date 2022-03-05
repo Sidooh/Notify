@@ -1,9 +1,9 @@
-import ControllerInterface from '@/utils/interfaces/controller.interface';
 import { NextFunction, Request, Response, Router } from 'express';
-import validationMiddleware from '@/http/middleware/validation.middleware';
-import { SettingRequest } from '@/http/requests/setting.request';
-import { Setting } from '@/models/setting.model';
 import { BadRequestError } from '@nabz.tickets/common';
+import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { Setting } from '../../models/setting.model';
+import { SettingRequest } from '../requests/setting.request';
+import { ValidationMiddleware } from '../middleware/validation.middleware';
 
 export class SettingController implements ControllerInterface {
     path: string = '/settings';
@@ -15,7 +15,7 @@ export class SettingController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validationMiddleware(SettingRequest.create), this.#tweak);
+        this.router.post(`${this.path}`, ValidationMiddleware(SettingRequest.create), this.#tweak);
     }
 
     #index = async (req: Request, res: Response) => {

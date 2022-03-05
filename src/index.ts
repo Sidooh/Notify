@@ -1,9 +1,8 @@
 import 'dotenv/config';
-import 'module-alias/register';
 import validateEnv from './utils/validateEnv';
 import App from './app';
 import mongoose from 'mongoose';
-import { log } from '@/utils/logger';
+import { log } from './utils/logger';
 
 validateEnv()
 

@@ -4,13 +4,12 @@ import App from '../../../../app';
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
 
-it('should return a 201 on successful mail notification creation', async function() {
-    await request
-        .post('/api/notifications')
+it('should return a 404 if provided setting is invalid.', async function() {
+    return request
+        .post('/api/settings')
         .send({
-            channel: 'mail',
-            destination: ['nabcellent.dev@gmail.com'],
-            content: 'Hello!'
+            type: 'default_sms_provider',
+            value: 'africastalking'
         })
-        .expect(201);
+        .expect(200);
 });
