@@ -4,11 +4,11 @@ import { WebSmsConfig } from '@/channels/sms/WebSMS/Lib/types';
 import { WebSms } from '@/channels/sms/WebSMS/Lib/client';
 import { WebsmsCallback } from '@/models/websms_callbacks.model';
 import { Schema } from 'mongoose';
-import { INotification } from '@/models/interfaces';
+import { NotificationDoc } from '@/models/notification.model';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
-    #notification: INotification | null = null;
+    #notification: NotificationDoc | undefined;
     #to: string[] = [];
     #WebSMS;
 
@@ -35,7 +35,7 @@ export default class WebSMSService implements ServiceInterface {
         return this;
     };
 
-    notification = (notification: INotification) => {
+    notification = (notification: NotificationDoc) => {
         this.#notification = notification;
 
         return this;

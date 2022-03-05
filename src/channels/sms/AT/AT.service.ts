@@ -1,13 +1,13 @@
 import ServiceInterface from '@/utils/interfaces/service.interface';
 import { ATCallback } from '@/models/at_callbacks.model';
 import { Schema } from 'mongoose';
-import { INotification } from '@/models/interfaces';
 import { log } from '@/utils/logger';
+import { NotificationDoc } from '@/models/notification.model';
 
 
 export default class ATService implements ServiceInterface {
     #message: string = '';
-    #notification: INotification | null = null;
+    #notification: NotificationDoc | undefined;
     #to: string[] = [];
     #AT;
 
@@ -35,7 +35,7 @@ export default class ATService implements ServiceInterface {
         return this;
     };
 
-    notification = (notification: INotification) => {
+    notification = (notification: NotificationDoc) => {
         this.#notification = notification;
 
         return this;
@@ -48,11 +48,11 @@ export default class ATService implements ServiceInterface {
             message: this.#message
         };
 
-        log.info('AT: SEND NOTIFICATION - ', options)
+        log.info('AT: SEND NOTIFICATION - ', options);
 
         const response = await this.#AT.send(options)
             .then(async (response: any) => {
-                log.info('AT: RESPONSE - ', response)
+                log.info('AT: RESPONSE - ', response);
 
                 // const hasError = response.SMSMessageData.Recipients.some((recipient: any) => recipient.statusCode !== 101);
                 const atCallback = await this.#saveCallback(response.SMSMessageData);
@@ -88,7 +88,7 @@ export default class ATService implements ServiceInterface {
             if (atCallback) {
                 const callback = atCallback.data.map((obj: any) => callbacks.find((o: any) => o.phone === obj.phone) || obj);
 
-                await ATCallback.updateOne({ _id: this.#notification.notifiable_id }, { $set: { data: callback } }, {upsert: true});
+                await ATCallback.updateOne({ _id: this.#notification.notifiable_id }, { $set: { data: callback } }, { upsert: true });
                 return { id: this.#notification.notifiable_id };
             }
         }

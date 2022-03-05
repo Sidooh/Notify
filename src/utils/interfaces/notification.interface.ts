@@ -1,7 +1,7 @@
-import { INotification } from '@/models/interfaces';
+import { NotificationDoc } from '@/models/notification.model';
 
 export default interface NotificationInterface {
-    notification: INotification;
+    notification: NotificationDoc;
 
     send(retry?:boolean): Promise<boolean|void>;
 }

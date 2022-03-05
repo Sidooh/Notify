@@ -1,5 +1,19 @@
-import { model, Schema } from 'mongoose';
-import { IWebsmsCallback } from '@/models/interfaces';
+import { Document, model, Schema } from 'mongoose';
+
+interface WebsmsCallbackDoc extends Document {
+    // message_id: string
+    // phone: string
+    // description: string
+    // status_code: number
+    // status: string
+    data: [{
+        message_id: string
+        phone: string
+        description: string
+        status_code: number
+        status: string
+    }]
+}
 
 const WebsmsCallbackSchema = new Schema(
     {
@@ -32,4 +46,4 @@ const WebsmsCallbackSchema = new Schema(
     }
 );
 
-export const WebsmsCallback = model<IWebsmsCallback>('WebsmsCallback', WebsmsCallbackSchema);
+export const WebsmsCallback = model<WebsmsCallbackDoc>('WebsmsCallback', WebsmsCallbackSchema);

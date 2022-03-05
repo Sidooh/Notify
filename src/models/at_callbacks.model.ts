@@ -1,5 +1,18 @@
-import { model, Schema } from 'mongoose';
-import { IATCallback } from '@/models/interfaces';
+import { Document, model, Schema } from 'mongoose';
+
+interface ATCallbackDoc extends Document {
+    // message_id: string
+    // phone: string
+    // status_code: number
+    // status: string,
+    data: [{
+        message_id: string
+        phone: string
+        description: string
+        status_code: number
+        status: string
+    }]
+}
 
 const ATCallbackSchema = new Schema(
     {
@@ -34,4 +47,4 @@ const ATCallbackSchema = new Schema(
     }
 );
 
-export const ATCallback = model<IATCallback>('ATCallback', ATCallbackSchema);
+export const ATCallback = model<ATCallbackDoc>('ATCallback', ATCallbackSchema);

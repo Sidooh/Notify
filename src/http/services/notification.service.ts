@@ -1,6 +1,5 @@
-import { Notification } from '@/models/notification.model';
+import { Notification, NotificationDoc } from '@/models/notification.model';
 import { log } from '@/utils/logger';
-import { INotification } from '@/models/interfaces';
 import { Schema } from 'mongoose';
 import { BadRequestError } from '@nabz.tickets/common';
 
@@ -27,7 +26,7 @@ class NotificationService {
     }
 
     // Create new notification
-    async create(channel: string, destination: string, content: string, event_type: string): Promise<INotification> {
+    async create(channel: string, destination: string, content: string, event_type: string): Promise<NotificationDoc> {
         try {
             log.info(`CREATE ${channel} NOTIFICATION: for ${event_type}`);
 
@@ -41,7 +40,7 @@ class NotificationService {
     }
 
     //  Update notification
-    async update(notification: INotification) {
+    async update(notification: NotificationDoc) {
         try {
             return Notification.updateOne({ _id: notification._id }, { $set: notification });
         } catch (e) {

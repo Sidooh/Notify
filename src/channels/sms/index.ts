@@ -1,14 +1,14 @@
 import NotificationInterface from '@/utils/interfaces/notification.interface';
 import WebSMSService from '@/channels/sms/WebSMS/WebSMS.service';
-import { INotification } from '@/models/interfaces';
 import ATService from '@/channels/sms/AT/AT.service';
 import { log } from '@/utils/logger';
+import { NotificationDoc } from '@/models/notification.model';
 
 export default class SMS implements NotificationInterface {
-    notification: INotification;
+    notification;
     #SMSService;
 
-    constructor(notification: INotification, provider: string | undefined) {
+    constructor(notification: NotificationDoc, provider: string | undefined) {
         this.notification = notification;
 
         switch (provider) {
@@ -40,6 +40,8 @@ export default class SMS implements NotificationInterface {
                 this.notification.notifiable_type = notifiable_type;
 
                 await this.notification.save();
+
+                log.info('SMS NOTIFICATION SUCCESSFUL - ', { id: this.notification.id })
             }).catch(err => log.error(err));
     };
 }

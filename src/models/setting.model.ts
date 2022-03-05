@@ -1,5 +1,9 @@
-import { model, Schema } from 'mongoose';
-import { ISetting } from '@/models/interfaces';
+import { Document, model, Schema } from 'mongoose';
+
+export interface SettingDoc extends Document {
+    type: string
+    value: string
+}
 
 const SettingSchema = new Schema(
     {
@@ -21,4 +25,4 @@ const SettingSchema = new Schema(
     }
 );
 
-export const Setting = model<ISetting>('Setting', SettingSchema);
+export const Setting = model<SettingDoc>('Setting', SettingSchema);

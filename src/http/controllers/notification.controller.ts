@@ -9,10 +9,9 @@ import Slack from '@/channels/slack';
 import SMS from '@/channels/sms';
 import NotificationService from '../services/notification.service';
 import { NotificationRequest } from '@/http/requests/notification.request';
-import { INotification } from '@/models/interfaces';
 import { Help } from '@/utils/helpers/helpers';
 import { NotFoundError } from '@nabz.tickets/common';
-import { Notification } from '@/models/notification.model';
+import { Notification, NotificationDoc } from '@/models/notification.model';
 import { log } from '@/utils/logger';
 
 export class NotificationController implements ControllerInterface {
@@ -56,7 +55,7 @@ export class NotificationController implements ControllerInterface {
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const notification: INotification = await this.#service.findOne(req.body.id);
+            const notification = await this.#service.findOne(req.body.id);
 
             const isSuccessful = await this.#send(notification, notification, true);
 
@@ -66,7 +65,7 @@ export class NotificationController implements ControllerInterface {
         }
     };
 
-    #send = async (notification: INotification, channelData: IMail | ISlack, retry = false): Promise<void | boolean> => {
+    #send = async (notification: NotificationDoc, channelData: IMail | ISlack, retry = false): Promise<void | boolean> => {
         log.info(`SEND ${notification.channel} NOTIFICATION to ${notification.destination}`);
 
         let providerResponse;

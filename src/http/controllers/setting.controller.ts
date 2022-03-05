@@ -2,36 +2,37 @@ import ControllerInterface from '@/utils/interfaces/controller.interface';
 import { NextFunction, Request, Response, Router } from 'express';
 import validationMiddleware from '@/http/middleware/validation.middleware';
 import { SettingRequest } from '@/http/requests/setting.request';
-import HttpException from '@/utils/exceptions/http.exception';
-import SettingService from '@/http/services/setting.service';
+import { Setting } from '@/models/setting.model';
+import { BadRequestError } from '@nabz.tickets/common';
 
 export class SettingController implements ControllerInterface {
     path: string = '/settings';
     router: Router = Router();
-    #service = new SettingService()
 
     constructor() {
-        this.#initRoutes()
+        this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}`, this.#index)
-        this.router.post(`${this.path}`, validationMiddleware(SettingRequest.create), this.#tweak)
+        this.router.get(`${this.path}`, this.#index);
+        this.router.post(`${this.path}`, validationMiddleware(SettingRequest.create), this.#tweak);
     }
 
     #index = async (req: Request, res: Response) => {
-        const settings = await this.#service.index()
+        const settings = await Setting.find({});
 
-        res.send(settings)
-    }
+        res.send(settings);
+    };
 
     #tweak = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const setting = await this.#service.tweak(req.body)
+        const { type, value } = req.body;
 
-            res.send(setting)
-        } catch (err: any) {
-            next(new HttpException(400, err.message))
-        }
-    }
+        await Setting.updateOne({ type: req.body.type }, { type, value }, { upsert: true });
+
+        const updatedSetting = await Setting.findOne({ type });
+
+        if (!updatedSetting) throw new BadRequestError('Updated setting not found!');
+
+        res.send(updatedSetting);
+    };
 }

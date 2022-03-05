@@ -1,5 +1,16 @@
-import { model, Schema } from 'mongoose';
-import { INotification } from '@/models/interfaces';
+import { Document, model, Schema } from 'mongoose';
+
+export interface NotificationDoc extends Document {
+    channel: string;
+    channel_id: bigint;
+    destination: string[];
+    content: string;
+    event_type:string,
+    provider:string,
+    notifiable_id: Schema.Types.ObjectId|any|null
+    notifiable_type: string,
+    status: string
+}
 
 const NotificationSchema = new Schema({
         channel: {
@@ -46,4 +57,4 @@ const NotificationSchema = new Schema({
     }
 );
 
-export const Notification = model<INotification>('Notification', NotificationSchema);
+export const Notification = model<NotificationDoc>('Notification', NotificationSchema);
