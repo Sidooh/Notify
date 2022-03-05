@@ -2,6 +2,7 @@ import NotificationInterface from '@/utils/interfaces/notification.interface';
 import WebSMSService from '@/channels/sms/WebSMS/WebSMS.service';
 import { INotification } from '@/models/interfaces';
 import ATService from '@/channels/sms/AT/AT.service';
+import { log } from '@/utils/logger';
 
 export default class SMS implements NotificationInterface {
     notification: INotification;
@@ -10,7 +11,6 @@ export default class SMS implements NotificationInterface {
     constructor(notification: INotification, provider: string | undefined) {
         this.notification = notification;
 
-        //TODO(Add better logic to select service based on settings)
         switch (provider) {
             case 'africastalking':
                 this.#SMSService = new ATService();
@@ -22,6 +22,7 @@ export default class SMS implements NotificationInterface {
 
     send = async (retry: boolean) => {
         let destinations = this.notification.destination;
+
         if (retry) {
             destinations = this.notification.notifiable_id.data.filter((notification: any) => notification.status === 'failed')
                 .map((recipient: any) => recipient.phone.replace(/\+/g, ' '));
@@ -39,6 +40,6 @@ export default class SMS implements NotificationInterface {
                 this.notification.notifiable_type = notifiable_type;
 
                 await this.notification.save();
-            });
+            }).catch(err => log.error(err));
     };
 }
