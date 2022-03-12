@@ -1,4 +1,4 @@
-import {cleanEnv, num, port, str, url} from "envalid";
+import { bool, cleanEnv, num, port, str, url } from 'envalid';
 
 export default function validateEnv(): void {
     cleanEnv(process.env, {
@@ -21,6 +21,7 @@ export default function validateEnv(): void {
         AT_SMS_USERNAME: str(),
         AT_SMS_FROM: str(),
 
+        WEBSMS_SANDBOX: bool(),
         WEBSMS_API_URL: url(),
         WEBSMS_ACCESS_KEY: str(),
         WEBSMS_API_KEY: str(),

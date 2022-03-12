@@ -4,25 +4,12 @@ import { Sms } from './sms';
 import axios, { AxiosInstance } from 'axios';
 
 export class WebSms {
-    #env = "live";
-    public config: WebSmsConfig = {
-        accessKey: "",
-        apiKey: "",
-        clientId: "",
-        senderId: ""
-    };
-
+    public config: WebSmsConfig
     public endpoint = String(process.env.WEBSMS_API_URL) ?? "https://api.onfonmedia.co.ke/v1/sms";
-
     public http: AxiosInstance;
 
-    constructor(config: WebSmsConfig, env: string = "live") {
+    constructor(config: WebSmsConfig) {
         this.config = config;
-        this.#env = env;
-
-        if (this.#env === "sandbox") {
-            this.config.senderId = "Wyzer";
-        }
 
         this.http = axios.create({
             baseURL: this.endpoint,
