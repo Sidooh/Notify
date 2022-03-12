@@ -20,13 +20,13 @@ export default class WebSMSService implements ServiceInterface {
             senderId: String(process.env.WEBSMS_DEV_SENDER_ID)
         };
 
-        if(!Boolean(process.env.WEBSMS_SANDBOX)) {
+        if (!Boolean(process.env.WEBSMS_SANDBOX)) {
             config = {
                 accessKey: String(process.env.WEBSMS_ACCESS_KEY),
                 apiKey: String(process.env.WEBSMS_API_KEY),
                 clientId: String(process.env.WEBSMS_CLIENT_ID),
                 senderId: String(process.env.WEBSMS_SENDER_ID)
-            }
+            };
         }
 
         this.#WebSMS = new WebSms(config);
@@ -50,6 +50,14 @@ export default class WebSMSService implements ServiceInterface {
         return this;
     };
 
+    balance = async () => {
+        const response = await this.#WebSMS.balance();
+
+        log.info('WEBSMS: BALANCE - ', { balance: response });
+
+        return response;
+    };
+
     send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
@@ -58,7 +66,7 @@ export default class WebSMSService implements ServiceInterface {
                 log.info(`WEBSMS: RESPONSE`, response);
 
                 if (response.ErrorCode !== 0) {
-                    log.alert(response.ErrorDescription, response)
+                    log.alert(response.ErrorDescription, response);
 
                     response = {
                         Data: [{

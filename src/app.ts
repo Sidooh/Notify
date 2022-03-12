@@ -7,6 +7,7 @@ import { errorHandler, NotFoundError } from '@nabz.tickets/common';
 import { NotificationController, SettingController } from './http/controllers';
 import { log } from './utils/logger';
 import ControllerInterface from './utils/interfaces/controller.interface';
+import { SmsController } from './http/controllers/sms.controller';
 
 class App {
     public app: Express;
@@ -35,7 +36,8 @@ class App {
     #initControllers(): void {
         [
             new NotificationController(),
-            new SettingController()
+            new SettingController(),
+            new SmsController(),
         ].forEach((controller: ControllerInterface) => this.app.use('/api', controller.router));
 
         this.app.all('*', async () => {

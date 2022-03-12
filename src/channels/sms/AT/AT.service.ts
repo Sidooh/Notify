@@ -3,6 +3,7 @@ import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { ATCallback } from '../../../models/at_callbacks.model';
 import { NotificationDoc } from '../../../models/notification.model';
 import { log } from '../../../utils/logger';
+import { AfricasTalking } from './Lib/client';
 
 
 export default class ATService implements ServiceInterface {
@@ -17,7 +18,7 @@ export default class ATService implements ServiceInterface {
             username: String(process.env.AT_SMS_USERNAME)
         };
 
-        this.#AT = require('africastalking')(credentials).SMS;
+        this.#AT = new AfricasTalking(credentials);
     }
 
     to = (to: string[]) => {
@@ -39,6 +40,13 @@ export default class ATService implements ServiceInterface {
         this.#notification = notification;
 
         return this;
+    };
+
+    balance = async () => {
+        const { balance } = await this.#AT.application();
+        log.info('AT: BALANCE - ', { balance });
+
+        return balance;
     };
 
     send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
