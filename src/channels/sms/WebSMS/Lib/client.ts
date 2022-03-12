@@ -4,8 +4,8 @@ import { Sms } from './sms';
 import axios, { AxiosInstance } from 'axios';
 
 export class WebSms {
-    public config: WebSmsConfig
-    public endpoint = String(process.env.WEBSMS_API_URL) ?? "https://api.onfonmedia.co.ke/v1/sms";
+    public config: WebSmsConfig;
+    public endpoint = String(process.env.WEBSMS_API_URL) ?? 'https://api.onfonmedia.co.ke/v1/sms';
     public http: AxiosInstance;
 
     constructor(config: WebSmsConfig) {
@@ -14,22 +14,20 @@ export class WebSms {
         this.http = axios.create({
             baseURL: this.endpoint,
             headers: {
-                Accept: "application/json",
+                Accept: 'application/json',
                 AccessKey: this.config.accessKey,
                 ContentType: 'application/json'
-            },
+            }
         });
     }
 
     public async balance() {
-        // const {
-        //     data: { balance },
-        // } = await axios.get("/Balance");
+        const balanceClass = new Balance(this);
 
-        const balance = new Balance(this);
-        return balance.fetch();
+        const { Data } = await balanceClass.fetch();
+        const { Credits } = Data.find((data: any) => data.PluginType === 'SMS')
 
-        // return balance;
+        return Credits;
     }
 
     public sms(message: string): Sms {
