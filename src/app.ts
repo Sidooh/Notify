@@ -8,6 +8,7 @@ import { NotificationController, SettingController } from './http/controllers';
 import { log } from './utils/logger';
 import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
+import { DashboardController } from './http/controllers/dashboard.controller';
 
 class App {
     public app: Express;
@@ -38,6 +39,7 @@ class App {
             new NotificationController(),
             new SettingController(),
             new SmsController(),
+            new DashboardController(),
         ].forEach((controller: ControllerInterface) => this.app.use('/api', controller.router));
 
         this.app.all('*', async () => {

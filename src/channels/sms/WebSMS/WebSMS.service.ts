@@ -20,7 +20,7 @@ export default class WebSMSService implements ServiceInterface {
             senderId: String(process.env.WEBSMS_DEV_SENDER_ID)
         };
 
-        if (String(process.env.WEBSMS_SANDBOX) === "false") {
+        if (String(process.env.WEBSMS_SANDBOX) === 'false') {
             config = {
                 accessKey: String(process.env.WEBSMS_ACCESS_KEY),
                 apiKey: String(process.env.WEBSMS_API_KEY),
