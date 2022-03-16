@@ -60,18 +60,31 @@ export class DashboardController implements ControllerInterface {
         const startOfWeek: number = moment().startOf('week').date();
         const endOfWeek: number = moment().endOf('week').date();
 
-        let datasets = [];
+        const getDayName = (day: number, month: number, year: number) => {
+            return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('ddd');
+        };
+
+        let datasets = [], labels = [];
         for (let day: number = startOfWeek; day <= endOfWeek; day++) {
-            datasets[day] = weeklyNotifications.find(dataset => dataset.date.day === day) ?? {
-                date         : {
-                    day,
-                    month: Number(moment().format('M')),
-                    year : Number(moment().format('YYYY'))
-                },
-                notifications: 0
-            };
+            let label, count;
+
+            if (weeklyNotifications.find(dataset => dataset.date.day === day)) {
+                let { date, notifications } = weeklyNotifications.find(dataset => dataset.date.day === day);
+
+                label = getDayName(day, date.month, date.year);
+                count = notifications;
+            } else {
+
+                label = getDayName(day, Number(moment().format('M')), Number(moment().format('YYYY')));
+                count = 0;
+            }
+
+            labels.push(label);
+            datasets.push(count);
         }
 
-        return datasets;
+        console.log(labels, datasets);
+
+        return { labels, datasets };
     };
 }
