@@ -83,8 +83,6 @@ export class DashboardController implements ControllerInterface {
             datasets.push(count);
         }
 
-        console.log(labels, datasets);
-
         return { labels, datasets };
     };
 }
