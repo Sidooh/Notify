@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "@nabz.tickets/common": "^1.0.14",
+    "@types/cookie-session": "^2",
+    "@types/express": "^4.17.13",
+    "@types/cors": "^2.8.12",
     "africastalking": "^0.5.5",
     "axios": "^0.26.0",
     "cookie-session": "^2.0.0",
@@ -35,9 +38,6 @@
     "winston-slack-webhook-transport": "^2.1.0"
   },
   "devDependencies": {
-    "@types/cookie-session": "^2",
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.13",
     "@types/jest": "^27.4.0",
     "@types/node": "^16.11.12",
     "@types/nodemailer": "^6.4.4",
