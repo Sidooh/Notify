@@ -12,7 +12,8 @@ const initApp = () => {
     mongoose.connect(`${MONGO_URL}`)
         .then(() => log.info('Database connected!')).catch(err => log.error(err));
 
-    const app = new App(Number(process.env.PORT || 4000));
+    const port = parseInt(process.env.PORT as string) || 8080;
+    const app = new App(port);
     app.listen()
 }
 
