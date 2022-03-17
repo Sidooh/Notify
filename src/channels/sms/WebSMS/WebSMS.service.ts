@@ -65,9 +65,11 @@ export default class WebSMSService implements ServiceInterface {
             .then(response => {
                 log.info(`WEBSMS: RESPONSE`, response);
 
+                let status = 'success'
                 if (response.ErrorCode !== 0) {
                     log.alert(response.ErrorDescription, response);
 
+                    status = 'failed'
                     response = {
                         Data: [{
                             MessageErrorCode: response.ErrorCode,
@@ -76,7 +78,7 @@ export default class WebSMSService implements ServiceInterface {
                     };
                 }
 
-                return { status: 'success', response: response };
+                return { status, response: response };
             }).catch(error => {
                 log.error(error);
 

@@ -1,4 +1,5 @@
 import { config, createLogger, format, transports } from 'winston';
+import SlackHook from 'winston-slack-webhook-transport';
 
 const { combine, timestamp, printf, align } = format;
 
@@ -16,12 +17,12 @@ export const log = createLogger({
     ),
     exceptionHandlers: [
         new transports.File({ filename: 'logs/exception.log' }),
-        // new SlackHook({ webhookUrl: String(process.env.SLACK_HOOK_URL) })
+        new SlackHook({ webhookUrl: String(process.env.SLACK_HOOK_URL) })
     ],
     transports: [
         new transports.File({ filename: 'logs/notify.log', level: process.env.LOG_LEVEL || 'info' }),
         new transports.Console({ level: 'debug' }),
-        /*new SlackHook({
+        new SlackHook({
             level: 'error',
             webhookUrl: String(process.env.SLACK_HOOK_URL),
             formatter: info => {
@@ -60,7 +61,7 @@ export const log = createLogger({
                     ]
                 };
             }
-        })*/
+        })
     ],
     exitOnError: false
 });
