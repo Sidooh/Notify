@@ -8,10 +8,10 @@ const createNotification = () => {
     return request
         .post('/api/notifications')
         .send({
-            channel: 'sms',
+            channel    : 'sms',
             destination: [2547110039317, 254736388405],
-            event_type: 'AIRTIME_PURCHASE',
-            content: 'Testing sidooh notify...!'
+            event_type : 'AIRTIME_PURCHASE',
+            content    : 'Testing sidooh notify...!'
         });
 };
 

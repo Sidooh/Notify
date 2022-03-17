@@ -48,7 +48,7 @@ export class NotificationController implements ControllerInterface {
 
         const notification = await Notification.create({ channel, destination, content, event_type });
 
-        this.#send(notification, req.body);
+        this.send(notification, req.body);
 
         return res.status(201).send(notification);
     };
@@ -65,7 +65,7 @@ export class NotificationController implements ControllerInterface {
         try {
             const notification = await Notification.findById(req.body.id).populate('notifiable_id', ['data']);
 
-            const isSuccessful = await this.#send(notification as NotificationDoc, notification, true);
+            const isSuccessful = await this.send(notification as NotificationDoc, notification, true);
 
             res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
@@ -73,7 +73,7 @@ export class NotificationController implements ControllerInterface {
         }
     };
 
-    #send = async (notification: NotificationDoc, channelData: any, retry = false): Promise<void | boolean> => {
+    send = async (notification: NotificationDoc, channelData: any, retry = false): Promise<void | boolean> => {
         log.info(`SEND ${notification.channel} NOTIFICATION to ${notification.destination}`);
 
         let providerResponse;
