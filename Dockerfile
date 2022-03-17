@@ -13,4 +13,4 @@ COPY . .
 
 RUN npm run build
 
-ENTRYPOINT npm start
+CMD ["npm", "start"]
