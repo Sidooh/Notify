@@ -31,7 +31,7 @@ class App {
         this.app.use(cookieSession({
             signed: false,
             secure: process.env.NODE_ENV !== 'test'
-        }))
+        }));
     }
 
     #initControllers(): void {
@@ -39,12 +39,12 @@ class App {
             new NotificationController(),
             new SettingController(),
             new SmsController(),
-            new DashboardController(),
+            new DashboardController()
         ].forEach((controller: ControllerInterface) => this.app.use('/api', controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();
-        })
+        });
     }
 
     #initErrorHandling(): void {
@@ -52,7 +52,8 @@ class App {
     }
 
     listen(): void {
-        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`));
+        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`))
+            .on('error', (err) => log.error('Startup error: ', err));
     }
 }
 
