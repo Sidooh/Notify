@@ -6,8 +6,8 @@ COPY package.json .
 COPY tsconfig.json .
 COPY src ./src
 
-RUN yarn install --only=prod
+RUN npm install --only=prod
 
 COPY . .
 
-RUN yarn build
+RUN npm build
