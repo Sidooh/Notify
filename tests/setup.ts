@@ -6,6 +6,9 @@ import axios from 'axios';
 
 let mongo: any;
 
+/**
+ * _________________________________________________________________    MOCKS
+ * */
 jest.mock("axios");
 jest.spyOn(new Sms(new WebSms({
     accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),
