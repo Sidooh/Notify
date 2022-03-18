@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.2.0",
   "version": "1.0.0",
   "description": "Sidooh notification service",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "repository": "https://github.com/Nabcellent/sidooh-notify",
   "author": "Nabcellent",
   "license": "MIT",
