@@ -10,7 +10,6 @@
   "private": true,
   "scripts": {
     "start": "nodemon src/index.ts",
-    "dev": "ts-node-dev src/index.ts",
     "test": "jest --watchAll --no-cache",
     "test:ci": "jest",
     "build": "tsc -p ."
