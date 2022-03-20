@@ -21,10 +21,10 @@ export class DashboardController implements ControllerInterface {
     #dashboard = async (req: Request, res: Response) => {
         const notifications = await Notification.find({})
             .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
-            .sort('-_id').limit(10).populate('notifiable_id', ['data']);
+            .sort('-_id').limit(20).populate('notifiable_id', ['data']);
         const count_notifications = await Notification.find({}).count();
         const weekly_notifications = await this.#weeklyNotifications();
-        const default_sms_provider = await Help.getSetting('default_sms_provider');
+        const default_sms_provider = await Help.getSettings('default_sms_provider');
 
         const balances = {
             websms        : Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0]),

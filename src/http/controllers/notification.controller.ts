@@ -2,7 +2,6 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { BadRequestError, NotFoundError } from '@nabz.tickets/common';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
-import { Help } from '../../utils/helpers/helpers';
 import Slack from '../../channels/slack';
 import SMS from '../../channels/sms';
 import { Notification, NotificationDoc } from '../../models/notification.model';
@@ -10,6 +9,7 @@ import { NotificationRequest } from '../requests/notification.request';
 import { log } from '../../utils/logger';
 import HttpException from '@nabz.tickets/common/build/exceptions/http.exception';
 import { Mail } from '../../channels/mail';
+import { Setting } from '../../models/setting.model';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -80,9 +80,9 @@ export class NotificationController implements ControllerInterface {
         if (notification.channel === 'mail') {
             providerResponse = await new Mail(notification).send();
         } else if (notification.channel === 'sms') {
-            const smsProvider = await Help.getSetting('default_sms_provider');
+            const settings = await Setting.find({ types: ['default_sms_provider', 'websms_env', 'africastalking_env'] });
 
-            providerResponse = await new SMS(notification, smsProvider).send(retry);
+            providerResponse = await new SMS(notification, settings).send(retry);
         } else {
             providerResponse = await new Slack(channelData, notification).send();
         }

@@ -18,7 +18,7 @@ export class SmsController implements ControllerInterface {
     }
 
     #balance = async (req: Request, res: Response) => {
-        const provider = await Help.getSetting('default_sms_provider');
+        const provider = await Help.getSettings('default_sms_provider');
 
         if (!provider) throw new BadRequestError('Default provider not set!');
 

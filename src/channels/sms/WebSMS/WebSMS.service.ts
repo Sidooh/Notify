@@ -12,20 +12,22 @@ export default class WebSMSService implements ServiceInterface {
     #to: string[] = [];
     #WebSMS;
 
-    constructor() {
+    constructor(env = process.env.NODE_ENV) {
         let config: WebSmsConfig = {
-            accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),
-            apiKey: String(process.env.WEBSMS_DEV_API_KEY),
-            clientId: String(process.env.WEBSMS_DEV_CLIENT_ID),
-            senderId: String(process.env.WEBSMS_DEV_SENDER_ID)
+            accessKey: String(process.env.WEBSMS_ACCESS_KEY),
+            apiKey: String(process.env.WEBSMS_API_KEY),
+            clientId: String(process.env.WEBSMS_CLIENT_ID),
+            senderId: String(process.env.WEBSMS_SENDER_ID)
         };
 
-        if (String(process.env.WEBSMS_SANDBOX) === 'false') {
+        console.log(env);
+
+        if (env === 'development') {
             config = {
-                accessKey: String(process.env.WEBSMS_ACCESS_KEY),
-                apiKey: String(process.env.WEBSMS_API_KEY),
-                clientId: String(process.env.WEBSMS_CLIENT_ID),
-                senderId: String(process.env.WEBSMS_SENDER_ID)
+                accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),
+                apiKey: String(process.env.WEBSMS_DEV_API_KEY),
+                clientId: String(process.env.WEBSMS_DEV_CLIENT_ID),
+                senderId: String(process.env.WEBSMS_DEV_SENDER_ID)
             };
         }
 

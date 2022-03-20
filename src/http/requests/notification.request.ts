@@ -16,7 +16,7 @@ export const NotificationRequest = {
                 'ERROR_ALERT',
                 'STATUS_UPDATE',
                 'SP_REQUEST_FAILURE',
-                'TEST'
+                'TEST', 'DEFAULT'
             ).default('DEFAULT'),
             destination: Joi
                 .when('channel', {

@@ -12,11 +12,18 @@ export default class ATService implements ServiceInterface {
     #to: string[] = [];
     #AT;
 
-    constructor() {
-        const credentials = {
-            apiKey: String(process.env.AT_SMS_API_KEY),
+    constructor(env = process.env.NODE_ENV) {
+        let credentials = {
+            apiKey  : String(process.env.AT_SMS_API_KEY),
             username: String(process.env.AT_SMS_USERNAME)
         };
+
+        if (env === 'development') {
+            credentials = {
+                apiKey  : String(process.env.AT_SMS_DEV_API_KEY),
+                username: String(process.env.AT_SMS_DEV_USERNAME)
+            };
+        }
 
         this.#AT = new AfricasTalking(credentials);
     }
@@ -51,8 +58,8 @@ export default class ATService implements ServiceInterface {
 
     send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
         const options = {
-            to: this.#to,
-            from: String(process.env.AT_SMS_FROM),
+            to     : this.#to,
+            from   : String(process.env.AT_SMS_FROM),
             message: this.#message
         };
 
@@ -81,10 +88,10 @@ export default class ATService implements ServiceInterface {
             let regex = /[+-]?\d+(\.\d+)?/g;
 
             return {
-                message_id: recipient.messageId,
-                phone: recipient.number,
-                cost: parseFloat(recipient.cost.match(regex)[0]),
-                status: recipient.statusCode === 101 ? 'success' : 'failed',
+                message_id : recipient.messageId,
+                phone      : recipient.number,
+                cost       : parseFloat(recipient.cost.match(regex)[0]),
+                status     : recipient.statusCode === 101 ? 'success' : 'failed',
                 description: recipient.status,
                 status_code: recipient.statusCode
             };

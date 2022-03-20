@@ -3,20 +3,27 @@ import NotificationInterface from '../../utils/interfaces/notification.interface
 import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
+import { SettingDoc } from '../../models/setting.model';
 
 export default class SMS implements NotificationInterface {
     notification;
     #SMSService;
 
-    constructor(notification: NotificationDoc, provider: string | undefined) {
+    constructor(notification: NotificationDoc, smsSettings: SettingDoc[] | undefined) {
         this.notification = notification;
 
-        switch (provider) {
+        const settings = {
+            provider: smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
+            websms_env: smsSettings?.find(setting => setting.type === 'websms_env')?.value,
+            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value,
+        }
+
+        switch (settings.provider) {
             case 'africastalking':
-                this.#SMSService = new ATService();
+                this.#SMSService = new ATService(settings.africastalking_env);
                 break;
             default:
-                this.#SMSService = new WebSMSService();
+                this.#SMSService = new WebSMSService(settings.websms_env);
         }
     }
 
@@ -41,7 +48,7 @@ export default class SMS implements NotificationInterface {
 
                 await this.notification.save();
 
-                log.info('SMS NOTIFICATION SUCCESSFUL - ', { id: this.notification.id })
+                log.info('SMS NOTIFICATION SUCCESSFUL - ', { id: this.notification.id });
             }).catch(err => log.error(err));
     };
 }
