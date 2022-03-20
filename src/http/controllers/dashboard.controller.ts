@@ -26,15 +26,15 @@ export class DashboardController implements ControllerInterface {
         const weekly_notifications = await this.#weeklyNotifications();
         const default_sms_provider = await Help.getSettings('default_sms_provider');
 
-        const balances = {
-            websms        : Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0]),
-            africastalking: Number((await new ATService().balance()).match(/-?\d+\.*\d*/g)[0])
+        const sms_credits = {
+            websms        : (Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0])).toFixed(),
+            africastalking: (Number((await new ATService().balance()).match(/-?\d+\.*\d*/g)[0]) / .8).toFixed()
         };
 
         return res.send({
             notifications,
             default_sms_provider,
-            balances,
+            sms_credits,
             count_notifications,
             weekly_notifications
         });

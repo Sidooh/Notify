@@ -20,8 +20,6 @@ export default class WebSMSService implements ServiceInterface {
             senderId: String(process.env.WEBSMS_SENDER_ID)
         };
 
-        console.log(env);
-
         if (env === 'development') {
             config = {
                 accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),

@@ -1,13 +1,11 @@
 import { Setting } from '../../models/setting.model';
 
 export const Help = {
-    getSettings: async (types: string|string[]) => {
-        if(Array.isArray(types)) {
-            const setting = await Setting.findOne({types}).exec();
+    getSettings: async (type: string | string[]) => {
+        if (Array.isArray(type)) return Setting.find({ type });
 
-            return setting?.value
-        }
+        const setting = await Setting.findOne({ type }).exec();
 
-        return Setting.find({ types });
-    },
-}
+        return setting?.value;
+    }
+};

@@ -16,6 +16,7 @@ export class SettingController implements ControllerInterface {
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
         this.router.post(`${this.path}`, ValidationMiddleware(SettingRequest.create), this.#tweak);
+        this.router.delete(`${this.path}/:id`, this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {
@@ -34,5 +35,13 @@ export class SettingController implements ControllerInterface {
         if (!updatedSetting) throw new BadRequestError('Updated setting not found!');
 
         res.send(updatedSetting);
+    };
+
+    #destroy = async (req: Request, res: Response) => {
+        const { id } = req.params;
+
+        await Setting.deleteOne({ _id: id });
+
+        res.send({id});
     };
 }
