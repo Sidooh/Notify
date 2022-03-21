@@ -18,14 +18,30 @@ class App {
         this.app = express();
         this.port = port;
 
+        this.#initCors();
         this.#initMiddleware();
         this.#initControllers();
         this.#initErrorHandling();
     }
 
+    #initCors(): void {
+        const domainsFromEnv = process.env.CORS_DOMAINS || ""
+        const whitelist = domainsFromEnv.split(",").map(item => item.trim())
+
+        this.app.use(cors(/*{
+            origin: function (origin:any, callback:any) {
+                if (!origin || whitelist.indexOf(origin) !== -1) {
+                    callback(null, true)
+                } else {
+                    callback(new Error("Not allowed by CORS"))
+                }
+            },
+            credentials: true,
+        }*/));
+    }
+
     #initMiddleware(): void {
         this.app.use(helmet());
-        this.app.use(cors());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
         this.app.use(cookieSession({
