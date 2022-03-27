@@ -23,7 +23,7 @@ export class SmsController implements ControllerInterface {
         if (!provider) throw new BadRequestError('Default provider not set!');
 
         const balances = {
-            websms: Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0]),
+            websms        : Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0]),
             africastalking: Number((await new ATService().balance()).match(/-?\d+\.*\d*/g)[0])
         };
 

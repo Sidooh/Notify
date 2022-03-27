@@ -9,6 +9,7 @@ import { log } from './utils/logger';
 import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
+import { AuthController } from './http/controllers/auth.controller';
 
 class App {
     public app: Express;
@@ -25,8 +26,8 @@ class App {
     }
 
     #initCors(): void {
-        const domainsFromEnv = process.env.CORS_DOMAINS || ""
-        const whitelist = domainsFromEnv.split(",").map(item => item.trim())
+        const domainsFromEnv = process.env.CORS_DOMAINS || '';
+        const whitelist = domainsFromEnv.split(',').map(item => item.trim());
 
         this.app.use(cors(/*{
             origin: function (origin:any, callback:any) {
@@ -52,6 +53,7 @@ class App {
 
     #initControllers(): void {
         [
+            new AuthController(),
             new NotificationController(),
             new SettingController(),
             new SmsController(),
