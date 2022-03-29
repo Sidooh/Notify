@@ -9,7 +9,6 @@ import { log } from './utils/logger';
 import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
-import { AuthController } from './http/controllers/auth.controller';
 
 class App {
     public app: Express;
@@ -37,7 +36,6 @@ class App {
 
     #initControllers(): void {
         [
-            new AuthController(),
             new NotificationController(),
             new SettingController(),
             new SmsController(),
