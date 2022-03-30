@@ -57,30 +57,31 @@ export class DashboardController implements ControllerInterface {
             { $project: { 'date': '$_id', 'notifications': '$total', '_id': 0 } }
         ]);
 
-        const startOfWeek: number = moment().startOf('week').date();
-        const endOfWeek: number = moment().endOf('week').date();
+        const startDate = moment().startOf('week');
+        const freqCount = 7
 
         const getDayName = (day: number, month: number, year: number) => {
             return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('ddd');
         };
 
         let datasets = [], labels = [];
-        for (let day: number = startOfWeek; day <= endOfWeek; day++) {
+        for (let day: number = 0; day < freqCount; day++) {
             let label, count;
 
-            if (weeklyNotifications.find(dataset => dataset.date.day === day)) {
-                let { date, notifications } = weeklyNotifications.find(dataset => dataset.date.day === day);
+            if (weeklyNotifications.find(dataset => dataset.date.day === startDate.date())) {
+                let { date, notifications } = weeklyNotifications.find(dataset => dataset.date.day === startDate.date());
 
-                label = getDayName(day, date.month, date.year);
+                label = getDayName(startDate.date(), date.month, date.year);
                 count = notifications;
             } else {
-
-                label = getDayName(day, Number(moment().format('M')), Number(moment().format('YYYY')));
+                label = getDayName(startDate.date(), Number(startDate.format('M')), startDate.year());
                 count = 0;
             }
 
             labels.push(label);
             datasets.push(count);
+
+            startDate.add(1, 'd')
         }
 
         return { labels, datasets };
