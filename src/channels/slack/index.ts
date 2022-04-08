@@ -1,25 +1,26 @@
 import ISlack from './slack.interface';
-import { NotificationDoc } from '../../models/notification.model';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import SlackService from './slack.service';
+import { NotificationAttrs } from '../../../models/notification';
 
 export default class Slack implements NotificationInterface {
-    notification
+    notifications
     #SlackService
 
-    constructor(slack: ISlack, notification: NotificationDoc) {
-        this.notification = notification
+    constructor(slack: ISlack, notifications: NotificationAttrs[]) {
+        this.notifications = notifications
         this.#SlackService = new SlackService()
     }
 
     send = async () => {
-        return this.#SlackService.message(this.notification.content).send()
-            .then(async ({status}) => {
-                this.notification.status = status
-                this.notification.provider = 'SLACK'
-                await this.notification.save()
+        this.notifications.map(notification => {
+            this.#SlackService.message(notification.content).send()
+                .then(async ({status}) => {
+                    notification.status = status
+                    notification.provider = 'SLACK'
 
-                return status === 'success'
-            })
+                    await notification.save()
+                })
+        })
     }
 }

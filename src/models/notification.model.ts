@@ -17,7 +17,6 @@ const NotificationSchema = new Schema({
             type: String,
             required: true
         },
-        channel_id: Number,
         destination: {
             type: Array,
             required: true

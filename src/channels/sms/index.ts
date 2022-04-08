@@ -1,22 +1,25 @@
-import { NotificationDoc } from '../../models/notification.model';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { SettingDoc } from '../../models/setting.model';
+import { NotificationAttrs } from '../../../models/notification';
+import { Status } from '../../utils/enums';
 
 export default class SMS implements NotificationInterface {
-    notification;
+    notifications;
+    destinations;
     #SMSService;
 
-    constructor(notification: NotificationDoc, smsSettings: SettingDoc[] | undefined) {
-        this.notification = notification;
+    constructor(notifications: NotificationAttrs[], destinations: string[], smsSettings: SettingDoc[] | undefined) {
+        this.notifications = notifications;
+        this.destinations = destinations;
 
         const settings = {
-            provider: smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
-            websms_env: smsSettings?.find(setting => setting.type === 'websms_env')?.value,
-            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value,
-        }
+            provider          : smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
+            websms_env        : smsSettings?.find(setting => setting.type === 'websms_env')?.value,
+            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value
+        };
 
         switch (settings.provider) {
             case 'africastalking':
@@ -27,28 +30,33 @@ export default class SMS implements NotificationInterface {
         }
     }
 
-    send = async (retry: boolean) => {
-        let destinations = this.notification.destination;
-
-        if (retry) {
-            destinations = this.notification.notifiable_id.data.filter((notification: any) => notification.status === 'failed')
-                .map((recipient: any) => recipient.phone.replace(/\+/g, ' '));
-        }
-
-        const SMS = this.#SMSService.to(destinations).message(this.notification.content);
-
-        if (retry) SMS.notification(this.notification);
+    send = async () => {
+        const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
 
         SMS.send()
-            .then(async ({ status, provider, notifiable_id, notifiable_type }) => {
-                this.notification.status = status;
-                this.notification.provider = provider;
-                this.notification.notifiable_id = notifiable_id;
-                this.notification.notifiable_type = notifiable_type;
+            .then(async (response) => {
+                console.log(response);
+                for (const notification of this.notifications) {
+                    const res = response.find(res => String(notification.destination).slice(-9) === String(res.phone).slice(-9));
 
-                await this.notification.save();
+                    notification.status = Status.FAILED;
+                    notification.provider = res?.provider;
+                    notification.notifiable_type = res?.notifiable_type;
 
-                log.info('SMS NOTIFICATION SUCCESSFUL - ', { id: this.notification.id });
+                    if (res) {
+                        notification.status = res.status;
+                        notification.provider = res.provider;
+
+                        if (res.notifiable_id) notification.notifiable_id = res.notifiable_id;
+
+                        notification.notifiable_type = res.notifiable_type;
+                    }
+
+                    // console.log(notification)
+                    log.info('SMS NOTIFICATION REQUEST COMPLETE - ', { id: notification.id });
+
+                    await notification.save();
+                }
             }).catch(err => log.error(err));
     };
 }

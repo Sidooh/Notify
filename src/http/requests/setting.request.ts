@@ -2,6 +2,7 @@ import Joi from 'joi';
 
 export const SettingRequest = {
     create: Joi.object({
+        id   : Joi.number(),
         type : Joi.string().valid('default_sms_provider', 'default_mail_provider', 'websms_env', 'africastalking_env').required(),
         value: Joi.when('type', {
             is  : 'default_sms_provider',
@@ -19,5 +20,5 @@ export const SettingRequest = {
                 is  : 'africastalking_env',
                 then: Joi.string().valid('development', 'production')
             }).required()
-    }),
+    })
 };

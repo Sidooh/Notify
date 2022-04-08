@@ -4,12 +4,14 @@ import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
 import Slack from '../../channels/slack';
 import SMS from '../../channels/sms';
-import { Notification, NotificationDoc } from '../../models/notification.model';
 import { NotificationRequest } from '../requests/notification.request';
 import { log } from '../../utils/logger';
 import HttpException from '@nabz.tickets/common/build/exceptions/http.exception';
 import { Mail } from '../../channels/mail';
-import { Setting } from '../../models/setting.model';
+import db from '../../../models';
+import map from 'lodash/map';
+import { Op } from 'sequelize';
+import { NotificationAttrs } from '../../../models/notification';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -28,9 +30,12 @@ export class NotificationController implements ControllerInterface {
 
     #index = async (req: Request, res: Response) => {
         try {
-            const notifications = await Notification.find({})
-                .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
-                .sort('-_id').populate('notifiable_id', ['data']);
+            const notifications = await db.Notification.findAll({
+                attributes: { exclude: ['updatedAt'] }, order: [['id', 'DESC']],
+                include   : [db.ATCallback, db.WebsmsCallback]
+            });
+            // .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
+            // .sort('-_id').populate('notifiable_id', ['data']);
 
             return res.send(notifications);
         } catch (err) {
@@ -46,15 +51,20 @@ export class NotificationController implements ControllerInterface {
 
         if (channel === 'slack') destination = 'Sidooh';
 
-        const notification = await Notification.create({ channel, destination, content, event_type });
+        const notifications = await db.Notification.bulkCreate(destination.map((destination: number | string) => ({
+            channel, destination, content, event_type
+        })));
 
-        this.send(notification, req.body);
+        /** TODO: Remove the await after refactoring */
+        await this.send(notifications, req.body);
 
-        return res.status(201).send(notification);
+        return res.status(201).send(notifications);
     };
 
     #show = async (req: Request, res: Response) => {
-        const notification = await Notification.findById(req.params.id).populate('notifiable_id', ['data']);
+        const notification = await db.Notification.findOne({
+            where: { id: req.params.id }, include: [db.ATCallback, db.WebsmsCallback]
+        });
 
         if (!notification) throw new NotFoundError();
 
@@ -63,9 +73,9 @@ export class NotificationController implements ControllerInterface {
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const notification = await Notification.findById(req.body.id).populate('notifiable_id', ['data']);
+            const notification = await db.Notification.findById(req.body.id).populate('notifiable_id', ['data']);
 
-            const isSuccessful = await this.send(notification as NotificationDoc, notification, true);
+            const isSuccessful = await this.send([notification], notification, true);
 
             res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
@@ -73,20 +83,26 @@ export class NotificationController implements ControllerInterface {
         }
     };
 
-    send = async (notification: NotificationDoc, channelData: any, retry = false): Promise<void | boolean> => {
-        log.info(`SEND ${notification.channel} NOTIFICATION to ${notification.destination}`);
+    send = async (notifications: NotificationAttrs[], channelData: any, retry = false): Promise<void | boolean> => {
+        const channel = notifications[0].channel;
+        const destinations = map(notifications, 'destination');
+        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
 
-        let providerResponse;
-        if (notification.channel === 'mail') {
-            providerResponse = await new Mail(notification).send();
-        } else if (notification.channel === 'sms') {
-            const settings = await Setting.find({ types: ['default_sms_provider', 'websms_env', 'africastalking_env'] });
+        let channelSrv;
+        if (channel === 'mail') {
+            channelSrv = new Mail(notifications);
+        } else if (channel === 'sms') {
+            const settings = await db.Setting.findAll({
+                where: {
+                    type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] }
+                }
+            });
 
-            providerResponse = await new SMS(notification, settings).send(retry);
+            channelSrv = new SMS(notifications, destinations, settings);
         } else {
-            providerResponse = await new Slack(channelData, notification).send();
+            channelSrv = new Slack(channelData, notifications);
         }
 
-        if (retry) return providerResponse;
+        await channelSrv.send();
     };
 }

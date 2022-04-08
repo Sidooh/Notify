@@ -1,31 +1,30 @@
-import { Schema } from 'mongoose';
-import { WebsmsCallback } from '../../../models/websms_callbacks.model';
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { WebSms } from './Lib/client';
-import { NotificationDoc } from '../../../models/notification.model';
 import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
+import db from '../../../../models';
+import { WebsmsCallbackAttrs } from '../../../../models/websmscallback';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
-    #notification: NotificationDoc | undefined;
     #to: string[] = [];
     #WebSMS;
 
     constructor(env = process.env.NODE_ENV) {
+        console.log('jamaa');
         let config: WebSmsConfig = {
             accessKey: String(process.env.WEBSMS_ACCESS_KEY),
-            apiKey: String(process.env.WEBSMS_API_KEY),
-            clientId: String(process.env.WEBSMS_CLIENT_ID),
-            senderId: String(process.env.WEBSMS_SENDER_ID)
+            apiKey   : String(process.env.WEBSMS_API_KEY),
+            clientId : String(process.env.WEBSMS_CLIENT_ID),
+            senderId : String(process.env.WEBSMS_SENDER_ID)
         };
 
         if (env === 'development') {
             config = {
                 accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),
-                apiKey: String(process.env.WEBSMS_DEV_API_KEY),
-                clientId: String(process.env.WEBSMS_DEV_CLIENT_ID),
-                senderId: String(process.env.WEBSMS_DEV_SENDER_ID)
+                apiKey   : String(process.env.WEBSMS_DEV_API_KEY),
+                clientId : String(process.env.WEBSMS_DEV_CLIENT_ID),
+                senderId : String(process.env.WEBSMS_DEV_SENDER_ID)
             };
         }
 
@@ -44,12 +43,6 @@ export default class WebSMSService implements ServiceInterface {
         return this;
     };
 
-    notification = (notification: NotificationDoc) => {
-        this.#notification = notification;
-
-        return this;
-    };
-
     balance = async () => {
         const response = await this.#WebSMS.balance();
 
@@ -58,21 +51,21 @@ export default class WebSMSService implements ServiceInterface {
         return response;
     };
 
-    send = async (): Promise<{ status: string, provider: string, notifiable_id: Schema.Types.ObjectId | null, notifiable_type: string }> => {
+    send = async (): Promise<{ status: string, provider: string, notifiable_type: string, notifiable_id?: number, phone?: string }[]> => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
         const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
             .then(response => {
                 log.info(`WEBSMS: RESPONSE`, response);
 
-                let status = 'success'
+                let status = 'success';
                 if (response.ErrorCode !== 0) {
                     log.alert(response.ErrorDescription, response);
 
-                    status = 'failed'
+                    status = 'failed';
                     response = {
                         Data: [{
-                            MessageErrorCode: response.ErrorCode,
+                            MessageErrorCode       : response.ErrorCode,
                             MessageErrorDescription: response.ErrorDescription
                         }]
                     };
@@ -87,36 +80,21 @@ export default class WebSMSService implements ServiceInterface {
 
         const webSmsCallback = await this.#saveCallback(response);
 
-        return {
-            ...response,
-            provider: 'WEBSMS',
-            notifiable_type: 'WebsmsCallback',
-            notifiable_id: webSmsCallback.id
-        };
+        return webSmsCallback.map(cb => ({
+            phone   : cb.phone, status: cb.status, notifiable_id: cb.id, notifiable_type: 'websms_callback',
+            provider: 'WEBSMS'
+        }));
     };
 
-    #saveCallback = async (callback: any) => {
-        const callbacks = callback.response.Data.map((response: any) => {
+    #saveCallback = async (callback: any): Promise<WebsmsCallbackAttrs[]> => {
+        return await db.WebsmsCallback.bulkCreate(callback.response.Data.map((response: any) => {
             return {
-                message_id: response.MessageId,
-                phone: response.MobileNumber,
+                message_id : response.MessageId,
+                phone      : response.MobileNumber,
                 description: response.MessageErrorDescription,
                 status_code: response.MessageErrorCode,
-                status: response.MessageErrorCode === 0 ? 'success' : 'failed'
+                status     : response.MessageErrorCode === 0 ? 'success' : 'failed'
             };
-        });
-
-        if (this.#notification) {
-            const webSmsCallback = await WebsmsCallback.findById(this.#notification.notifiable_id);
-
-            if (webSmsCallback) {
-                const callback = webSmsCallback.data.map((obj: any) => callbacks.find((o: any) => o.phone === obj.phone) || obj);
-
-                await WebsmsCallback.updateOne({ _id: this.#notification.notifiable_id }, { $set: { data: callback } }, { upsert: true });
-                return { id: this.#notification.notifiable_id };
-            }
-        }
-
-        return await WebsmsCallback.create({ data: callbacks });
+        }));
     };
 }
