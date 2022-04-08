@@ -18,12 +18,12 @@ export default class ATService implements ServiceInterface {
             username: String(process.env.AT_SMS_USERNAME)
         };
 
-        /*if (env === 'development') {
+        if (env === 'development') {
             credentials = {
                 apiKey  : String(process.env.AT_SMS_DEV_API_KEY),
                 username: String(process.env.AT_SMS_DEV_USERNAME)
             };
-        }*/
+        }
 
         this.#AT = new AfricasTalking(credentials);
     }

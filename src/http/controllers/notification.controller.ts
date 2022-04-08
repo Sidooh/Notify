@@ -35,8 +35,6 @@ export class NotificationController implements ControllerInterface {
                 attributes: { exclude: ['updatedAt'] }, order: [['id', 'DESC']],
                 include   : [db.ATCallback, db.WebsmsCallback]
             });
-            // .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
-            // .sort('-_id').populate('notifiable_id', ['data']);
 
             return res.send(notifications);
         } catch (err) {
@@ -56,10 +54,31 @@ export class NotificationController implements ControllerInterface {
             channel, destination, content, event_type
         })));
 
-        /** TODO: Remove the await after refactoring */
-        await this.send(notifications, req.body);
+        this.send(notifications, req.body);
 
         return res.status(201).send(notifications);
+    };
+
+    send = async (notifications: NotificationAttrs[], channelData: any, retry = false): Promise<void | boolean> => {
+        const channel = notifications[0].channel;
+        const destinations = map(notifications, 'destination');
+
+        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
+
+        let channelSrv;
+        if (channel === Channel.MAIL) {
+            channelSrv = new Mail(notifications);
+        } else if (channel === Channel.SMS) {
+            const settings = await db.Setting.findAll({
+                where: { type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] } }
+            });
+
+            channelSrv = new SMS(notifications, destinations, settings);
+        } else {
+            channelSrv = new Slack(channelData, notifications);
+        }
+
+        await channelSrv.send();
     };
 
     #show = async (req: Request, res: Response) => {
@@ -82,26 +101,5 @@ export class NotificationController implements ControllerInterface {
         } catch (err: any) {
             next(new HttpException(500, err.message));
         }
-    };
-
-    send = async (notifications: NotificationAttrs[], channelData: any, retry = false): Promise<void | boolean> => {
-        const channel = notifications[0].channel;
-        const destinations = map(notifications, 'destination');
-        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
-
-        let channelSrv;
-        if (channel === Channel.MAIL) {
-            channelSrv = new Mail(notifications);
-        } else if (channel === Channel.SMS) {
-            const settings = await db.Setting.findAll({
-                where: { type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] } }
-            });
-
-            channelSrv = new SMS(notifications, destinations, settings);
-        } else {
-            channelSrv = new Slack(channelData, notifications);
-        }
-
-        await channelSrv.send();
     };
 }

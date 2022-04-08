@@ -6,6 +6,7 @@ import axios from 'axios';
  * _________________________________________________________________    MOCKS
  * */
 
+jest.mock("../models");
 jest.mock('axios');
 jest.mock('winston', () => ({
     config      : {

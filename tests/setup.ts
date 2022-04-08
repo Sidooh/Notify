@@ -1,27 +1,9 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
+import db from '../models';
+import truncate from './truncate';
 
-let mongo: any;
+beforeAll(async () => await db.sequelize.sync({ force: true }));
+beforeEach(async () => await truncate());
 
-beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-
-    const mongoUri = mongo.getUri();
-
-    await mongoose.connect(mongoUri);
-});
-
-beforeEach(async () => {
-    const collections = await mongoose.connection.db.collections();
-
-    for (const collection of collections) {
-        await collection.deleteMany({});
-    }
-});
-
-afterAll(async () => {
-    await mongo.stop();
-    await mongoose.connection.close();
-});
+afterAll(async () => await db.sequelize.close());
 
 jest.setTimeout(10000);
