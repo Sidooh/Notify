@@ -1,14 +1,11 @@
 import { AfricasTalkingCredentials } from './types';
 
 export class AfricasTalking {
-    public credentials: AfricasTalkingCredentials;
-    public endpoint = String(process.env.WEBSMS_API_URL) ?? 'https://api.onfonmedia.co.ke/v1/sms';
     public AT;
 
     constructor(credentials: AfricasTalkingCredentials) {
-        this.credentials = credentials;
-
         this.AT = require('africastalking')(credentials);
+        console.log(credentials);
     }
 
     public async application() {

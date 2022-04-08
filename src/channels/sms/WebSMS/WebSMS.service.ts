@@ -4,6 +4,8 @@ import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
 import db from '../../../../models';
 import { WebsmsCallbackAttrs } from '../../../../models/websmscallback';
+import { NotificationAttrs } from '../../../../models/notification';
+import { Provider, Status } from '../../../utils/enums';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
@@ -11,7 +13,6 @@ export default class WebSMSService implements ServiceInterface {
     #WebSMS;
 
     constructor(env = process.env.NODE_ENV) {
-        console.log('jamaa');
         let config: WebSmsConfig = {
             accessKey: String(process.env.WEBSMS_ACCESS_KEY),
             apiKey   : String(process.env.WEBSMS_API_KEY),
@@ -51,18 +52,18 @@ export default class WebSMSService implements ServiceInterface {
         return response;
     };
 
-    send = async (): Promise<{ status: string, provider: string, notifiable_type: string, notifiable_id?: number, phone?: string }[]> => {
+    send: (notifications: NotificationAttrs[]) => Promise<string> = async (notifications: NotificationAttrs[]) => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
         const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
             .then(response => {
                 log.info(`WEBSMS: RESPONSE`, response);
 
-                let status = 'success';
+                let status = Status.COMPLETED;
                 if (response.ErrorCode !== 0) {
                     log.alert(response.ErrorDescription, response);
 
-                    status = 'failed';
+                    status = Status.FAILED;
                     response = {
                         Data: [{
                             MessageErrorCode       : response.ErrorCode,
@@ -75,26 +76,36 @@ export default class WebSMSService implements ServiceInterface {
             }).catch(error => {
                 log.error(error);
 
-                return { status: 'failed', response: error };
+                return { status: Status.FAILED, response: error };
             });
 
-        const webSmsCallback = await this.#saveCallback(response);
+        const webSmsCallback = await this.#saveCallback(notifications, response);
 
-        return webSmsCallback.map(cb => ({
-            phone   : cb.phone, status: cb.status, notifiable_id: cb.id, notifiable_type: 'websms_callback',
-            provider: 'WEBSMS'
-        }));
+        return webSmsCallback?.every(cb => (cb.status === Status.COMPLETED)) ? Status.COMPLETED : Status.FAILED;
     };
 
-    #saveCallback = async (callback: any): Promise<WebsmsCallbackAttrs[]> => {
+    #saveCallback = async (notifications:NotificationAttrs[], callback: any): Promise<WebsmsCallbackAttrs[]|undefined> => {
         return await db.WebsmsCallback.bulkCreate(callback.response.Data.map((response: any) => {
-            return {
-                message_id : response.MessageId,
-                phone      : response.MobileNumber,
-                description: response.MessageErrorDescription,
-                status_code: response.MessageErrorCode,
-                status     : response.MessageErrorCode === 0 ? 'success' : 'failed'
-            };
+            const notification = notifications!.find(notification => {
+                return String(notification.destination).slice(-9) == String(response.MobileNumber).slice(-9);
+            });
+
+            if (notification) {
+                const status = response.MessageErrorCode === 0 ? Status.COMPLETED : Status.FAILED;
+
+                notification.status = status;
+                notification.provider = Provider.WEBSMS;
+                notification.save();
+
+                return {
+                    notification_id: notification.id,
+                    message_id     : response.MessageId,
+                    phone          : response.MobileNumber,
+                    description    : response.MessageErrorDescription,
+                    status_code    : response.MessageErrorCode,
+                    status         : status
+                };
+            }
         }));
     };
 }

@@ -15,22 +15,20 @@ module.exports = (sequelize: any, DataTypes: any) => {
          */
         static associate(models: any) {
             // define association here
-            this.hasOne(models.Notification, {
-                foreignKey : 'notifiable_id',
-                constraints: false,
-                scope      : {
-                    notifiable_type: 'websms_callback'
-                }
-            });
+            this.belongsTo(models.Notification, { foreignKeyConstraint: true });
         }
     }
 
     WebsmsCallback.init({
-        message_id : DataTypes.STRING,
-        phone      : DataTypes.STRING(15),
-        description: DataTypes.STRING,
-        status     : DataTypes.STRING,
-        status_code: DataTypes.INTEGER
+        notification_id: {
+            type     : DataTypes.INTEGER,
+            allowNull: false
+        },
+        message_id     : DataTypes.STRING,
+        phone          : DataTypes.STRING(15),
+        description    : DataTypes.STRING,
+        status         : DataTypes.STRING,
+        status_code    : DataTypes.INTEGER
     }, {
         sequelize,
         modelName  : 'WebsmsCallback',

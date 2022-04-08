@@ -3,7 +3,8 @@ import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
 import db from '../../../../models';
 import { ATCallbackAttrs } from '../../../../models/atcallback';
-import { Status } from '../../../utils/enums';
+import { Provider, Status } from '../../../utils/enums';
+import { NotificationAttrs } from '../../../../models/notification';
 
 
 export default class ATService implements ServiceInterface {
@@ -17,12 +18,12 @@ export default class ATService implements ServiceInterface {
             username: String(process.env.AT_SMS_USERNAME)
         };
 
-        if (env === 'development') {
+        /*if (env === 'development') {
             credentials = {
                 apiKey  : String(process.env.AT_SMS_DEV_API_KEY),
                 username: String(process.env.AT_SMS_DEV_USERNAME)
             };
-        }
+        }*/
 
         this.#AT = new AfricasTalking(credentials);
     }
@@ -49,7 +50,7 @@ export default class ATService implements ServiceInterface {
         return balance;
     };
 
-    send = async (): Promise<{ status: string, provider: string, notifiable_type: string, notifiable_id?: number, phone?: string }[]> => {
+    send: (notifications: NotificationAttrs[]) => Promise<string> = async (notifications: NotificationAttrs[]) => {
         const options = {
             to     : this.#to,
             from   : String(process.env.AT_SMS_FROM),
@@ -58,37 +59,49 @@ export default class ATService implements ServiceInterface {
 
         log.info('AT: SEND NOTIFICATION - ', options);
 
-        const response = await this.#AT.send(options)
+        return await this.#AT.send(options)
             .then(async (response: any) => {
                 log.info('AT: RESPONSE - ', response);
 
-                const atCallbacks = await this.#saveCallback(response.SMSMessageData);
+                const atCallbacks = await this.#saveCallback(notifications, response.SMSMessageData);
 
-                return atCallbacks.map(callback => ({
-                    phone: callback.phone, status: callback.status, notifiable_id: callback.id
-                }));
+                if(atCallbacks.every(cb => (cb.status === Status.COMPLETED))) return Status.COMPLETED
+
+                log.error('AT CALLBACK SAVE ERROR: CALLBACKS - ', { atCallbacks })
+                return Status.FAILED
             })
             .catch((error: any) => {
                 log.error(error);
 
-                return [{ status: Status.FAILED }];
+                return Status.FAILED;
             });
-
-        return response.map(res => ({ ...res, notifiable_type: 'at_callback', provider: 'AFRICASTALKING' }));
     };
 
-    #saveCallback = async (callback: any): Promise<ATCallbackAttrs[]> => {
+    #saveCallback = async (notifications:NotificationAttrs[], callback: any): Promise<ATCallbackAttrs[]> => {
         return await db.ATCallback.bulkCreate(callback.Recipients.map((recipient: any) => {
             let regex = /[+-]?\d+(\.\d+)?/g;
 
-            return {
-                message_id : recipient.messageId,
-                phone      : recipient.number,
-                cost       : parseFloat(recipient.cost.match(regex)[0]),
-                status     : recipient.statusCode === 101 ? Status.COMPLETED : Status.FAILED,
-                description: recipient.status,
-                status_code: recipient.statusCode
-            };
+            const notification = notifications.find(notification => {
+                return String(notification.destination).slice(-9) == String(recipient.number).slice(-9);
+            });
+
+            if(notification) {
+                const status = recipient.statusCode === 101 ? Status.COMPLETED : Status.FAILED
+
+                notification.status = status
+                notification.provider = Provider.AT;
+                notification.save()
+
+                return {
+                    notification_id: notification.id,
+                    message_id : recipient.messageId,
+                    phone      : recipient.number,
+                    cost       : parseFloat(recipient.cost.match(regex)[0]),
+                    status     : status,
+                    description: recipient.status,
+                    status_code: recipient.statusCode
+                };
+            }
         }));
     };
 }

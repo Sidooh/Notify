@@ -15,21 +15,20 @@ module.exports = (sequelize: any, DataTypes: any) => {
          */
         static associate(models: any) {
             // define association here
-            this.hasOne(models.Notification, {
-                foreignKey : 'notifiable_id',
-                constraints: false,
-                scope      : {
-                    notifiable_type: 'at_callback'
-                }
-            });
+            this.belongsTo(models.Notification);
         }
     }
 
     ATCallback.init({
+        notification_id: {
+            type     : DataTypes.INTEGER,
+            allowNull: false
+        },
         message_id : DataTypes.STRING,
         phone      : DataTypes.STRING(15),
         description: DataTypes.STRING,
         status     : DataTypes.STRING(20),
+        cost       : DataTypes.STRING(20),
         status_code: DataTypes.INTEGER
     }, {
         sequelize,

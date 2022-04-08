@@ -1,5 +1,5 @@
-import { NotificationDoc } from '../../models/notification.model';
+import { NotificationAttrs } from '../../../models/notification';
 
 export default interface ServiceInterface {
-    send(retry?: NotificationDoc): Promise<any>;
+    send(notifications: NotificationAttrs[]): Promise<any>;
 }

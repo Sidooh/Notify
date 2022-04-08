@@ -4,7 +4,7 @@ import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { SettingDoc } from '../../models/setting.model';
 import { NotificationAttrs } from '../../../models/notification';
-import { Status } from '../../utils/enums';
+import map from 'lodash/map';
 
 export default class SMS implements NotificationInterface {
     notifications;
@@ -33,30 +33,8 @@ export default class SMS implements NotificationInterface {
     send = async () => {
         const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
 
-        SMS.send()
-            .then(async (response) => {
-                console.log(response);
-                for (const notification of this.notifications) {
-                    const res = response.find(res => String(notification.destination).slice(-9) === String(res.phone).slice(-9));
-
-                    notification.status = Status.FAILED;
-                    notification.provider = res?.provider;
-                    notification.notifiable_type = res?.notifiable_type;
-
-                    if (res) {
-                        notification.status = res.status;
-                        notification.provider = res.provider;
-
-                        if (res.notifiable_id) notification.notifiable_id = res.notifiable_id;
-
-                        notification.notifiable_type = res.notifiable_type;
-                    }
-
-                    // console.log(notification)
-                    log.info('SMS NOTIFICATION REQUEST COMPLETE - ', { id: notification.id });
-
-                    await notification.save();
-                }
-            }).catch(err => log.error(err));
+        SMS.send(this.notifications)
+            .then(status => log.info(`SMS NOTIFICATION REQUEST ${status.toUpperCase()} - `, { ids: map(this.notifications, 'id') }))
+            .catch(err => log.error(err));
     };
 }

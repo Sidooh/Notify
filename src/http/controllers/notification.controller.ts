@@ -12,6 +12,7 @@ import db from '../../../models';
 import map from 'lodash/map';
 import { Op } from 'sequelize';
 import { NotificationAttrs } from '../../../models/notification';
+import { Channel } from '../../utils/enums';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -49,7 +50,7 @@ export class NotificationController implements ControllerInterface {
 
         log.info(`CREATE ${channel} NOTIFICATION: for ${event_type}`);
 
-        if (channel === 'slack') destination = 'Sidooh';
+        if (channel === Channel.SLACK) destination = 'Sidooh';
 
         const notifications = await db.Notification.bulkCreate(destination.map((destination: number | string) => ({
             channel, destination, content, event_type
@@ -89,13 +90,11 @@ export class NotificationController implements ControllerInterface {
         log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
 
         let channelSrv;
-        if (channel === 'mail') {
+        if (channel === Channel.MAIL) {
             channelSrv = new Mail(notifications);
-        } else if (channel === 'sms') {
+        } else if (channel === Channel.SMS) {
             const settings = await db.Setting.findAll({
-                where: {
-                    type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] }
-                }
+                where: { type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] } }
             });
 
             channelSrv = new SMS(notifications, destinations, settings);

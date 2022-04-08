@@ -1,6 +1,8 @@
 import { CreationOptional, InferAttributes, InferCreationAttributes, Model } from 'sequelize';
-import { Help } from '../src/utils/helpers';
-import { Status } from '../src/utils/enums';
+import { EventType, Status } from '../src/utils/enums';
+import { ATCallbackAttrs } from './atcallback';
+import { WebsmsCallbackAttrs } from './websmscallback';
+import merge from 'lodash/merge';
 
 export interface NotificationAttrs extends Model {
     id: CreationOptional<number>,
@@ -17,8 +19,6 @@ export interface NotificationAttrs extends Model {
 module.exports = (sequelize: any, DataTypes: any) => {
     class Notification extends Model<InferAttributes<Notification>, InferCreationAttributes<Notification>> {
         declare id: CreationOptional<number>;
-        declare notifiable_type: string;
-        declare notifiable_id: number;
         declare destination: string;
         declare channel: string;
         declare event_type: string;
@@ -33,34 +33,36 @@ module.exports = (sequelize: any, DataTypes: any) => {
          */
         static associate(models: any) {
             // define association here
-            this.belongsTo(models.ATCallback, { foreignKey: 'notifiable_id', constraints: false });
-            this.belongsTo(models.WebsmsCallback, { foreignKey: 'notifiable_id', constraints: false });
+            this.hasMany(models.ATCallback);
+            this.hasMany(models.WebsmsCallback);
         }
-
-        getNotifiable = (options: any) => {
-            if (!this.notifiable_type) return Promise.resolve(null);
-
-            const mixinMethodName = `get${Help.uppercaseFirst(this.notifiable_type)}`;
-
-            // @ts-ignore
-            return this[mixinMethodName](options);
-        };
     }
 
     Notification.init({
-        id             : {
+        id         : {
             type         : DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
             primaryKey   : true
         },
-        notifiable_id  : DataTypes.INTEGER,
-        notifiable_type: DataTypes.STRING(50),
-        destination    : DataTypes.STRING(30),
-        channel        : DataTypes.STRING(50),
-        event_type     : DataTypes.STRING(50),
-        content        : DataTypes.TEXT,
-        provider       : DataTypes.STRING(50),
-        status         : {
+        destination: {
+            type     : DataTypes.STRING(30),
+            allowNull: false
+        },
+        channel    : {
+            type     : DataTypes.STRING(50),
+            allowNull: false
+        },
+        event_type : {
+            type        : DataTypes.STRING(50),
+            defaultValue: EventType.DEFAULT,
+            allowNull   : false
+        },
+        content    : {
+            type     : DataTypes.TEXT,
+            allowNull: false
+        },
+        provider   : DataTypes.STRING(50),
+        status     : {
             type        : DataTypes.STRING(20),
             allowNull   : false,
             defaultValue: Status.PENDING
@@ -79,17 +81,18 @@ module.exports = (sequelize: any, DataTypes: any) => {
 
         // @ts-ignore
         for (const instance of findResult) {
-            if (instance.notifiable_type === 'at_callback' && instance.ATCallback !== null) {
-                instance.setDataValue('notifiable', instance.ATCallback)
-            } else if (instance.notifiable_type === 'websms_callback' && instance.WebsmsCallback !== null) {
-                instance.setDataValue('notifiable', instance.WebsmsCallback)
-            }
+            const notifiables: ATCallbackAttrs[] | WebsmsCallbackAttrs[] = [];
+
+            if (instance.ATCallbacks.length) merge(notifiables, instance.ATCallbacks);
+            if (instance.WebsmsCallbacks.length) merge(notifiables, instance.WebsmsCallbacks);
+
+            instance.setDataValue('notifiables', notifiables);
 
             // To prevent mistakes:
-            delete instance.ATCallback;
-            delete instance.dataValues.ATCallback;
-            delete instance.WebsmsCallback;
-            delete instance.dataValues.WebsmsCallback;
+            delete instance.ATCallbacks;
+            delete instance.dataValues.ATCallbacks;
+            delete instance.WebsmsCallbacks;
+            delete instance.dataValues.WebsmsCallbacks;
         }
     });
 
