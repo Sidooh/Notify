@@ -1,10 +1,7 @@
 import db from '../models';
+import map from 'lodash/map';
 
-const truncateTable = (modelName: string) =>
-    db.sequelize.models[modelName].destroy({
-        where: {},
-        force: true
-    });
+const truncateTable = (modelName: string) => db.sequelize.models[modelName].destroy({ where: {}, force: true })
 
 export default async function truncate(model?: string) {
     if (model) {
@@ -12,7 +9,7 @@ export default async function truncate(model?: string) {
     }
 
     return Promise.all(
-        Object.keys(db.sequelize.models).map((key) => {
+        map(Object.keys(db.sequelize.models), (key) => {
             if (['sequelize', 'Sequelize'].includes(key)) return null;
             return truncateTable(key);
         })
