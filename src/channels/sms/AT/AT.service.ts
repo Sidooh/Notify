@@ -1,10 +1,9 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
-import db from '../../../../models';
-import { ATCallbackAttrs } from '../../../../models/atcallback';
 import { Provider, Status } from '../../../utils/enums';
-import { NotificationAttrs } from '../../../../models/notification';
+import { ATCallback } from '../../../models/ATCallback';
+import { Notification } from '../../../models/Notification';
 
 
 export default class ATService implements ServiceInterface {
@@ -50,10 +49,10 @@ export default class ATService implements ServiceInterface {
         return balance;
     };
 
-    send: (notifications: NotificationAttrs[]) => Promise<string> = async (notifications: NotificationAttrs[]) => {
+    send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
-            from   : String(process.env.AT_SMS_FROM),
+            from   : process.env.NODE_ENV === 'production' ? String(process.env.AT_SMS_FROM) : undefined,
             message: this.#message
         };
 
@@ -63,12 +62,12 @@ export default class ATService implements ServiceInterface {
             .then(async (response: any) => {
                 log.info('AT: RESPONSE - ', response);
 
-                const atCallbacks = await this.#saveCallback(notifications, response.SMSMessageData);
+                const atCallbacks = await this.#saveCallback(notifications, response);
 
-                if(atCallbacks.every(cb => (cb.status === Status.COMPLETED))) return Status.COMPLETED
+                if (atCallbacks.every(cb => (cb.status === Status.COMPLETED))) return Status.COMPLETED;
 
-                log.error('AT CALLBACK SAVE ERROR: CALLBACKS - ', { atCallbacks })
-                return Status.FAILED
+                log.error('AT CALLBACK SAVE ERROR: CALLBACKS - ', { atCallbacks });
+                return Status.FAILED;
             })
             .catch((error: any) => {
                 log.error(error);
@@ -77,31 +76,31 @@ export default class ATService implements ServiceInterface {
             });
     };
 
-    #saveCallback = async (notifications:NotificationAttrs[], callback: any): Promise<ATCallbackAttrs[]> => {
-        return await db.ATCallback.bulkCreate(callback.Recipients.map((recipient: any) => {
+    #saveCallback = async (notifications: Notification[], callback: any): Promise<ATCallback[]> => {
+        const callbacks = ATCallback.create(notifications.map(notification => {
             let regex = /[+-]?\d+(\.\d+)?/g;
 
-            const notification = notifications.find(notification => {
+            const recipient = callback.SMSMessageData.Recipients.find(recipient => {
                 return String(notification.destination).slice(-9) == String(recipient.number).slice(-9);
             });
 
-            if(notification) {
-                const status = recipient.statusCode === 101 ? Status.COMPLETED : Status.FAILED
+            const status = recipient?.statusCode === 101 ? Status.COMPLETED : Status.FAILED;
 
-                notification.status = status
-                notification.provider = Provider.AT;
-                notification.save()
+            notification.status = status;
+            notification.provider = Provider.AT;
+            notification.save();
 
-                return {
-                    notification_id: notification.id,
-                    message_id : recipient.messageId,
-                    phone      : recipient.number,
-                    cost       : parseFloat(recipient.cost.match(regex)[0]),
-                    status     : status,
-                    description: recipient.status,
-                    status_code: recipient.statusCode
-                };
-            }
+            return {
+                notification_id: notification.id,
+                message_id     : recipient?.messageId,
+                phone          : recipient?.number,
+                cost           : recipient?.cost.match(regex)[0],
+                status,
+                description    : recipient?.status || callback.SMSMessageData.Message,
+                status_code    : recipient?.statusCode
+            };
         }));
+
+        return await ATCallback.save(callbacks);
     };
 }

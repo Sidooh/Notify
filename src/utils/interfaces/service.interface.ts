@@ -1,5 +1,5 @@
-import { NotificationAttrs } from '../../../models/notification';
+import { Notification } from '../../models/Notification';
 
 export default interface ServiceInterface {
-    send(notifications: NotificationAttrs[]): Promise<any>;
+    send(notifications: Notification[]): Promise<any>;
 }

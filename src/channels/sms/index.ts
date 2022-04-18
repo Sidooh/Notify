@@ -2,16 +2,16 @@ import NotificationInterface from '../../utils/interfaces/notification.interface
 import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
-import { SettingDoc } from '../../models/setting.model';
-import { NotificationAttrs } from '../../../models/notification';
+import { Notification } from '../../models/Notification';
 import map from 'lodash/map';
+import { Setting } from '../../models/Setting';
 
 export default class SMS implements NotificationInterface {
     notifications;
     destinations;
     #SMSService;
 
-    constructor(notifications: NotificationAttrs[], destinations: string[], smsSettings: SettingDoc[] | undefined) {
+    constructor(notifications: Notification[], destinations: string[], smsSettings: Setting[] | undefined) {
         this.notifications = notifications;
         this.destinations = destinations;
 

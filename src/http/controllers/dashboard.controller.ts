@@ -3,7 +3,7 @@ import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { Help } from '../../utils/helpers';
 import ATService from '../../channels/sms/AT/AT.service';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
-import { Notification } from '../../models/notification.model';
+import { Notification } from '../../models/Notification';
 import moment from 'moment';
 
 export class DashboardController implements ControllerInterface {
@@ -19,10 +19,11 @@ export class DashboardController implements ControllerInterface {
     }
 
     #dashboard = async (req: Request, res: Response) => {
-        const notifications = await Notification.find({})
-            .select(['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at', 'notifiable_type'])
-            .sort('-_id').limit(20).populate('notifiable_id', ['data']);
-        const count_notifications = await Notification.find({}).count();
+        const notifications = await Notification.find({
+            select: ['id', 'destination', 'channel', 'event_type', 'content', 'provider', 'status', 'created_at'],
+            order : { id: 'DESC' }, take: 20, relations: { notifiables: true }
+        });
+        const count_notifications = await Notification.count();
         const weekly_notifications = await this.#weeklyNotifications();
         const default_sms_provider = await Help.getSettings('default_sms_provider');
 
@@ -41,7 +42,7 @@ export class DashboardController implements ControllerInterface {
     };
 
     #weeklyNotifications = async () => {
-        let weeklyNotifications = await Notification.aggregate([
+        /*let weeklyNotifications = await Notification.aggregate([
             { $set: { 'date': { '$week': '$created_at' } } },
             { $match: { 'date': moment().week() - 1 } },
             {
@@ -55,10 +56,10 @@ export class DashboardController implements ControllerInterface {
                 }
             },
             { $project: { 'date': '$_id', 'notifications': '$total', '_id': 0 } }
-        ]);
+        ]);*/
 
         const startDate = moment().startOf('week');
-        const freqCount = 7
+        const freqCount = 7;
 
         const getDayName = (day: number, month: number, year: number) => {
             return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('ddd');
@@ -68,20 +69,22 @@ export class DashboardController implements ControllerInterface {
         for (let day: number = 0; day < freqCount; day++) {
             let label, count;
 
-            if (weeklyNotifications.find(dataset => dataset.date.day === startDate.date())) {
-                let { date, notifications } = weeklyNotifications.find(dataset => dataset.date.day === startDate.date());
+            /*if (weeklyNotifications.find(dataset => dataset.date.day === startDate.date())) {
+                let {
+                    date, notifications
+                } = weeklyNotifications.find(dataset => dataset.date.day === startDate.date());
 
                 label = getDayName(startDate.date(), date.month, date.year);
                 count = notifications;
             } else {
                 label = getDayName(startDate.date(), Number(startDate.format('M')), startDate.year());
                 count = 0;
-            }
+            }*/
 
             labels.push(label);
             datasets.push(count);
 
-            startDate.add(1, 'd')
+            startDate.add(1, 'd');
         }
 
         return { labels, datasets };

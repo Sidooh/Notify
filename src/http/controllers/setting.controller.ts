@@ -1,8 +1,9 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
-import db from '../../../models';
 import { SettingRequest } from '../requests/setting.request';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
+import { log } from '../../utils/logger';
+import { Setting } from '../../models/Setting';
 
 export class SettingController implements ControllerInterface {
     path: string = '/settings';
@@ -19,15 +20,18 @@ export class SettingController implements ControllerInterface {
     }
 
     #index = async (req: Request, res: Response) => {
-        const settings = await db.Setting.findAll();
+        const settings = await Setting.find();
 
         res.send(settings);
     };
 
-    #tweak = async (req: Request, res: Response, next: NextFunction) => {
-        const { id, type, value } = req.body;
+    #tweak = async ({ body }: Request, res: Response) => {
+        log.info('Tweak Settings - ', body);
 
-        const [setting] = await db.Setting.upsert({ id, type, value });
+        const { id, type, value } = body;
+
+        await Setting.upsert({ id, type, value }, ['type']);
+        const setting = await Setting.findOneBy({ type });
 
         res.send(setting);
     };
@@ -35,8 +39,8 @@ export class SettingController implements ControllerInterface {
     #destroy = async (req: Request, res: Response) => {
         const { id } = req.params;
 
-        await db.Setting.destroy({ where: { id } });
+        const result = await Setting.delete(Number(id));
 
-        res.send({ message: 'Deleted!' });
+        res.send({ message: result.affected ? 'Deleted!' : 'Nothing to delete' });
     };
 }

@@ -2,10 +2,9 @@ import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { WebSms } from './Lib/client';
 import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
-import db from '../../../../models';
-import { WebsmsCallbackAttrs } from '../../../../models/websmscallback';
-import { NotificationAttrs } from '../../../../models/notification';
 import { Provider, Status } from '../../../utils/enums';
+import { WebsmsCallback } from '../../../models/WebsmsCallback';
+import { Notification } from '../../../models/Notification';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
@@ -52,7 +51,7 @@ export default class WebSMSService implements ServiceInterface {
         return response;
     };
 
-    send: (notifications: NotificationAttrs[]) => Promise<string> = async (notifications: NotificationAttrs[]) => {
+    send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
         const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
@@ -72,7 +71,7 @@ export default class WebSMSService implements ServiceInterface {
                     };
                 }
 
-                return { status, response: response };
+                return { status, response: response.Data };
             }).catch(error => {
                 log.error(error);
 
@@ -84,28 +83,28 @@ export default class WebSMSService implements ServiceInterface {
         return webSmsCallback?.every(cb => (cb.status === Status.COMPLETED)) ? Status.COMPLETED : Status.FAILED;
     };
 
-    #saveCallback = async (notifications:NotificationAttrs[], callback: any): Promise<WebsmsCallbackAttrs[]|undefined> => {
-        return await db.WebsmsCallback.bulkCreate(callback.response.Data.map((response: any) => {
-            const notification = notifications!.find(notification => {
-                return String(notification.destination).slice(-9) == String(response.MobileNumber).slice(-9);
+    #saveCallback = async (notifications: Notification[], callback: any): Promise<WebsmsCallback[] | undefined> => {
+        const callbacks = WebsmsCallback.create(notifications.map(notification => {
+            const response = callback.response.find(res => {
+                return String(notification.destination).slice(-9) == String(res.MobileNumber).slice(-9);
             });
 
-            if (notification) {
-                const status = response.MessageErrorCode === 0 ? Status.COMPLETED : Status.FAILED;
+            let status = response?.MessageErrorCode === 0 ? Status.COMPLETED : Status.FAILED;
 
-                notification.status = status;
-                notification.provider = Provider.WEBSMS;
-                notification.save();
+            notification.status = status;
+            notification.provider = Provider.WEBSMS;
+            notification.save();
 
-                return {
-                    notification_id: notification.id,
-                    message_id     : response.MessageId,
-                    phone          : response.MobileNumber,
-                    description    : response.MessageErrorDescription,
-                    status_code    : response.MessageErrorCode,
-                    status         : status
-                };
-            }
+            return {
+                notification_id: notification.id,
+                message_id     : response?.MessageId,
+                phone          : response?.MobileNumber,
+                description    : response?.MessageErrorDescription || callback.response[0].MessageErrorDescription,
+                status_code    : response?.MessageErrorCode || callback.response[0].MessageErrorCode,
+                status
+            };
         }));
+
+        return await WebsmsCallback.save(callbacks);
     };
 }

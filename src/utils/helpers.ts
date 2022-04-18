@@ -1,10 +1,11 @@
-import { Setting } from '../models/setting.model';
+import { Setting } from '../models/Setting';
+import { In } from 'typeorm';
 
 export const Help = {
     getSettings: async (type: string | string[]) => {
-        if (Array.isArray(type)) return Setting.find({ type });
+        if (Array.isArray(type)) return Setting.findBy({ type: In(type) });
 
-        const setting = await Setting.findOne({ type }).exec();
+        const setting = await Setting.findOneBy({ type });
 
         return setting?.value;
     },

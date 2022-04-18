@@ -2,17 +2,15 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { BadRequestError, NotFoundError } from '@nabz.tickets/common';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { ValidationMiddleware } from '../middleware/validation.middleware';
-import Slack from '../../channels/slack';
-import SMS from '../../channels/sms';
 import { NotificationRequest } from '../requests/notification.request';
 import { log } from '../../utils/logger';
 import HttpException from '@nabz.tickets/common/build/exceptions/http.exception';
-import { Mail } from '../../channels/mail';
-import db from '../../../models';
 import map from 'lodash/map';
-import { Op } from 'sequelize';
-import { NotificationAttrs } from '../../../models/notification';
 import { Channel } from '../../utils/enums';
+import { Notification } from '../../models/Notification';
+import { Setting } from '../../models/Setting';
+import { In } from 'typeorm';
+import SMS from '../../channels/sms';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -31,9 +29,9 @@ export class NotificationController implements ControllerInterface {
 
     #index = async (req: Request, res: Response) => {
         try {
-            const notifications = await db.Notification.findAll({
-                attributes: { exclude: ['updatedAt'] }, order: [['id', 'DESC']],
-                include   : [db.ATCallback, db.WebsmsCallback]
+            const notifications = await Notification.find({
+                // attributes: { exclude: ['updatedAt'] }, order: [['id', 'DESC']],
+                // include   : [ATCallback, WebsmsCallback]
             });
 
             return res.send(notifications);
@@ -50,16 +48,18 @@ export class NotificationController implements ControllerInterface {
 
         if (channel === Channel.SLACK) destination = 'Sidooh';
 
-        const notifications = await db.Notification.bulkCreate(destination.map((destination: number | string) => ({
+        const notifications = Notification.create(destination.map((destination: number | string) => ({
             channel, destination, content, event_type
         })));
+        await Notification.insert(notifications);
 
-        this.send(notifications, req.body);
+        /*  TODO: Remove the await after dev    */
+        await this.send(notifications, req.body);
 
         return res.status(201).send(notifications);
     };
 
-    send = async (notifications: NotificationAttrs[], channelData: any, retry = false): Promise<void | boolean> => {
+    send = async (notifications: Notification[], channelData: any, retry = false): Promise<void | boolean> => {
         const channel = notifications[0].channel;
         const destinations = map(notifications, 'destination');
 
@@ -67,23 +67,21 @@ export class NotificationController implements ControllerInterface {
 
         let channelSrv;
         if (channel === Channel.MAIL) {
-            channelSrv = new Mail(notifications);
+            // channelSrv = new Mail(notifications);
         } else if (channel === Channel.SMS) {
-            const settings = await db.Setting.findAll({
-                where: { type: { [Op.in]: ['default_sms_provider', 'websms_env', 'africastalking_env'] } }
-            });
+            const settings = await Setting.findBy({ type: In(['default_sms_provider', 'websms_env', 'africastalking_env']) });
 
             channelSrv = new SMS(notifications, destinations, settings);
         } else {
-            channelSrv = new Slack(channelData, notifications);
+            // channelSrv = new Slack(channelData, notifications);
         }
 
         await channelSrv.send();
     };
 
     #show = async (req: Request, res: Response) => {
-        const notification = await db.Notification.findOne({
-            where: { id: req.params.id }, include: [db.ATCallback, db.WebsmsCallback]
+        const notification = await Notification.findOne({
+            // where: { id: Number(req.params.id) }, include: [db.ATCallback, db.WebsmsCallback]
         });
 
         if (!notification) throw new NotFoundError();
@@ -93,11 +91,11 @@ export class NotificationController implements ControllerInterface {
 
     #retry = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const notification = await db.Notification.findById(req.body.id).populate('notifiable_id', ['data']);
+            const notification = await Notification.find(req.body.id)/*.populate('notifiable_id', ['data'])*/;
 
-            const isSuccessful = await this.send([notification], notification, true);
+            // const isSuccessful = await this.send([notification], notification, true);
 
-            res.send({ status: isSuccessful ? 'success' : 'failed' });
+            // res.send({ status: isSuccessful ? 'success' : 'failed' });
         } catch (err: any) {
             next(new HttpException(500, err.message));
         }
