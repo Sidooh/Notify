@@ -1,11 +1,13 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
-import { Status } from '../utils/enums';
-import { PolymorphicParent } from 'typeorm-polymorphic';
+import { Provider, Status } from '../utils/enums';
 import { Notification } from './Notification';
 
-@Entity('websms_callbacks')
-export class WebsmsCallback extends BaseEntity {
+@Entity('notifiables')
+export class Notifiable extends BaseEntity {
+
+    @Column({ nullable: true })
+    provider: Provider;
 
     @Column({ nullable: true })
     message_id: string;
@@ -19,13 +21,16 @@ export class WebsmsCallback extends BaseEntity {
     @Column({ default: Status.PENDING })
     status: Status;
 
+    @Column({ type: 'decimal', default: 0, precision: 8, scale: 4 })
+    cost?: number;
+
     @Column({ type: 'integer', nullable: true })
     status_code: number;
 
     @Column({ type: 'bigint', unsigned: true })
     notification_id: number;
 
-    @PolymorphicParent(() => Notification)
+    @ManyToOne(() => Notification, notification => notification.notifiables)
     notification: Notification;
 
 }

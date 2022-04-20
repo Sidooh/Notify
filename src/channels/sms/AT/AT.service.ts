@@ -2,8 +2,8 @@ import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
 import { Provider, Status } from '../../../utils/enums';
-import { ATCallback } from '../../../models/ATCallback';
 import { Notification } from '../../../models/Notification';
+import { Notifiable } from '../../../models/Notifiable';
 
 
 export default class ATService implements ServiceInterface {
@@ -76,8 +76,8 @@ export default class ATService implements ServiceInterface {
             });
     };
 
-    #saveCallback = async (notifications: Notification[], callback: any): Promise<ATCallback[]> => {
-        const callbacks = ATCallback.create(notifications.map(notification => {
+    #saveCallback = async (notifications: Notification[], callback: any): Promise<Notifiable[]> => {
+        const callbacks = Notifiable.create(notifications.map(notification => {
             let regex = /[+-]?\d+(\.\d+)?/g;
 
             const recipient = callback.SMSMessageData.Recipients.find(recipient => {
@@ -87,7 +87,6 @@ export default class ATService implements ServiceInterface {
             const status = recipient?.statusCode === 101 ? Status.COMPLETED : Status.FAILED;
 
             notification.status = status;
-            notification.provider = Provider.AT;
             notification.save();
 
             return {
@@ -95,12 +94,13 @@ export default class ATService implements ServiceInterface {
                 message_id     : recipient?.messageId,
                 phone          : recipient?.number,
                 cost           : recipient?.cost.match(regex)[0],
-                status,
+                provider       : Provider.AT,
                 description    : recipient?.status || callback.SMSMessageData.Message,
-                status_code    : recipient?.statusCode
+                status_code    : recipient?.statusCode,
+                status
             };
         }));
 
-        return await ATCallback.save(callbacks);
+        return await Notifiable.save(callbacks);
     };
 }

@@ -2,9 +2,8 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Notification } from '../models/Notification';
-import { ATCallback } from '../models/ATCallback';
-import { WebsmsCallback } from '../models/WebsmsCallback';
 import { Setting } from '../models/Setting';
+import { Notifiable } from '../models/Notifiable';
 
 export const AppDataSource = new DataSource({
     type          : 'mysql',
@@ -15,7 +14,7 @@ export const AppDataSource = new DataSource({
     database      : process.env.DB_DATABASE,
     synchronize   : true,
     logging       : false,
-    entities      : [Notification, ATCallback, WebsmsCallback, Setting],
+    entities      : [Notification, Notifiable, Setting],
     migrations    : [],
     subscribers   : [],
     namingStrategy: new SnakeNamingStrategy()

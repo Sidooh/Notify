@@ -1,13 +1,14 @@
 import MailService from './mail.service';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import { log } from '../../utils/logger';
-import { NotificationAttrs } from '../../../models/notification';
+import { Notification } from '../../models/Notification';
+import { Provider, Status } from '../../utils/enums';
 
 export class Mail implements NotificationInterface {
     notifications
     #MailService
 
-    constructor(notifications: NotificationAttrs[]) {
+    constructor(notifications: Notification[]) {
         this.notifications = notifications
         this.#MailService = new MailService()
     }
@@ -18,17 +19,17 @@ export class Mail implements NotificationInterface {
                 .to(notification.destination)
                 .html(notification.content)
                 .send().then(response => {
-                return {status: !!response.accepted ? 'success' : 'failed'}
+                return {status: !!response.accepted ? Status.COMPLETED : Status.FAILED}
             }).catch(error => {
                 log.error(error, error.message);
 
-                return {status: 'failed'}
+                return {status: Status.FAILED}
             }).then(async ({status}) => {
                 notification.status = status
-                notification.provider = 'GMAIL'
+                notification.provider = Provider.GMAIL
                 await notification.save()
 
-                return status === 'success'
+                return status === Status.COMPLETED
             })
         })
     }

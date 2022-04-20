@@ -6,7 +6,9 @@ export enum Status {
 
 export enum Provider {
     WEBSMS = 'websms',
-    AT = 'africastalking'
+    AT = 'africastalking',
+    SLACK = 'slack',
+    GMAIL = 'gmail',
 }
 
 export enum Channel {

@@ -3,8 +3,8 @@ import { WebSms } from './Lib/client';
 import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
 import { Provider, Status } from '../../../utils/enums';
-import { WebsmsCallback } from '../../../models/WebsmsCallback';
 import { Notification } from '../../../models/Notification';
+import { Notifiable } from '../../../models/Notifiable';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
@@ -83,8 +83,8 @@ export default class WebSMSService implements ServiceInterface {
         return webSmsCallback?.every(cb => (cb.status === Status.COMPLETED)) ? Status.COMPLETED : Status.FAILED;
     };
 
-    #saveCallback = async (notifications: Notification[], callback: any): Promise<WebsmsCallback[] | undefined> => {
-        const callbacks = WebsmsCallback.create(notifications.map(notification => {
+    #saveCallback = async (notifications: Notification[], callback: any): Promise<Notifiable[] | undefined> => {
+        const callbacks = Notifiable.create(notifications.map(notification => {
             const response = callback.response.find(res => {
                 return String(notification.destination).slice(-9) == String(res.MobileNumber).slice(-9);
             });
@@ -92,7 +92,6 @@ export default class WebSMSService implements ServiceInterface {
             let status = response?.MessageErrorCode === 0 ? Status.COMPLETED : Status.FAILED;
 
             notification.status = status;
-            notification.provider = Provider.WEBSMS;
             notification.save();
 
             return {
@@ -101,10 +100,11 @@ export default class WebSMSService implements ServiceInterface {
                 phone          : response?.MobileNumber,
                 description    : response?.MessageErrorDescription || callback.response[0].MessageErrorDescription,
                 status_code    : response?.MessageErrorCode || callback.response[0].MessageErrorCode,
+                provider       : Provider.WEBSMS,
                 status
             };
         }));
 
-        return await WebsmsCallback.save(callbacks);
+        return await Notifiable.save(callbacks);
     };
 }

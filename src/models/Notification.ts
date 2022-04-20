@@ -1,9 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
-import { EventType, Provider, Status } from '../utils/enums';
-import { ATCallback } from './ATCallback';
-import { WebsmsCallback } from './WebsmsCallback';
-import { PolymorphicChildren } from 'typeorm-polymorphic';
+import { EventType, Status } from '../utils/enums';
+import { Notifiable } from './Notifiable';
 
 @Entity('notifications')
 export class Notification extends BaseEntity {
@@ -20,13 +18,10 @@ export class Notification extends BaseEntity {
     @Column({ type: 'text' })
     content: string;
 
-    @Column({ nullable: true })
-    provider: Provider;
-
     @Column({ default: Status.PENDING })
     status: Status;
 
-    @PolymorphicChildren(() => [ATCallback, WebsmsCallback])
-    notifiables: (ATCallback | WebsmsCallback)[];
+    @OneToMany(() => Notifiable, notifiable => notifiable.notification)
+    notifiables: Notifiable[];
 
 }

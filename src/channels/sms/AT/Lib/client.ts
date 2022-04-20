@@ -5,7 +5,6 @@ export class AfricasTalking {
 
     constructor(credentials: AfricasTalkingCredentials) {
         this.AT = require('africastalking')(credentials);
-        console.log(credentials);
     }
 
     public async application() {
