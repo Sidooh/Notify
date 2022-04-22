@@ -2,31 +2,24 @@ name: test-notify
 
 on: push
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  # This workflow contains a single job called "build"
   build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [ 16.14.2 ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-        # Runs a single command using the runners shell
-      - name: Use Node.js ${{ matrix.node-version }}
       - uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '16.x'
 
-      - name: Install
-      - uses: borales/actions-yarn@v2.3.0
-        with:
-          cmd: install # will run `yarn install` command
+      # Runs a single command using the runners shell
+      - name: Install packages
+      - run: yarn install
 
-      - name: Test
-      - uses: borales/actions-yarn@v2.3.0
-        with:
-          cmd: run test:ci # will run `yarn test` command
+      - name: Run tests
+      - run: yarn run test:ci

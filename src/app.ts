@@ -2,7 +2,6 @@ import express, { Express, json, urlencoded } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import 'express-async-errors';
-import cookieSession from 'cookie-session';
 import { errorHandler, NotFoundError } from '@nabz.tickets/common';
 import { NotificationController, SettingController } from './http/controllers';
 import { log } from './utils/logger';
@@ -28,10 +27,6 @@ class App {
         this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
-        this.app.use(cookieSession({
-            signed: false,
-            secure: process.env.NODE_ENV !== 'test'
-        }));
     }
 
     #initControllers(): void {

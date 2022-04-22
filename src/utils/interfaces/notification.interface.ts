@@ -1,7 +1,7 @@
-import { NotificationAttrs } from '../../../models/notification';
+import { Notification } from '../../models/Notification';
 
 export default interface NotificationInterface {
-    notifications: NotificationAttrs | NotificationAttrs[];
+    notifications: Notification | Notification[];
     destinations?: string[];
 
     send(retry?: boolean): Promise<boolean | void>;
