@@ -1,33 +1,36 @@
 import MailService from './mail.service';
-import { NotificationDoc } from '../../models/notification.model';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import { log } from '../../utils/logger';
+import { Notification } from '../../models/Notification';
+import { Provider, Status } from '../../utils/enums';
 
 export class Mail implements NotificationInterface {
-    notification
+    notifications
     #MailService
 
-    constructor(notification: NotificationDoc) {
-        this.notification = notification
+    constructor(notifications: Notification[]) {
+        this.notifications = notifications
         this.#MailService = new MailService()
     }
 
     send = async () => {
-        this.#MailService.from('sidooh@gmail.com')
-            .to(this.notification.destination)
-            .html(this.notification.content)
-            .send().then(response => {
-            return {status: !!response.accepted ? 'success' : 'failed'}
-        }).catch(error => {
-            log.error(error, error.message);
+        this.notifications.forEach(notification => {
+            this.#MailService.from('sidooh@gmail.com')
+                .to(notification.destination)
+                .html(notification.content)
+                .send().then(response => {
+                return {status: !!response.accepted ? Status.COMPLETED : Status.FAILED}
+            }).catch(error => {
+                log.error(error, error.message);
 
-            return {status: 'failed'}
-        }).then(async ({status}) => {
-            this.notification.status = status
-            this.notification.provider = 'GMAIL'
-            await this.notification.save()
+                return {status: Status.FAILED}
+            }).then(async ({status}) => {
+                notification.status = status
+                notification.provider = Provider.GMAIL
+                await notification.save()
 
-            return status === 'success'
+                return status === Status.COMPLETED
+            })
         })
     }
 }

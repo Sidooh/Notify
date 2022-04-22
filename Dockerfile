@@ -5,9 +5,10 @@ FROM node:16.14.0-alpine as build
 
 WORKDIR /app
 COPY package.json .
-RUN npm install
+COPY yarn.lock .
+RUN yarn install
 COPY . .
-RUN npm run build
+RUN yarn run build
 
 
 # Build Stage 2

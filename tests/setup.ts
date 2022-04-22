@@ -1,27 +1,19 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
+import { DataSource } from 'typeorm';
+import { Notification } from '../src/models/Notification';
+import { Notifiable } from '../src/models/Notifiable';
+import { Setting } from '../src/models/Setting';
 
-let mongo: any;
-
-beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
-
-    const mongoUri = mongo.getUri();
-
-    await mongoose.connect(mongoUri);
+const dataSource = new DataSource({
+    type       : 'sqlite',
+    database   : ':memory:',
+    dropSchema : true,
+    entities   : [Notification, Notifiable, Setting],
+    synchronize: true,
+    logging    : false
 });
 
-beforeEach(async () => {
-    const collections = await mongoose.connection.db.collections();
+beforeAll(async () => await dataSource.initialize());
 
-    for (const collection of collections) {
-        await collection.deleteMany({});
-    }
-});
-
-afterAll(async () => {
-    await mongo.stop();
-    await mongoose.connection.close();
-});
+afterAll(async () => await dataSource.destroy());
 
 jest.setTimeout(10000);

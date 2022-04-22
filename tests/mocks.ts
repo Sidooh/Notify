@@ -29,10 +29,10 @@ jest.mock('winston', () => ({
 }));
 
 jest.spyOn(new Sms(new WebSms({
-    accessKey: "",
-    apiKey   : "",
-    clientId : "",
-    senderId : ""
+    accessKey: '',
+    apiKey   : '',
+    clientId : '',
+    senderId : ''
 })), 'send').mockImplementation(async () => {
     const mockedAxios = axios as jest.Mocked<typeof axios>;
     mockedAxios.post.mockResolvedValueOnce([]);

@@ -25,5 +25,5 @@ it('should fetch a list of notifications.', async function() {
         .send()
         .expect(200);
 
-    expect(response.body.length).toEqual(3);
+    expect(response.body.length).toEqual(6);
 });
