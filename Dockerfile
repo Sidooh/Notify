@@ -5,9 +5,10 @@ FROM node:16.14.0-alpine as build
 
 WORKDIR /app
 COPY package.json .
-RUN npm install
+COPY yarn.lock .
+RUN yarn install
 COPY . .
-RUN npm build
+RUN yarn run build
 
 
 # Build Stage 2
@@ -16,7 +17,8 @@ RUN npm build
 FROM node:16.14.0-alpine
 WORKDIR /app
 COPY package.json .
-RUN npm install
+COPY yarn.lock .
+RUN yarn install
 COPY --from=build /app/dist ./dist
 
 EXPOSE 4000
