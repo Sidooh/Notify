@@ -8,7 +8,7 @@ export default function validateEnv(): void {
             choices: ['development', 'production']
         }),
 
-        // MONGO_URL: url(),
+        // DB_SOCKET: url(),
 
         MAIL_HOST: str(),
         MAIL_PORT: num({
