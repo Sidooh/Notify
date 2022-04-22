@@ -18,8 +18,8 @@ jobs:
           node-version: '16.x'
 
       # Runs a single command using the runners shell
-      - name: Install packages
-      - run: yarn install
+      - name: Install dependencies
+        run: yarn install
 
       - name: Run tests
-      - run: yarn run test:ci
+        run: yarn run test:ci
