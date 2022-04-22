@@ -1,4 +1,3 @@
-// import db from '../models';
 import { DataSource } from 'typeorm';
 import { Notification } from '../src/models/Notification';
 import { Notifiable } from '../src/models/Notifiable';
@@ -14,15 +13,6 @@ const dataSource = new DataSource({
 });
 
 beforeAll(async () => await dataSource.initialize());
-
-/*beforeEach(async () => {
-    const entities = dataSource.entityMetadatas;
-
-    for (const entity of entities) {
-        const repository = await dataSource.getRepository(entity.name);
-        await repository.clear();
-    }
-});*/
 
 afterAll(async () => await dataSource.destroy());
 
