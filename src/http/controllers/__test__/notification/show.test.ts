@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import supertest from 'supertest';
 import App from '../../../../app';
 
@@ -6,10 +5,8 @@ const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
 
 it('should return a 404 if a notification is not found.', async function () {
-    const id = new mongoose.Types.ObjectId().toHexString()
-
     await request
-        .get(`/api/notifications/${id}`)
+        .get(`/api/notifications/${0}`)
         .send().expect(404)
 });
 

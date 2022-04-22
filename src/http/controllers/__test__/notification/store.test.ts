@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import App from '../../../../app';
+import { Notification } from '../../../../models/Notification';
 
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
@@ -36,14 +37,12 @@ it('should create a notification if request data is valid.', async function() {
         content    : 'Testing and much more testing...!'
     };
 
-    const notifications = await request
+    await request
         .post('/api/notifications')
         .send(data).expect(201);
 
-    // const notifications = await db.Notification.findAll({ include: [db.ATCallback, db.WebsmsCallback] });
+    const notifications = await Notification.find();
 
-    console.log(notifications);
-
-    /*expect(notifications[0].channel).toEqual(data.channel);
-    expect(notifications[0].event_type).toEqual(data.event_type);*/
+    expect(notifications[0].channel).toEqual(data.channel);
+    expect(notifications[0].event_type).toEqual(data.event_type);
 });

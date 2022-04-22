@@ -28,10 +28,17 @@ export class SettingController implements ControllerInterface {
     #tweak = async ({ body }: Request, res: Response) => {
         log.info('Tweak Settings - ', body);
 
-        const { id, type, value } = body;
+        const { type, value } = body;
 
-        await Setting.upsert({ id, type, value }, ['type']);
-        const setting = await Setting.findOneBy({ type });
+        let setting = await Setting.findOneBy({type})
+
+        if(!setting) {
+            setting = await Setting.create({type, value}).save()
+        } else {
+            setting.type = type;
+            setting.value = value
+            await setting.save()
+        }
 
         res.send(setting);
     };

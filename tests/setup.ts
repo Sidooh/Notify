@@ -1,18 +1,29 @@
-import db from '../models';
-import map from 'lodash/map';
+// import db from '../models';
+import { DataSource } from 'typeorm';
+import { Notification } from '../src/models/Notification';
+import { Notifiable } from '../src/models/Notifiable';
+import { Setting } from '../src/models/Setting';
 
-export default async function truncate() {
-    return await Promise.all(
-        map(Object.keys(db.sequelize.models), (key) => {
-            if (['sequelize', 'Sequelize'].includes(key)) return null;
-            return db.sequelize.models[key].destroy({ where: {}, force: true });
-        })
-    );
-}
+const dataSource = new DataSource({
+    type       : 'sqlite',
+    database   : ':memory:',
+    dropSchema : true,
+    entities   : [Notification, Notifiable, Setting],
+    synchronize: true,
+    logging    : false
+});
 
-beforeAll(async () => await db.sequelize.sync({ force: true }));
-beforeEach(async () => await truncate());
+beforeAll(async () => await dataSource.initialize());
 
-afterAll(async () => await db.sequelize.close());
+/*beforeEach(async () => {
+    const entities = dataSource.entityMetadatas;
+
+    for (const entity of entities) {
+        const repository = await dataSource.getRepository(entity.name);
+        await repository.clear();
+    }
+});*/
+
+afterAll(async () => await dataSource.destroy());
 
 jest.setTimeout(10000);

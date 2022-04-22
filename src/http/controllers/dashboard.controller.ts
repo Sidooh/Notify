@@ -72,7 +72,7 @@ export class DashboardController implements ControllerInterface {
                 } = weeklyNotifications.find(({ day }) => day === startDate.date());
 
                 label = getDayName(startDate.date(), month, year);
-                count = notificationsCount;
+                count = Number(notificationsCount);
             } else {
                 label = getDayName(startDate.date(), Number(startDate.format('M')), startDate.year());
                 count = 0;
