@@ -6,7 +6,7 @@ const request = supertest(app);
 
 it('should return a 200 if provided setting is valid.', async function() {
     return request
-        .post('/api/settings')
+        .post('/api/v1/settings')
         .send({
             type: 'default_sms_provider',
             value: 'africastalking'
@@ -16,7 +16,7 @@ it('should return a 200 if provided setting is valid.', async function() {
 
 it('should return a 400 if provided setting is invalid.', async function() {
     return request
-        .post('/api/settings')
+        .post('/api/v1/settings')
         .send({
             type: 'default_sms_provider',
             value: 'africastalkingsa'

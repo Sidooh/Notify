@@ -29,10 +29,12 @@ export class NotificationController implements ControllerInterface {
         this.router.get(`${this.path}/:id`, this.#show);
     }
 
-    #index = async (req: Request, res: Response) => {
+    #index = async ({ query }: Request, res: Response) => {
+        const {with_notifiables} = query
+
         try {
             const notifications = await Notification.find({
-                relations: { notifiables: true }, order: { id: 'DESC' },
+                relations: { notifiables: Boolean(with_notifiables) }, order: { id: 'DESC' },
                 select   : ['id', 'event_type', 'content', 'channel', 'destination', 'status', 'created_at']
             });
 
@@ -80,12 +82,14 @@ export class NotificationController implements ControllerInterface {
         await channelSrv.send();
     };
 
-    #show = async (req: Request, res: Response) => {
+    #show = async ({ params, query }: Request, res: Response) => {
+        const {with_notifiables} = query
+
         const notification = await Notification.findOne({
-            where: { id: Number(req.params.id) }, relations: { notifiables: true }
+            where: { id: Number(params.id) }, relations: { notifiables: Boolean(with_notifiables) }
         });
 
-        if (!notification) throw new NotFoundError();
+        if (!notification) throw new NotFoundError('Notification Not Found!');
 
         res.send(notification);
     };
