@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
-import { BadRequestError } from '@nabz.tickets/common';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { Help } from '../../utils/helpers';
 import ATService from '../../channels/sms/AT/AT.service';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
+import { BadRequestError } from '../../exceptions/bad-request.err';
 
 export class SmsController implements ControllerInterface {
     path: string = '/sms';

@@ -1,9 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Joi from 'joi';
+import { ValidationError } from '../../exceptions/validation.err';
 import { log } from '../../utils/logger';
-import { RequestValidationError } from '../../utils/exceptions/request-validation.error';
 
-export const ValidationMiddleware = (schema: Joi.Schema): RequestHandler => {
+export const validate = (schema: Joi.Schema): RequestHandler => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const validationOptions = {
             abortEarly: false,
@@ -22,7 +22,7 @@ export const ValidationMiddleware = (schema: Joi.Schema): RequestHandler => {
 
             err.details.forEach((err: Joi.ValidationErrorItem) => errors.push(err));
 
-            throw new RequestValidationError(errors)
+            throw new ValidationError(errors)
         }
     };
 };

@@ -5,9 +5,9 @@ import { Notification } from '../../../../models/Notification';
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
 
-it('should have a route handler listening to /api/notifications for post requests', async function() {
+it('should have a route handler listening to /api/v1/notifications for post requests', async function() {
     const response = await request
-        .post('/api/notifications')
+        .post('/api/v1/notifications')
         .send({});
 
     expect(response.status).not.toEqual(404);
@@ -15,14 +15,14 @@ it('should have a route handler listening to /api/notifications for post request
 
 it('should return an error if request data is invalid.', async function() {
     await request
-        .post('/api/notifications')
+        .post('/api/v1/notifications')
         .send({
             channel: 'sms',
             price  : 10
         }).expect(400);
 
     await request
-        .post('/api/notifications')
+        .post('/api/v1/notifications')
         .send({
             event_type: 'AIRTIME_PURCHASE',
             content   : 'Testing and much more testing...!'
@@ -38,7 +38,7 @@ it('should create a notification if request data is valid.', async function() {
     };
 
     await request
-        .post('/api/notifications')
+        .post('/api/v1/notifications')
         .send(data).expect(201);
 
     const notifications = await Notification.find();
