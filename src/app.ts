@@ -1,16 +1,19 @@
-import express, { Express, json, urlencoded } from 'express';
+import express, { Application, json, urlencoded } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import 'express-async-errors';
-import { errorHandler, NotFoundError } from '@nabz.tickets/common';
-import { NotificationController, SettingController } from './http/controllers';
+import cookieParser from 'cookie-parser';
 import { log } from './utils/logger';
+import { NotificationController, SettingController } from './http/controllers';
 import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
+import { ErrorMiddleware } from './http/middleware/error.middleware';
+import { NotFoundError } from './exceptions/not-found.err';
+import { User } from './http/middleware/user.middleware';
 
 class App {
-    public app: Express;
+    public app: Application;
     public port: number;
 
     constructor(port: number) {
@@ -27,6 +30,8 @@ class App {
         this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
+        this.app.use(cookieParser());
+        this.app.use(User);
     }
 
     #initControllers(): void {
@@ -35,7 +40,7 @@ class App {
             new SettingController(),
             new SmsController(),
             new DashboardController()
-        ].forEach((controller: ControllerInterface) => this.app.use('/api', controller.router));
+        ].forEach((controller: ControllerInterface) => this.app.use('/api/v1', /*[Auth],*/ controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();
@@ -43,7 +48,7 @@ class App {
     }
 
     #initErrorHandling(): void {
-        this.app.use(errorHandler);
+        this.app.use(ErrorMiddleware);
     }
 
     listen(): void {

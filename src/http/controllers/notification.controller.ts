@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { BadRequestError, NotFoundError } from '@nabz.tickets/common';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
-import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { NotificationRequest } from '../requests/notification.request';
 import { log } from '../../utils/logger';
-import HttpException from '@nabz.tickets/common/build/exceptions/http.exception';
 import map from 'lodash/map';
 import { Channel } from '../../utils/enums';
 import { Notification } from '../../models/Notification';
@@ -13,6 +10,9 @@ import { In } from 'typeorm';
 import SMS from '../../channels/sms';
 import Slack from '../../channels/slack';
 import { Mail } from '../../channels/mail';
+import { validate } from '../middleware/validate.middleware';
+import { BadRequestError } from '../../exceptions/bad-request.err';
+import { NotFoundError } from '../../exceptions/not-found.err';
 
 export class NotificationController implements ControllerInterface {
     path: string = '/notifications';
@@ -24,8 +24,8 @@ export class NotificationController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, ValidationMiddleware(NotificationRequest.store), this.#store);
-        this.router.post(`${this.path}/retry/:id`, ValidationMiddleware(NotificationRequest.retry), this.#retry);
+        this.router.post(`${this.path}`, validate(NotificationRequest.store), this.#store);
+        this.router.post(`${this.path}/retry/:id`, validate(NotificationRequest.retry), this.#retry);
         this.router.get(`${this.path}/:id`, this.#show);
     }
 
@@ -57,7 +57,7 @@ export class NotificationController implements ControllerInterface {
 
         this.send(notifications, req.body);
 
-        return res.status(201).send(notifications);
+        return res.status(201).send({ids: map(notifications, 'id')});
     };
 
     send = async (notifications: Notification[], channelData: any): Promise<void | boolean> => {
@@ -100,7 +100,7 @@ export class NotificationController implements ControllerInterface {
 
             res.send({ message: 'retrying...' });
         } catch (err: any) {
-            next(new HttpException(500, err.message));
+            next();
         }
     };
 }

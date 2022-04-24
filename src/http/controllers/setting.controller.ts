@@ -1,9 +1,9 @@
 import { Request, Response, Router } from 'express';
 import ControllerInterface from '../../utils/interfaces/controller.interface';
 import { SettingRequest } from '../requests/setting.request';
-import { ValidationMiddleware } from '../middleware/validation.middleware';
 import { log } from '../../utils/logger';
 import { Setting } from '../../models/Setting';
+import { validate } from '../middleware/validate.middleware';
 
 export class SettingController implements ControllerInterface {
     path: string = '/settings';
@@ -15,7 +15,7 @@ export class SettingController implements ControllerInterface {
 
     #initRoutes(): void {
         this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, ValidationMiddleware(SettingRequest.create), this.#tweak);
+        this.router.post(`${this.path}`, validate(SettingRequest.create), this.#tweak);
         this.router.delete(`${this.path}/:id`, this.#destroy);
     }
 
