@@ -4,10 +4,18 @@
 FROM node:16.14.2-alpine as build
 
 WORKDIR /app
+
+RUN yarn set version berry
+RUN yarn plugin import typescript
+
 COPY package.json .
 COPY yarn.lock .
+COPY .yarnrc.yml .
+
 RUN yarn install
+
 COPY . .
+
 RUN yarn run build
 
 
@@ -16,11 +24,11 @@ RUN yarn run build
 #
 FROM node:16.14.2-alpine
 WORKDIR /app
-COPY package.json .
-COPY yarn.lock .
-RUN yarn install
+#COPY package.json .
+#COPY yarn.lock .
+#RUN yarn install
 COPY --from=build /app/dist ./dist
 
 EXPOSE 4000
 
-CMD npm start
+CMD yarn start
