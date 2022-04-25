@@ -19,6 +19,7 @@ COPY . .
 RUN yarn run build
 
 
+
 # Build Stage 2
 # This build takes the production build from staging build
 #
