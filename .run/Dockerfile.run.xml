@@ -2,8 +2,8 @@
   <configuration default="false" name="Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
     <deployment type="dockerfile">
       <settings>
-        <option name="imageTag" value="sidooh-notify" />
-        <option name="containerName" value="sidooh-notify" />
+        <option name="imageTag" value="notify.sidooh" />
+        <option name="containerName" value="notify.sidooh" />
         <option name="sourceFilePath" value="Dockerfile" />
       </settings>
     </deployment>
