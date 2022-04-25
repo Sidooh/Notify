@@ -1,31 +1,19 @@
 import Joi from 'joi';
+import { Channel, EventType } from '../../utils/enums';
 
 export const NotificationRequest = {
         store: Joi.object({
-            channel: Joi.string().valid('slack', 'sms', 'mail', 'app').required(),
+            channel: Joi.string().valid(...Object.values(Channel).map(c => c)).required(),
             content: Joi.string().required(),
-            event_type: Joi.string().valid(
-                'AIRTIME_PURCHASE', 'AIRTIME_PURCHASE_FAILURE',
-                'UTILITY_PAYMENT', 'UTILITY_PAYMENT_FAILURE',
-                'VOUCHER_PURCHASE', 'VOUCHER_REFUND',
-                'WITHDRAWAL_PAYMENT', 'WITHDRAWAL_FAILURE',
-                'REFERRAL_INVITE', 'REFERRAL_JOINED',
-                'SUBSCRIPTION_PAYMENT',
-                'MERCHANT_PAYMENT',
-                'PAYMENT_FAILURE',
-                'ERROR_ALERT',
-                'STATUS_UPDATE',
-                'SP_REQUEST_FAILURE',
-                'TEST'
-            ).default('DEFAULT'),
+            event_type: Joi.string().valid(...Object.values(EventType).map(e => e)).default(EventType.DEFAULT),
             destination: Joi
                 .when('channel', {
-                    is: 'sms',
+                    is: Channel.SMS,
                     then: Joi.alternatives().try(
                         Joi.array().items(Joi.number().integer()),
                         Joi.number().integer()).required()
                 }).when('channel', {
-                    is: 'mail',
+                    is: Channel.MAIL,
                     then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email()).required()
                 })
         }),

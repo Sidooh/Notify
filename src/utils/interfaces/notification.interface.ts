@@ -1,7 +1,8 @@
-import { NotificationDoc } from '../../models/notification.model';
+import { Notification } from '../../models/Notification';
 
 export default interface NotificationInterface {
-    notification: NotificationDoc;
+    notifications: Notification | Notification[];
+    destinations?: string[];
 
-    send(retry?:boolean): Promise<boolean|void>;
+    send(retry?: boolean): Promise<boolean | void>;
 }

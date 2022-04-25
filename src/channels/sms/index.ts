@@ -1,47 +1,40 @@
-import { NotificationDoc } from '../../models/notification.model';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
+import { Notification } from '../../models/Notification';
+import map from 'lodash/map';
+import { Setting } from '../../models/Setting';
 
 export default class SMS implements NotificationInterface {
-    notification;
+    notifications;
+    destinations;
     #SMSService;
 
-    constructor(notification: NotificationDoc, provider: string | undefined) {
-        this.notification = notification;
+    constructor(notifications: Notification[], destinations: string[], smsSettings: Setting[] | undefined) {
+        this.notifications = notifications;
+        this.destinations = destinations;
 
-        switch (provider) {
+        const settings = {
+            provider          : smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
+            websms_env        : smsSettings?.find(setting => setting.type === 'websms_env')?.value,
+            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value
+        };
+
+        switch (settings.provider) {
             case 'africastalking':
-                this.#SMSService = new ATService();
+                this.#SMSService = new ATService(settings.africastalking_env);
                 break;
             default:
-                this.#SMSService = new WebSMSService();
+                this.#SMSService = new WebSMSService(settings.websms_env);
         }
     }
 
-    send = async (retry: boolean) => {
-        let destinations = this.notification.destination;
+    send = async () => {
+        const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
 
-        if (retry) {
-            destinations = this.notification.notifiable_id.data.filter((notification: any) => notification.status === 'failed')
-                .map((recipient: any) => recipient.phone.replace(/\+/g, ' '));
-        }
-
-        const SMS = this.#SMSService.to(destinations).message(this.notification.content);
-
-        if (retry) SMS.notification(this.notification);
-
-        SMS.send()
-            .then(async ({ status, provider, notifiable_id, notifiable_type }) => {
-                this.notification.status = status;
-                this.notification.provider = provider;
-                this.notification.notifiable_id = notifiable_id;
-                this.notification.notifiable_type = notifiable_type;
-
-                await this.notification.save();
-
-                log.info('SMS NOTIFICATION SUCCESSFUL - ', { id: this.notification.id })
-            }).catch(err => log.error(err));
+        SMS.send(this.notifications)
+            .then(status => log.info(`SMS NOTIFICATION REQUEST ${status.toUpperCase()} - `, { ids: map(this.notifications, 'id') }))
+            .catch(err => log.error(err));
     };
 }

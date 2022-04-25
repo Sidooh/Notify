@@ -8,7 +8,7 @@ export default function validateEnv(): void {
             choices: ['development', 'production']
         }),
 
-        MONGO_URL: url(),
+        // DB_SOCKET: url(),
 
         MAIL_HOST: str(),
         MAIL_PORT: num({
@@ -28,6 +28,9 @@ export default function validateEnv(): void {
         WEBSMS_CLIENT_ID: str(),
         WEBSMS_SENDER_ID: str(),
 
-        SLACK_HOOK_URL: url()
+        SLACK_HOOK_URL: url(),
+        SLACK_LOGGING: str({
+            choices: ["enabled", "disabled"]
+        })
     })
 }

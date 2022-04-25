@@ -6,7 +6,7 @@ const request = supertest(app);
 
 const createNotification = () => {
     return request
-        .post('/api/notifications')
+        .post('/api/v1/notifications')
         .send({
             channel    : 'sms',
             destination: [2547110039317, 254736388405],
@@ -21,9 +21,9 @@ it('should fetch a list of notifications.', async function() {
     await createNotification();
 
     const response = await request
-        .get('/api/notifications')
+        .get('/api/v1/notifications')
         .send()
         .expect(200);
 
-    expect(response.body.length).toEqual(3);
+    expect(response.body.length).toEqual(6);
 });

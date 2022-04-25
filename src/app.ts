@@ -1,17 +1,19 @@
-import express, { Express, json, urlencoded } from 'express';
+import express, { Application, json, urlencoded } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import 'express-async-errors';
-import cookieSession from 'cookie-session';
-import { errorHandler, NotFoundError } from '@nabz.tickets/common';
-import { NotificationController, SettingController } from './http/controllers';
+import cookieParser from 'cookie-parser';
 import { log } from './utils/logger';
+import { NotificationController, SettingController } from './http/controllers';
 import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
+import { ErrorMiddleware } from './http/middleware/error.middleware';
+import { NotFoundError } from './exceptions/not-found.err';
+import { User } from './http/middleware/user.middleware';
 
 class App {
-    public app: Express;
+    public app: Application;
     public port: number;
 
     constructor(port: number) {
@@ -24,14 +26,12 @@ class App {
     }
 
     #initMiddleware(): void {
-        this.app.use(helmet());
         this.app.use(cors());
+        this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
-        this.app.use(cookieSession({
-            signed: false,
-            secure: process.env.NODE_ENV !== 'test'
-        }))
+        this.app.use(cookieParser());
+        this.app.use(User);
     }
 
     #initControllers(): void {
@@ -39,20 +39,21 @@ class App {
             new NotificationController(),
             new SettingController(),
             new SmsController(),
-            new DashboardController(),
-        ].forEach((controller: ControllerInterface) => this.app.use('/api', controller.router));
+            new DashboardController()
+        ].forEach((controller: ControllerInterface) => this.app.use('/api/v1', /*[Auth],*/ controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();
-        })
+        });
     }
 
     #initErrorHandling(): void {
-        this.app.use(errorHandler);
+        this.app.use(ErrorMiddleware);
     }
 
     listen(): void {
-        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`));
+        this.app.listen(this.port, () => log.info(`App listening on port: ${this.port}`))
+            .on('error', (err) => log.error('Startup error: ', err));
     }
 }
 

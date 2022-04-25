@@ -6,7 +6,7 @@ const request = supertest(app);
 
 const createSetting = (type: string, value: string) => {
     return request
-        .post('/api/settings')
+        .post('/api/v1/settings')
         .send({ type, value });
 };
 
@@ -15,7 +15,7 @@ it('should fetch a list of settings.', async function() {
     await createSetting('default_mail_provider', 'gmail');
 
     const response = await request
-        .get('/api/settings')
+        .get('/api/v1/settings')
         .send()
         .expect(200);
 

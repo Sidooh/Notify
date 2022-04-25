@@ -1,19 +1,16 @@
 import 'dotenv/config';
 import validateEnv from './utils/validateEnv';
 import App from './app';
-import mongoose from 'mongoose';
 import { log } from './utils/logger';
+import { AppDataSource } from './db/data-source';
 
-validateEnv()
+validateEnv();
 
-const initApp = () => {
-    const { MONGO_URL } = process.env;
+AppDataSource.initialize().then(async () => {
+    log.info('Connected to Database');
 
-    mongoose.connect(`${MONGO_URL}`)
-        .then(() => log.info('Database connected!')).catch(err => log.error(err));
+    const app = new App(Number(process.env.PORT || 8005));
 
-    const app = new App(Number(process.env.PORT || 4000));
-    app.listen()
-}
+    app.listen();
+}).catch(error => log.error('Database connection error: ', error))
 
-initApp()
