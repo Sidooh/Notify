@@ -29,6 +29,4 @@ WORKDIR /app
 #RUN yarn install
 COPY --from=build /app/dist ./dist
 
-EXPOSE 8080
-
 CMD yarn start
