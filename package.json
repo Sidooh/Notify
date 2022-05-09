@@ -9,7 +9,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "nodemon src/index.ts",
+    "start": "ts-node dist/src/index.js",
+    "dev": "nodemon src/index.ts",
     "test": "jest --watchAll --no-cache",
     "test:ci": "jest",
     "build": "tsc -p ."
