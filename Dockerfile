@@ -28,6 +28,8 @@ WORKDIR /app
 
 COPY --from=builder /app/ ./
 
+RUN apk --no-cache add procps
+
 RUN ["yarn", "global", "add", "pm2"]
 
 EXPOSE 8003
