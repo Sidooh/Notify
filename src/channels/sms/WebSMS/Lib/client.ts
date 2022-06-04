@@ -5,7 +5,7 @@ import axios, { AxiosInstance } from 'axios';
 
 export class WebSms {
     public config: WebSmsConfig;
-    public endpoint = String(process.env.WEBSMS_API_URL) ?? 'https://api.onfonmedia.co.ke/v1/sms';
+    public endpoint = process.env.WEBSMS_API_URL || 'https://api.onfonmedia.co.ke/v1/sms';
     public http: AxiosInstance;
 
     constructor(config: WebSmsConfig) {

@@ -18,15 +18,15 @@ export class SmsController implements ControllerInterface {
     }
 
     #balance = async (req: Request, res: Response) => {
-        const provider = await Help.getSettings('default_sms_provider');
+        const settings = await Help.getSMSSettings()
 
-        if (!provider) throw new BadRequestError('Default provider not set!');
+        if (!settings.provider) throw new BadRequestError('Default provider not set!');
 
         const balances = {
-            websms        : Number((await new WebSMSService().balance()).match(/-?\d+\.*\d*/g)[0]),
-            africastalking: Number((await new ATService().balance()).match(/-?\d+\.*\d*/g)[0])
+            websms        : Number((await new WebSMSService(settings.websms_env).balance()).match(/-?\d+\.*\d*/g)[0]),
+            africastalking: Number((await new ATService(settings.africastalking_env).balance()).match(/-?\d+\.*\d*/g)[0])
         };
 
-        return res.send({ default_provider: provider, balances });
+        return res.send({ default_provider: settings.provider, balances });
     };
 }
