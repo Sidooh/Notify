@@ -27,6 +27,9 @@ FROM node:16.15.0-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app ./
+COPY ["package.json", "yarn.lock", "./"]
+RUN ["yarn", "install"]
+
+COPY --from=builder /app/dist ./dist
 
 ENTRYPOINT ["yarn", "start"]
