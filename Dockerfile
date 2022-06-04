@@ -28,4 +28,4 @@ WORKDIR /app
 
 COPY --from=builder /app/ ./
 
-ENTRYPOINT ["yarn", "run", "start"]
+ENTRYPOINT ["yarn", "start"]
