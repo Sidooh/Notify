@@ -24,12 +24,8 @@ RUN ["yarn", "run", "build"]
 # This build takes the production build from staging build
 #
 FROM node:16.15.0-alpine
-
 WORKDIR /app
 
-COPY ["package.json", "yarn.lock", "./"]
-RUN ["yarn", "install"]
-
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/ ./
 
 ENTRYPOINT ["yarn", "start"]
