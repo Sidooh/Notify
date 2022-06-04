@@ -28,6 +28,7 @@ WORKDIR /app
 
 COPY --from=builder /app/ ./
 
+ENV PIDUSAGE_USE_PS=true
 RUN apk --no-cache add procps
 
 RUN ["yarn", "global", "add", "pm2"]
