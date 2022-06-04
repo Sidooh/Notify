@@ -3,8 +3,7 @@
   "packageManager": "yarn@3.2.0",
   "version": "1.0.0",
   "description": "Sidooh notification service",
-  "main": "dist/src/index.js",
-  "repository": "https://github.com/Nabcellent/sidooh-notify",
+  "repository": "https://github.com/Sidooh/Notify",
   "author": "Nabcellent",
   "license": "MIT",
   "private": true,
@@ -64,8 +63,5 @@
     "setupFilesAfterEnv": [
       "../tests/setup.ts"
     ]
-  },
-  "engines": {
-    "node": "16.14.2"
   }
 }
