@@ -3,13 +3,13 @@
   "packageManager": "yarn@3.2.0",
   "version": "1.0.0",
   "description": "Sidooh notification service",
-  "main": "dist/src/index.js",
-  "repository": "https://github.com/Nabcellent/sidooh-notify",
+  "repository": "https://github.com/Sidooh/Notify",
   "author": "Nabcellent",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "nodemon src/index.ts",
+    "start": "ts-node dist/index.js",
+    "dev": "nodemon src/index.ts",
     "test": "jest --watchAll --no-cache",
     "test:ci": "jest",
     "build": "tsc -p ."
@@ -63,8 +63,5 @@
     "setupFilesAfterEnv": [
       "../tests/setup.ts"
     ]
-  },
-  "engines": {
-    "node": "16.14.2"
   }
 }

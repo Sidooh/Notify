@@ -11,6 +11,7 @@ import { DashboardController } from './http/controllers/dashboard.controller';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
+import { Auth } from "./http/middleware/auth.middleware";
 
 class App {
     public app: Application;
@@ -40,7 +41,7 @@ class App {
             new SettingController(),
             new SmsController(),
             new DashboardController()
-        ].forEach((controller: ControllerInterface) => this.app.use('/api/v1', /*[Auth],*/ controller.router));
+        ].forEach((controller: ControllerInterface) => this.app.use('/api/v1', [Auth], controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();

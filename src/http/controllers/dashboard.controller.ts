@@ -27,11 +27,13 @@ export class DashboardController implements ControllerInterface {
         });
         const count_notifications = await Notification.count();
         const weekly_notifications = await this.#weeklyNotifications();
-        const default_sms_provider = await Help.getSettings('default_sms_provider');
+
+        const smsSettings = await Help.getSMSSettings()
+        const default_sms_provider = smsSettings.provider
 
         const sms_credits = {
-            websms        : (Number((await new WebSMSService().balance()).slice(3))).toFixed(2),
-            africastalking: (Number((await new ATService().balance()).slice(3)) / .8).toFixed(2)
+            websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
+            africastalking: (Number((await new ATService(smsSettings.africastalking_env).balance()).slice(3)) / .8).toFixed(2)
         };
 
         return res.send({

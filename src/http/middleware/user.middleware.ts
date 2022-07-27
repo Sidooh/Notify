@@ -27,8 +27,8 @@ export const User = (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt || bearerToken(req.headers.authorization);
 
     try {
-        req.user = jwt.decode(token) as UserPayload;
-        // req.user = jwt.verify(req.cookies.jwt, process.env.JWT_KEY!) as UserPayload;
+        // req.user = jwt.decode(token) as UserPayload;
+        req.user = jwt.verify(token, process.env.JWT_KEY!) as UserPayload;
     } catch (e) {
     }
 
