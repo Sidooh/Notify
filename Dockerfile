@@ -23,15 +23,11 @@ RUN ["yarn", "run", "build"]
 # Build Stage 2
 # This build takes the production build from staging build
 #
-FROM node:16.15.0-alpine
+FROM gcr.io/distroless/nodejs:16
 WORKDIR /app
 
 COPY --from=builder /app/ ./
 
-RUN apk --no-cache add procps
-
-RUN ["yarn", "global", "add", "pm2"]
-
 EXPOSE 8003
 
-CMD ["pm2-runtime", "dist/index.js"]
+CMD ["dist/index.js"]
