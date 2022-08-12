@@ -27,7 +27,9 @@ export default function validateEnv() {
 
         AT_SMS_API_KEY : str(),
         AT_SMS_USERNAME: str(),
-        // AT_SMS_FROM    : str(),
+        AT_SMS_DEV_API_KEY : str(),
+        AT_SMS_DEV_USERNAME: str(),
+        AT_SMS_FROM    : str(),
 
         WEBSMS_SANDBOX: bool({ default: true }),
         // WEBSMS_API_URL   : url(),
@@ -35,6 +37,11 @@ export default function validateEnv() {
         WEBSMS_API_KEY   : str(),
         WEBSMS_CLIENT_ID : str(),
         WEBSMS_SENDER_ID : str(),
+
+        WEBSMS_DEV_ACCESS_KEY: str(),
+        WEBSMS_DEV_API_KEY   : str(),
+        WEBSMS_DEV_CLIENT_ID : str(),
+        WEBSMS_DEV_SENDER_ID : str(),
 
         // SLACK_HOOK_URL: url(),
         SLACK_LOGGING: str({

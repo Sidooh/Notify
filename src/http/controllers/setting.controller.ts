@@ -26,15 +26,15 @@ export class SettingController extends Controller {
     #tweak = async ({ body }: Request, res: Response) => {
         log.info('Tweak Settings - ', body);
 
-        const { key, value } = body;
+        let { key, value } = body;
 
         let setting = await Setting.findOneBy({ key });
 
         if (!setting) {
-            setting = await Setting.save({ key, value });
+            setting = await Setting.save({ key, value: { data: value } });
         } else {
             setting.key = key;
-            setting.value = value;
+            setting.value = { data: value };
             await setting.save();
         }
 

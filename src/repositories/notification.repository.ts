@@ -8,12 +8,12 @@ import Slack from '../channels/slack';
 import { Help } from '../utils/helpers';
 
 export default class NotificationRepository {
-    static store = async (channel, content, event_type, destination) => {
+    static store = async (channel, content, event_type, destinations) => {
         log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
 
-        if (channel === Channel.SLACK) destination = ['Sidooh'];
+        if (channel === Channel.SLACK) destinations = ['Sidooh'];
 
-        const notifications = Notification.create(destination.map(destination => ({
+        const notifications = Notification.create(destinations.map(destination => ({
             channel, destination, content, event_type
         })));
 

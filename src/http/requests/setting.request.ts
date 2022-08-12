@@ -5,7 +5,7 @@ export const SettingRequest = {
     create: Joi.object({
         id   : Joi.number(),
         key  : Joi.string().valid('default_sms_provider', 'sms_providers', 'mail_providers').required(),
-        value: Joi.when('type', {
+        value: Joi.when('key', {
             is  : 'default_sms_provider',
             then: Joi.string().valid(Provider.AT, Provider.WEBSMS)
         }).required()
@@ -14,7 +14,6 @@ export const SettingRequest = {
                 then: Joi.array().items(Joi.object({
                     provider: Joi.string().valid(Provider.GMAIL),
                     priority: Joi.number().valid(1).required(),
-                    default : Joi.boolean().default(false)
                 }))
             }).required()
             .when('key', {
@@ -22,7 +21,6 @@ export const SettingRequest = {
                 then: Joi.array().items(Joi.object({
                     provider: Joi.string().valid(Provider.AT, Provider.WEBSMS),
                     priority: Joi.number().valid(1, 2).required(),
-                    default : Joi.boolean().default(false),
                     env     : Joi.string().valid('development', 'production').required()
                 })).unique((a, b) => a.provider === b.provider || a.priority === b.priority)
             }).required()

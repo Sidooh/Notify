@@ -18,13 +18,13 @@ export class SmsController extends Controller {
     #balance = async (req: Request, res: Response) => {
         const settings = await Help.getSMSSettings()
 
-        if (!settings.provider) throw new BadRequestError('Default provider not set!');
+        if (!settings.default_provider) throw new BadRequestError('Default provider not set!');
 
         const balances = {
             websms        : Number((await new WebSMSService(settings.websms_env).balance()).match(/-?\d+\.*\d*/g)[0]),
             africastalking: Number((await new ATService(settings.africastalking_env).balance()).match(/-?\d+\.*\d*/g)[0])
         };
 
-        return res.send({ default_provider: settings.provider, balances });
+        return res.send({ default_provider: settings.default_provider, balances });
     };
 }

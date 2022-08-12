@@ -1,9 +1,10 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
-import { Provider, Status } from '../../../utils/enums';
+import { ENV, Provider, Status } from '../../../utils/enums';
 import { Notification } from '../../../models/Notification';
 import { Notifiable } from '../../../models/Notifiable';
+import { env } from '../../../utils/validate.env';
 
 
 export default class ATService implements ServiceInterface {
@@ -11,16 +12,16 @@ export default class ATService implements ServiceInterface {
     #to: string[] = [];
     #AT;
 
-    constructor(env = process.env.NODE_ENV) {
+    constructor(appEnv = env.NODE_ENV) {
         let credentials = {
-            apiKey  : String(process.env.AT_SMS_API_KEY),
-            username: String(process.env.AT_SMS_USERNAME)
+            apiKey  : String(env.AT_SMS_API_KEY),
+            username: String(env.AT_SMS_USERNAME)
         };
 
-        if (env === 'development') {
+        if (appEnv === ENV.DEVELOPMENT) {
             credentials = {
-                apiKey  : String(process.env.AT_SMS_DEV_API_KEY),
-                username: String(process.env.AT_SMS_DEV_USERNAME)
+                apiKey  : String('env.AT_SMS_DEV_API_KEY'),
+                username: String(env.AT_SMS_DEV_USERNAME)
             };
         }
 
@@ -52,7 +53,7 @@ export default class ATService implements ServiceInterface {
     send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
-            from   : process.env.NODE_ENV === 'production' ? String(process.env.AT_SMS_FROM) : undefined,
+            from   : env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
             message: this.#message
         };
 

@@ -17,6 +17,11 @@ export enum Channel {
     APP = 'APP',
 }
 
+export enum ENV {
+    PRODUCTION = 'production',
+    DEVELOPMENT = 'development',
+}
+
 export enum EventType {
     AIRTIME_PURCHASE = 'AIRTIME_PURCHASE',
     AIRTIME_PURCHASE_FAILURE = 'AIRTIME_PURCHASE_FAILURE',

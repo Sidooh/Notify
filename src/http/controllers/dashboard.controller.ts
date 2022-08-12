@@ -27,7 +27,7 @@ export class DashboardController extends Controller {
         const weekly_notifications = await this.#weeklyNotifications();
 
         const smsSettings = await Help.getSMSSettings()
-        const default_sms_provider = smsSettings.provider
+        const default_sms_provider = smsSettings.default_provider
 
         const sms_credits = {
             websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
