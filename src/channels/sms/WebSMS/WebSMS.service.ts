@@ -23,7 +23,7 @@ export default class WebSMSService implements ServiceInterface {
         if (appEnv === ENV.DEVELOPMENT) {
             config = {
                 accessKey: String(env.WEBSMS_DEV_ACCESS_KEY),
-                apiKey   : String('env.WEBSMS_DEV_API_KEY'),
+                apiKey   : String(env.WEBSMS_DEV_API_KEY),
                 clientId : String(env.WEBSMS_DEV_CLIENT_ID),
                 senderId : String(env.WEBSMS_DEV_SENDER_ID)
             };

@@ -20,7 +20,7 @@ export default class ATService implements ServiceInterface {
 
         if (appEnv === ENV.DEVELOPMENT) {
             credentials = {
-                apiKey  : String('env.AT_SMS_DEV_API_KEY'),
+                apiKey  : String(env.AT_SMS_DEV_API_KEY),
                 username: String(env.AT_SMS_DEV_USERNAME)
             };
         }
