@@ -3,11 +3,9 @@ import { BaseEntity } from './BaseEntity';
 
 @Entity('settings')
 export class Setting extends BaseEntity {
-
     @Column()
-    type: string;
+    key: string;
 
-    @Column()
+    @Column({ type: 'json' })
     value: string;
-
 }

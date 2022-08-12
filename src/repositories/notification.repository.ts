@@ -3,10 +3,9 @@ import map from 'lodash/map';
 import { log } from '../utils/logger';
 import { Channel } from '../utils/enums';
 import { Mail } from '../channels/mail';
-import { Setting } from '../models/Setting';
-import { In } from 'typeorm';
 import SMS from '../channels/sms';
 import Slack from '../channels/slack';
+import { Help } from '../utils/helpers';
 
 export default class NotificationRepository {
     static store = async (channel, content, event_type, destination) => {
@@ -34,9 +33,7 @@ export default class NotificationRepository {
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
         } else if (channel === Channel.SMS) {
-            const settings = await Setting.findBy({ type: In(['default_sms_provider', 'websms_env', 'africastalking_env']) });
-
-            channelService = new SMS(notifications, destinations, settings);
+            channelService = new SMS(notifications, destinations, await Help.getSMSSettings());
         } else {
             channelService = new Slack(notifications);
         }

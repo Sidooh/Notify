@@ -1,24 +1,30 @@
 import Joi from 'joi';
+import { Provider } from '../../utils/enums';
 
 export const SettingRequest = {
     create: Joi.object({
         id   : Joi.number(),
-        type : Joi.string().valid('default_sms_provider', 'default_mail_provider', 'websms_env', 'africastalking_env').required(),
+        key  : Joi.string().valid('default_sms_provider', 'sms_providers', 'mail_providers').required(),
         value: Joi.when('type', {
             is  : 'default_sms_provider',
-            then: Joi.string().valid('africastalking', 'websms', 'safaricom')
+            then: Joi.string().valid(Provider.AT, Provider.WEBSMS)
         }).required()
-            .when('type', {
-                is  : 'default_mail_provider',
-                then: Joi.string().valid('gmail', 'yahoo', 'mailgun', 'postmark', 'sendgrid')
+            .when('key', {
+                is  : 'mail_providers',
+                then: Joi.array().items(Joi.object({
+                    provider: Joi.string().valid(Provider.GMAIL),
+                    priority: Joi.number().valid(1).required(),
+                    default : Joi.boolean().default(false)
+                }))
             }).required()
-            .when('type', {
-                is  : 'websms_env',
-                then: Joi.string().valid('development', 'production')
-            }).required()
-            .when('type', {
-                is  : 'africastalking_env',
-                then: Joi.string().valid('development', 'production')
+            .when('key', {
+                is  : 'sms_providers',
+                then: Joi.array().items(Joi.object({
+                    provider: Joi.string().valid(Provider.AT, Provider.WEBSMS),
+                    priority: Joi.number().valid(1, 2).required(),
+                    default : Joi.boolean().default(false),
+                    env     : Joi.string().valid('development', 'production').required()
+                })).unique((a, b) => a.provider === b.provider || a.priority === b.priority)
             }).required()
     })
 };

@@ -3,7 +3,6 @@ export enum Status {
     FAILED = 'FAILED',
     COMPLETED = 'COMPLETED'
 }
-
 export enum Provider {
     WEBSMS = 'WEBSMS',
     AT = 'AFRICASTALKING',

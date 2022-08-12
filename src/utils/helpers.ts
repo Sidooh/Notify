@@ -2,21 +2,21 @@ import { Setting } from '../models/Setting';
 import { In } from 'typeorm';
 
 export const Help = {
-    getSettings: async (type: string | string[]) => {
-        if (Array.isArray(type)) return Setting.findBy({ type: In(type) });
+    getSettings: async (key: string | string[]) => {
+        if (Array.isArray(key)) return Setting.findBy({ key: In(key) });
 
-        const setting = await Setting.findOneBy({ type });
+        const setting = await Setting.findOneBy({ key });
 
         return setting?.value;
     },
 
     getSMSSettings: async () => {
-        const smsSettings = await Setting.findBy({ type: In(['default_sms_provider', 'websms_env', 'africastalking_env']) });
+        const smsSettings = await Setting.findBy({ key: In(['default_sms_provider', 'websms_env', 'africastalking_env']) });
 
         return {
-            provider          : smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
-            websms_env        : smsSettings?.find(setting => setting.type === 'websms_env')?.value,
-            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value
+            provider          : smsSettings?.find(setting => setting.key === 'default_sms_provider')?.value,
+            websms_env        : smsSettings?.find(setting => setting.key === 'websms_env')?.value,
+            africastalking_env: smsSettings?.find(setting => setting.key === 'africastalking_env')?.value
         };
     }
 };
