@@ -1,7 +1,7 @@
-import { bool, cleanEnv, num, port, str, url } from 'envalid';
+import { bool, cleanEnv, num, port, str } from 'envalid';
 
-export default function validateEnv(): void {
-    cleanEnv(process.env, {
+export default function validateEnv() {
+    return cleanEnv(process.env, {
         PORT: port({ default: 3000 }),
 
         NODE_ENV: str({
@@ -12,8 +12,8 @@ export default function validateEnv(): void {
 
         // DB_SOCKET: url(),
 
-        DB_HOST: str({ default: "127.0.0.1" }),
-        DB_PORT: num({ default: 3306 }),
+        DB_HOST    : str({ default: '127.0.0.1' }),
+        DB_PORT    : num({ default: 3306 }),
         DB_DATABASE: str(),
         DB_USERNAME: str(),
         DB_PASSWORD: str(),
@@ -29,7 +29,7 @@ export default function validateEnv(): void {
         AT_SMS_USERNAME: str(),
         // AT_SMS_FROM    : str(),
 
-        WEBSMS_SANDBOX   : bool({ default: true }),
+        WEBSMS_SANDBOX: bool({ default: true }),
         // WEBSMS_API_URL   : url(),
         WEBSMS_ACCESS_KEY: str(),
         WEBSMS_API_KEY   : str(),
@@ -37,9 +37,11 @@ export default function validateEnv(): void {
         WEBSMS_SENDER_ID : str(),
 
         // SLACK_HOOK_URL: url(),
-        SLACK_LOGGING : str({
+        SLACK_LOGGING: str({
             default: 'enabled',
             choices: ['enabled', 'disabled']
         })
     });
 }
+
+export const env = validateEnv();

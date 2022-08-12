@@ -15,6 +15,7 @@
     "build": "tsc -p ."
   },
   "dependencies": {
+    "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.25",

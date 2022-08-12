@@ -5,13 +5,12 @@ import 'express-async-errors';
 import cookieParser from 'cookie-parser';
 import { log } from './utils/logger';
 import { NotificationController, SettingController } from './http/controllers';
-import ControllerInterface from './utils/interfaces/controller.interface';
 import { SmsController } from './http/controllers/sms.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
-import { Auth } from "./http/middleware/auth.middleware";
+import { Auth } from './http/middleware/auth.middleware';
 
 class App {
     public app: Application;
@@ -41,7 +40,7 @@ class App {
             new SettingController(),
             new SmsController(),
             new DashboardController()
-        ].forEach((controller: ControllerInterface) => this.app.use('/api/v1', [Auth], controller.router));
+        ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();

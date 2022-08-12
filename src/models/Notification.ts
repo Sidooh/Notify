@@ -1,13 +1,13 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
-import { EventType, Status } from '../utils/enums';
+import { Channel, EventType, Status } from '../utils/enums';
 import { Notifiable } from './Notifiable';
 
 @Entity('notifications')
 export class Notification extends BaseEntity {
 
     @Column({ length: 20 })
-    channel: string;
+    channel: Channel;
 
     @Column({ length: 50 })
     destination: string;
@@ -23,5 +23,4 @@ export class Notification extends BaseEntity {
 
     @OneToMany(() => Notifiable, notifiable => notifiable.notification)
     notifiables: Notifiable[];
-
 }

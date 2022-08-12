@@ -1,5 +1,4 @@
-import { Request, Response, Router } from 'express';
-import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { Request, Response } from 'express';
 import { Notification } from '../../models/Notification';
 import moment from 'moment';
 import { AppDataSource } from '../../db/data-source';
@@ -7,17 +6,16 @@ import { Between } from 'typeorm';
 import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import ATService from '../../channels/sms/AT/AT.service';
+import Controller from './controller';
 
-export class DashboardController implements ControllerInterface {
-    path: string = '/dashboard';
-    router: Router = Router();
-
+export class DashboardController extends Controller {
     constructor() {
+        super('/dashboard');
         this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}/`, this.#dashboard);
+        this.router.get(`${this.basePath}/`, this.#dashboard);
     }
 
     #dashboard = async (req: Request, res: Response) => {

@@ -33,7 +33,7 @@ export default class SMS implements NotificationInterface {
     send = async () => {
         const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
 
-        SMS.send(this.notifications)
+        await SMS.send(this.notifications)
             .then(status => log.info(`SMS NOTIFICATION REQUEST ${status.toUpperCase()} - `, { ids: map(this.notifications, 'id') }))
             .catch(err => log.error(err));
     };

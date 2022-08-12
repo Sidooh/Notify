@@ -1,22 +1,20 @@
-import { Request, Response, Router } from 'express';
-import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { Request, Response } from 'express';
 import { SettingRequest } from '../requests/setting.request';
 import { log } from '../../utils/logger';
 import { Setting } from '../../models/Setting';
 import { validate } from '../middleware/validate.middleware';
+import Controller from './controller';
 
-export class SettingController implements ControllerInterface {
-    path: string = '/settings';
-    router: Router = Router();
-
+export class SettingController extends Controller {
     constructor() {
+        super('/settings');
         this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validate(SettingRequest.create), this.#tweak);
-        this.router.delete(`${this.path}/:id`, this.#destroy);
+        this.router.get(`${this.basePath}`, this.#index);
+        this.router.post(`${this.basePath}`, validate(SettingRequest.create), this.#tweak);
+        this.router.delete(`${this.basePath}/:id`, this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {

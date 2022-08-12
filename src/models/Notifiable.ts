@@ -30,7 +30,7 @@ export class Notifiable extends BaseEntity {
     @Column({ type: 'bigint', unsigned: true })
     notification_id: number;
 
-    @ManyToOne(() => Notification, notification => notification.notifiables)
+    @ManyToOne(() => Notification, notification => notification.notifiables, { onDelete: 'CASCADE' })
     notification: Notification;
 
 }

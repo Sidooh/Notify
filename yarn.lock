@@ -424,6 +424,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fortawesome/fontawesome-common-types@npm:6.1.1":
+  version: 6.1.1
+  resolution: "@fortawesome/fontawesome-common-types@npm:6.1.1"
+  checksum: 4db285557dd9d178e313a9596ad1c4ba84e9d47efb53dea3206de1bf98252574e0d95c3a0b114cc3cb5f162e2622a2cf8f037011fc98818ccade7bfb6c0c335b
+  languageName: node
+  linkType: hard
+
+"@fortawesome/free-regular-svg-icons@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "@fortawesome/free-regular-svg-icons@npm:6.1.1"
+  dependencies:
+    "@fortawesome/fontawesome-common-types": 6.1.1
+  checksum: 945ec9267a53127302905f16ae6ca4be0cefbc7f3399a41a5c685ab2a73a807e8616c7202d70a775cddfcb63f21fa920aea4a1c48515a85c40f489924165a6c8
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.0.1, @gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -5953,6 +5969,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sidooh-notify@workspace:."
   dependencies:
+    "@fortawesome/free-regular-svg-icons": ^6.1.1
     "@types/cookie-parser": ^1
     "@types/cors": ^2.8.12
     "@types/express": ^4.17.13
@@ -6742,7 +6759,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.6.3#~builtin<compat/typescript>":
   version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

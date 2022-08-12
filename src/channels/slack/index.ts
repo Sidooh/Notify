@@ -1,4 +1,3 @@
-import ISlack from './slack.interface';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import SlackService from './slack.service';
 import { Notification } from '../../models/Notification';
@@ -8,7 +7,7 @@ export default class Slack implements NotificationInterface {
     notifications
     #SlackService
 
-    constructor(slack: ISlack, notifications: Notification[]) {
+    constructor(notifications: Notification[]) {
         this.notifications = notifications
         this.#SlackService = new SlackService()
     }

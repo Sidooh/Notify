@@ -1,20 +1,18 @@
-import { Request, Response, Router } from 'express';
-import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { Request, Response } from 'express';
 import { Help } from '../../utils/helpers';
 import ATService from '../../channels/sms/AT/AT.service';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import { BadRequestError } from '../../exceptions/bad-request.err';
+import Controller from './controller';
 
-export class SmsController implements ControllerInterface {
-    path: string = '/sms';
-    router: Router = Router();
-
+export class SmsController extends Controller {
     constructor() {
+        super('/sms');
         this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}/balances`, this.#balance);
+        this.router.get(`${this.basePath}/balances`, this.#balance);
     }
 
     #balance = async (req: Request, res: Response) => {
