@@ -22,7 +22,7 @@ export const Help = {
             default_provider  : smsSettings?.find(s => s.key === 'default_sms_provider')?.value.data as Provider,
             websms_env        : providers?.find(p => p.provider === Provider.WEBSMS)?.env,
             africastalking_env: providers?.find(p => p.provider === Provider.AT)?.env,
-            providers         : providers.sort((a, b) => a.priority - b.priority)
+            providers         : providers?.sort((a, b) => a.priority - b.priority)
         };
     }
 };

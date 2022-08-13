@@ -6,8 +6,36 @@ import { Mail } from '../channels/mail';
 import SMS from '../channels/sms';
 import Slack from '../channels/slack';
 import { Help } from '../utils/helpers';
+import { BadRequestError } from '../exceptions/bad-request.err';
+import { NotFoundError } from '../exceptions/not-found.err';
 
 export default class NotificationRepository {
+    static index = async (withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        try {
+            return await Notification.find({
+                relations: { notifiables: relations.includes('notifiables') }, order: { id: 'DESC' },
+                select   : ['id', 'event_type', 'content', 'channel', 'destination', 'status', 'created_at']
+            });
+        } catch (err) {
+            log.error(err);
+            throw new BadRequestError('Unable to fetch notifications!');
+        }
+    }
+
+    static show = async (id:number, withRelations?: string) => {
+        const relations = withRelations.split(',');
+
+        const notification = await Notification.findOne({
+            where: { id }, relations: { notifiables: relations.includes('notifiables') }
+        });
+
+        if (!notification) throw new NotFoundError('Notification Not Found!');
+
+        return notification
+    }
+
     static store = async (channel, content, event_type, destinations) => {
         log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
 

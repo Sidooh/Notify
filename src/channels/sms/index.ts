@@ -51,7 +51,7 @@ export default class SMS implements NotificationInterface {
                 this.tries = 0;
             }
 
-            if (this.smsSettings.providers.length) {
+            if (this.smsSettings.providers?.length) {
                 //  Find next provider with the highest priority
                 this.smsSettings.default_provider = this.smsSettings.providers.reduce((prev, curr) => {
                     return prev.priority < curr.priority ? prev : curr;
@@ -64,6 +64,8 @@ export default class SMS implements NotificationInterface {
             } else {
                 let message = `Failed to send notification(s) to:\n`;
                 this.notifications.map(n => message += `#${n.id} - ${n.destination}\n`);
+
+                if(!this.smsSettings.providers?.length) message += `\n::: -> SMS Providers have not been set.`;
 
                 NotificationRepository.store(Channel.SLACK, message, EventType.ERROR_ALERT, ['Sidooh']);
             }
