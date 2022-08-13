@@ -15,35 +15,12 @@ export class DashboardController extends Controller {
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.basePath}/`, this.#dashboard);
+        this.router.get(`${this.basePath}/chart`, this.#dashboardChart);
+        this.router.get(`${this.basePath}/summaries`, this.#getSummaries);
+        this.router.get(`${this.basePath}/recent-notifications`, this.#getRecentNotifications);
     }
 
-    #dashboard = async (req: Request, res: Response) => {
-        const notifications = await Notification.find({
-            select: ['id', 'destination', 'channel', 'event_type', 'content', 'status', 'created_at'],
-            order : { id: 'DESC' }, take: 20, relations: { notifiables: true }
-        });
-        const count_notifications = await Notification.count();
-        const weekly_notifications = await this.#weeklyNotifications();
-
-        const smsSettings = await Help.getSMSSettings()
-        const default_sms_provider = smsSettings.default_provider
-
-        const sms_credits = {
-            websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
-            africastalking: (Number((await new ATService(smsSettings.africastalking_env).balance()).slice(3)) / .8).toFixed(2)
-        };
-
-        return res.send({
-            notifications,
-            default_sms_provider,
-            sms_credits,
-            count_notifications,
-            weekly_notifications
-        });
-    };
-
-    #weeklyNotifications = async () => {
+    #dashboardChart = async (req: Request, res: Response) => {
         const startDate = moment().startOf('week');
         const endDate = moment().endOf('week');
 
@@ -84,6 +61,35 @@ export class DashboardController extends Controller {
             startDate.add(1, 'd');
         }
 
-        return { labels, datasets };
+        return res.send(this.successResponse({ data: { labels, datasets } }));
+    };
+
+    #getSummaries = async (req: Request, res: Response) => {
+        const smsSettings = await Help.getSMSSettings();
+
+        const sms_credits = {
+            websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
+            africastalking: (Number((await new ATService(smsSettings.africastalking_env).balance()).slice(3)) / .8).toFixed(2)
+        };
+
+        const startOfDay = moment().startOf('day').toDate();
+        return res.send(this.successResponse({
+            data: {
+                total_notifications      : await Notification.count(),
+                total_notifications_today: await Notification.count({ where: { created_at: Between(startOfDay, moment().toDate()) } }),
+
+                sms_credits,
+                default_sms_provider: smsSettings.default_provider
+            }
+        }));
+    };
+
+    #getRecentNotifications = async (req: Request, res: Response) => {
+        return res.send(this.successResponse({
+            data: await Notification.find({
+                select: ['id', 'destination', 'channel', 'event_type', 'content', 'status', 'created_at'],
+                order : { id: 'DESC' }, take: 20, relations: { notifiables: true }
+            })
+        }));
     };
 }
