@@ -20,7 +20,7 @@ export class SettingController extends Controller {
     #index = async (req: Request, res: Response) => {
         const settings = await Setting.find();
 
-        res.send(settings);
+        res.send(this.successResponse({ data: settings }));
     };
 
     #tweak = async ({ body }: Request, res: Response) => {
@@ -38,7 +38,7 @@ export class SettingController extends Controller {
             await setting.save();
         }
 
-        res.send(setting);
+        res.send(this.successResponse({ data: setting }));
     };
 
     #destroy = async (req: Request, res: Response) => {
@@ -46,6 +46,6 @@ export class SettingController extends Controller {
 
         const result = await Setting.delete(Number(id));
 
-        res.send({ message: result.affected ? 'Deleted!' : 'Nothing to delete' });
+        res.send(this.successResponse({ data: { message: result.affected ? 'Deleted!' : 'Nothing to delete' } }));
     };
 }
