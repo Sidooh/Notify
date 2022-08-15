@@ -46,7 +46,7 @@ export default class SMS implements NotificationInterface {
         sleep(this.tries * 30).then(() => {
             if (this.tries > 2) {
                 this.triedProviders.push(this.smsSettings.default_provider);
-                this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.provider));
+                this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
 
                 this.tries = 0;
             }
@@ -55,7 +55,7 @@ export default class SMS implements NotificationInterface {
                 //  Find next provider with the highest priority
                 this.smsSettings.default_provider = this.smsSettings.providers.reduce((prev, curr) => {
                     return prev.priority < curr.priority ? prev : curr;
-                }).provider;
+                }).name;
 
                 log.info(`RETRYING NOTIFICATION WITH ${this.smsSettings.default_provider} AFTER ${this.tries * 2}s`, { tries: this.tries })
 

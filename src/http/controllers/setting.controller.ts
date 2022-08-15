@@ -31,10 +31,10 @@ export class SettingController extends Controller {
         let setting = await Setting.findOneBy({ key });
 
         if (!setting) {
-            setting = await Setting.save({ key, value: { data: value } });
+            setting = await Setting.save({ key, value });
         } else {
             setting.key = key;
-            setting.value = { data: value };
+            setting.value = value;
             await setting.save();
         }
 
