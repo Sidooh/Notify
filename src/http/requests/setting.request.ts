@@ -4,7 +4,7 @@ import { Provider } from '../../utils/enums';
 export const SettingRequest = {
     create: Joi.object({
         id   : Joi.number(),
-        key  : Joi.string().valid('default_sms_provider', 'default_mail_providers').required(),
+        key  : Joi.string().valid('default_sms_provider', 'default_mail_provider').required(),
         value: Joi.when('key', {
             is  : 'default_sms_provider',
             then: Joi.string().valid(Provider.AT, Provider.WEBSMS)

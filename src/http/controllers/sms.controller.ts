@@ -20,6 +20,7 @@ export class SmsController extends Controller {
         this.router.get(`${this.basePath}/providers`, this.#getProviders);
         this.router.post(`${this.basePath}/providers`, validate(SMSRequest.upsertProvider), this.#storeProvider);
         this.router.put(`${this.basePath}/providers/:id`, validate(SMSRequest.upsertProvider), this.#updateProvider);
+        this.router.delete(`${this.basePath}/providers/:id`, this.#destroyProvider);
     }
 
     #balance = async (req: Request, res: Response) => {
@@ -71,5 +72,13 @@ export class SmsController extends Controller {
         await provider.save();
 
         res.send(this.successResponse({ data: provider }));
+    };
+
+    #destroyProvider = async (req: Request, res: Response) => {
+        const { id } = req.params;
+
+        const result = await SMSProvider.delete(Number(id));
+
+        res.send(this.successResponse({ data: { message: result.affected ? 'Deleted!' : 'Nothing to delete' } }));
     };
 }
