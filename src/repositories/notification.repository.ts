@@ -40,6 +40,7 @@ export default class NotificationRepository {
         log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
 
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
+        if (!Array.isArray(destinations)) destinations = [destinations];
 
         const notifications = Notification.create(destinations.map(destination => ({
             channel, destination, content, event_type
