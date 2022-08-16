@@ -33,7 +33,7 @@ export default class WebSMSService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to;
+        this.#to = to.map(phone => `254${String(phone).slice(-9)}`);
 
         return this;
     };
