@@ -11,6 +11,7 @@ import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
 import { Auth } from './http/middleware/auth.middleware';
+import { MailController } from './http/controllers/mail.controller';
 
 class App {
     public app: Application;
@@ -39,6 +40,7 @@ class App {
             new NotificationController(),
             new SettingController(),
             new SmsController(),
+            new MailController(),
             new DashboardController()
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
