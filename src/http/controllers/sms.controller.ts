@@ -8,6 +8,7 @@ import { SMSProvider } from '../../models/SMSProvider';
 import { validate } from '../middleware/validate.middleware';
 import { SMSRequest } from '../requests/sms.request';
 import { NotFoundError } from '../../exceptions/not-found.err';
+import SmsRepository from '../../repositories/sms.repository';
 
 export class SmsController extends Controller {
     constructor() {
@@ -16,11 +17,20 @@ export class SmsController extends Controller {
     }
 
     #initRoutes(): void {
+        this.router.get(`${this.basePath}`, this.#index);
         this.router.get(`${this.basePath}/balances`, this.#balance);
         this.router.get(`${this.basePath}/providers`, this.#getProviders);
         this.router.post(`${this.basePath}/providers`, validate(SMSRequest.upsertProvider), this.#storeProvider);
         this.router.put(`${this.basePath}/providers/:id`, validate(SMSRequest.upsertProvider), this.#updateProvider);
         this.router.delete(`${this.basePath}/providers/:id`, this.#destroyProvider);
+    }
+
+    #index = async({ query }:Request, res:Response) => {
+        const { with_relations } = query;
+
+        const notifications = await SmsRepository.index(String(with_relations));
+
+        return res.send(this.successResponse({ data: notifications }));
     }
 
     #balance = async (req: Request, res: Response) => {
