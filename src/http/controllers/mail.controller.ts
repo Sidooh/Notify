@@ -4,7 +4,7 @@ import MailRepository from '../../repositories/mail.repository';
 
 export class MailController extends Controller {
     constructor() {
-        super('/mail');
+        super('/mails');
         this.#initRoutes();
     }
 
