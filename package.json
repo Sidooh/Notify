@@ -61,8 +61,8 @@
       "preset": "ts-jest",
       "rootDir": "./src",
       "setupFiles": [
-         "../tests/mocks.ts",
-         "dotenv/config"
+         "../tests/env.ts",
+         "../tests/mocks.ts"
       ],
       "setupFilesAfterEnv": [
          "../tests/setup.ts"
