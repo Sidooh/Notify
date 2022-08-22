@@ -30,10 +30,5 @@ export const Help = {
 
     sleep: s => new Promise(r => setTimeout(r, s * 1000)),
 
-    testToken: 'Bearer ' + jwt.sign({
-        id   : 1,
-        email: 'string;',
-        name : 'string;',
-        iat  : moment().add(15, 'm').unix()
-    }, env.JWT_KEY)
+    testToken: 'Bearer ' + jwt.sign({ iat: moment().add(15, 'm').unix() }, env.JWT_KEY)
 };

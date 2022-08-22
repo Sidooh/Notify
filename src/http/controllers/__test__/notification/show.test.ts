@@ -28,9 +28,10 @@ it('should return the notification if it exists.', async function() {
         }).expect(201);
 
     response = await request
-        .get(`/api/v1/notifications/${response.body.ids[0]}`)
+        .get(`/api/v1/notifications/${response.body.data.ids[0]}`)
+        .set({ Authorization: Help.testToken })
         .expect(200);
 
-    expect(response.body.destination).toEqual(destination);
-    expect(response.body.channel).toEqual(channel);
+    expect(response.body.data.destination).toEqual(destination);
+    expect(response.body.data.channel).toEqual(channel);
 });
