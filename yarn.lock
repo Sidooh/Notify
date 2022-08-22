@@ -817,6 +817,74 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/core@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/core@npm:7.11.1"
+  dependencies:
+    "@sentry/hub": 7.11.1
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
+    tslib: ^1.9.3
+  checksum: 4e3fa11d248182a6cdce87ff60111cd29fe028fb84abed7f362f3d7b1a6db9b97bf6bf07317f2338fce01b331a1e867a34e3ef477134b859270ef0d0f48bdc8e
+  languageName: node
+  linkType: hard
+
+"@sentry/hub@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/hub@npm:7.11.1"
+  dependencies:
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
+    tslib: ^1.9.3
+  checksum: 1df55e6e3a494167e6b1592f1aa6ea185feeed3a68d9060340877b3db5943fe45437c5d508dfabc1d4275ce7f3c3910f3bb4ad1880a3c9d01a7d07200f3feb91
+  languageName: node
+  linkType: hard
+
+"@sentry/node@npm:^7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/node@npm:7.11.1"
+  dependencies:
+    "@sentry/core": 7.11.1
+    "@sentry/hub": 7.11.1
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
+    cookie: ^0.4.1
+    https-proxy-agent: ^5.0.0
+    lru_map: ^0.3.3
+    tslib: ^1.9.3
+  checksum: 824780c2d4fecbfaabfacd27b7108a21c6e37b98a61aeb2dda394dae6d67584ef46a749df80fb7dfa3e43bd4e6dcb28b7bcf8a83c77ebef621d05f231651724a
+  languageName: node
+  linkType: hard
+
+"@sentry/tracing@npm:^7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/tracing@npm:7.11.1"
+  dependencies:
+    "@sentry/hub": 7.11.1
+    "@sentry/types": 7.11.1
+    "@sentry/utils": 7.11.1
+    tslib: ^1.9.3
+  checksum: c0c4b540eff30deb94b939d7792f765410bd0abb3c495a49cd89c1ed113f0ca46fb7b12bdc777ddb42f64018a5647afe69bb444d77a2e0cb8a8ae9ed813a7f7b
+  languageName: node
+  linkType: hard
+
+"@sentry/types@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/types@npm:7.11.1"
+  checksum: 935dbd83d8c43bca202979fef12fe2af0508e44c61a0b3b2e10971006b59938fac36bfde530c7b7db14601dcbb17a2a7b35f479de8bbfe961df3eff7fd9327ce
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:7.11.1":
+  version: 7.11.1
+  resolution: "@sentry/utils@npm:7.11.1"
+  dependencies:
+    "@sentry/types": 7.11.1
+    tslib: ^1.9.3
+  checksum: e0a1d8528e9f99a35c88786cc230a5466966a59554796bbf13a33aa8956911c8bce7c556bb7a90ba20c9af9fa64ef6b87b956d1d8bae6ff42950ce4125c3b44e
+  languageName: node
+  linkType: hard
+
 "@sideway/address@npm:^4.1.3":
   version: 4.1.4
   resolution: "@sideway/address@npm:4.1.4"
@@ -2226,7 +2294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.4.2":
+"cookie@npm:0.4.2, cookie@npm:^0.4.1":
   version: 0.4.2
   resolution: "cookie@npm:0.4.2"
   checksum: a00833c998bedf8e787b4c342defe5fa419abd96b32f4464f718b91022586b8f1bafbddd499288e75c037642493c83083da426c6a9080d309e3bd90fd11baa9b
@@ -4637,6 +4705,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lru_map@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "lru_map@npm:0.3.3"
+  checksum: ca9dd43c65ed7a4f117c548028101c5b6855e10923ea9d1f635af53ad20c5868ff428c364d454a7b57fe391b89c704982275410c3c5099cca5aeee00d76e169a
+  languageName: node
+  linkType: hard
+
 "make-dir@npm:^3.0.0, make-dir@npm:^3.1.0":
   version: 3.1.0
   resolution: "make-dir@npm:3.1.0"
@@ -5970,6 +6045,8 @@ __metadata:
   resolution: "sidooh-notify@workspace:."
   dependencies:
     "@fortawesome/free-regular-svg-icons": ^6.1.1
+    "@sentry/node": ^7.11.1
+    "@sentry/tracing": ^7.11.1
     "@types/cookie-parser": ^1
     "@types/cors": ^2.8.12
     "@types/express": ^4.17.13
@@ -6584,6 +6661,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:^1.9.3":
+  version: 1.14.1
+  resolution: "tslib@npm:1.14.1"
+  checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^2.3.1":
   version: 2.4.0
   resolution: "tslib@npm:2.4.0"
@@ -6759,7 +6843,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.6.3#~builtin<compat/typescript>":
   version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=7ad353"
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
