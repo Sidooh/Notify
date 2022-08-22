@@ -1,5 +1,6 @@
 import supertest from 'supertest';
 import App from '../../../../app';
+import { Channel } from '../../../../utils/enums';
 
 const { app } = new App(Number(process.env.PORT || 4000));
 const request = supertest(app);
@@ -8,7 +9,7 @@ const createNotification = () => {
     return request
         .post('/api/v1/notifications')
         .send({
-            channel    : 'sms',
+            channel    : Channel.SMS,
             destination: [2547110039317, 254736388405],
             event_type : 'AIRTIME_PURCHASE',
             content    : 'Testing sidooh notify...!'

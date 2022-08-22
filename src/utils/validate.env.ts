@@ -5,7 +5,7 @@ export default function validateEnv() {
         PORT: port({ default: 3000 }),
 
         NODE_ENV: str({
-            choices: ['development', 'production']
+            choices: ['test', 'development', 'production']
         }),
 
         JWT_KEY: str(),

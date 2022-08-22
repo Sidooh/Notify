@@ -5,7 +5,7 @@ import { log } from '../../utils/logger';
 import { Notification } from '../../models/Notification';
 import map from 'lodash/map';
 import { Channel, EventType, Provider, Status } from '../../utils/enums';
-import { sleep, SMSSettings } from '../../utils/helpers';
+import { Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 
 export default class SMS implements NotificationInterface {
@@ -43,7 +43,7 @@ export default class SMS implements NotificationInterface {
     };
 
     retry = () => {
-        sleep(this.tries * 30).then(() => {
+        Help.sleep(this.tries * 30).then(() => {
             if (this.tries > 2) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
