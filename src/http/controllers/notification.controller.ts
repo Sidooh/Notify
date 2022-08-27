@@ -1,110 +1,65 @@
-import { NextFunction, Request, Response, Router } from 'express';
-import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { NextFunction, Request, Response } from 'express';
 import { NotificationRequest } from '../requests/notification.request';
-import { log } from '../../utils/logger';
 import map from 'lodash/map';
-import { Channel } from '../../utils/enums';
 import { Notification } from '../../models/Notification';
-import { Setting } from '../../models/Setting';
-import { In } from 'typeorm';
-import SMS from '../../channels/sms';
-import Slack from '../../channels/slack';
-import { Mail } from '../../channels/mail';
 import { validate } from '../middleware/validate.middleware';
-import { BadRequestError } from '../../exceptions/bad-request.err';
 import { NotFoundError } from '../../exceptions/not-found.err';
+import Controller from './controller';
+import NotificationRepository from '../../repositories/notification.repository';
+import { Status } from '../../utils/enums';
 
-export class NotificationController implements ControllerInterface {
-    path: string = '/notifications';
-    router: Router = Router();
-
+export class NotificationController extends Controller {
     constructor() {
+        super('/notifications');
         this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validate(NotificationRequest.store), this.#store);
-        this.router.post(`${this.path}/retry/:id`, validate(NotificationRequest.retry), this.#retry);
-        this.router.get(`${this.path}/:id`, this.#show);
+        this.router.get(`${this.basePath}`, this.#index);
+        this.router.post(`${this.basePath}`, validate(NotificationRequest.store), this.#store);
+        this.router.post(`${this.basePath}/:id/retry`, this.#retry);
+        this.router.get(`${this.basePath}/:id`, this.#show);
     }
 
     #index = async ({ query }: Request, res: Response) => {
-        const {with_notifiables} = query
+        const { with_relations } = query;
 
-        try {
-            const notifications = await Notification.find({
-                relations: { notifiables: Boolean(with_notifiables) }, order: { id: 'DESC' },
-                select   : ['id', 'event_type', 'content', 'channel', 'destination', 'status', 'created_at']
-            });
+        const notifications = await NotificationRepository.index(String(with_relations));
 
-            return res.send(notifications);
-        } catch (err) {
-            log.error(err);
-            throw new BadRequestError('Unable to fetch notifications!');
-        }
+        return res.send(this.successResponse({ data: notifications }));
     };
 
-    #store = async (req: Request, res: Response): Promise<Response | void> => {
-        let { channel, destination, content, event_type } = req.body;
+    #store = async ({ body }: Request, res: Response): Promise<Response | void> => {
+        let { channel, destination, content, event_type } = body;
 
-        log.info(`CREATE ${channel} NOTIFICATION: for ${event_type}`);
+        const notifications = await NotificationRepository.store(channel, content, event_type, destination);
 
-        if (channel === Channel.SLACK) destination = ['Sidooh'];
-
-        const notifications = Notification.create(destination.map((destination: number | string) => ({
-            channel, destination, content, event_type
-        })));
-        await Notification.insert(notifications);
-
-        this.send(notifications, req.body);
-
-        return res.status(201).send({ids: map(notifications, 'id')});
-    };
-
-    send = async (notifications: Notification[], channelData: any): Promise<void | boolean> => {
-        const channel = notifications[0].channel;
-        const destinations = map(notifications, 'destination');
-
-        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
-
-        let channelSrv;
-        if (channel === Channel.MAIL) {
-            channelSrv = new Mail(notifications);
-        } else if (channel === Channel.SMS) {
-            const settings = await Setting.findBy({ type: In(['default_sms_provider', 'websms_env', 'africastalking_env']) });
-
-            channelSrv = new SMS(notifications, destinations, settings);
-        } else {
-            channelSrv = new Slack(channelData, notifications);
-        }
-
-        await channelSrv.send();
+        return res.status(201).send(this.successResponse({ data: { ids: map(notifications, 'id') } }));
     };
 
     #show = async ({ params, query }: Request, res: Response) => {
-        const {with_notifiables} = query
+        const { with_relations } = query;
 
-        const notification = await Notification.findOne({
-            where: { id: Number(params.id) }, relations: { notifiables: Boolean(with_notifiables) }
-        });
+        const notification = await NotificationRepository.show(Number(params.id), String(with_relations));
+
+        res.send(this.successResponse({ data: notification }));
+    };
+
+    #retry = async ({ params }: Request, res: Response, next: NextFunction) => {
+        const id = Number(params.id);
+        let notification = await Notification.findOne({ where: { id } });
 
         if (!notification) throw new NotFoundError('Notification Not Found!');
 
-        res.send(notification);
-    };
+        if (notification.status !== Status.FAILED)
+            return res.send(this.errorResponse({
+                message: 'There is a problem with this notification - Status. Contact Support.'
+            }));
 
-    #retry = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const notification = await Notification.findOne({
-                where: { id: Number(req.body.id) }, relations: { notifiables: true }
-            });
+        await NotificationRepository.send(notification.channel, [notification]);
 
-            this.send([notification], notification);
-
-            res.send({ message: 'retrying...' });
-        } catch (err: any) {
-            next();
-        }
+        res.send(this.successResponse({
+            data: await Notification.findOne({ where: { id }, relations: { notifiables: true } })
+        }));
     };
 }

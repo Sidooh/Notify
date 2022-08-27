@@ -9,9 +9,7 @@ export const NotificationRequest = {
             destination: Joi
                 .when('channel', {
                     is: Channel.SMS,
-                    then: Joi.alternatives().try(
-                        Joi.array().items(Joi.number().integer()),
-                        Joi.number().integer()).required()
+                    then: Joi.array().items(Joi.number().integer()).single().required()
                 }).when('channel', {
                     is: Channel.MAIL,
                     then: Joi.alternatives().try(Joi.array().items(Joi.string().email()), Joi.string().email()).required()

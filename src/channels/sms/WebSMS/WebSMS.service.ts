@@ -2,29 +2,30 @@ import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { WebSms } from './Lib/client';
 import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
-import { Provider, Status } from '../../../utils/enums';
+import { ENV, Provider, Status } from '../../../utils/enums';
 import { Notification } from '../../../models/Notification';
 import { Notifiable } from '../../../models/Notifiable';
+import { env } from '../../../utils/validate.env';
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
     #to: string[] = [];
     #WebSMS;
 
-    constructor(env = process.env.NODE_ENV) {
+    constructor(appEnv = env.NODE_ENV) {
         let config: WebSmsConfig = {
-            accessKey: String(process.env.WEBSMS_ACCESS_KEY),
-            apiKey   : String(process.env.WEBSMS_API_KEY),
-            clientId : String(process.env.WEBSMS_CLIENT_ID),
-            senderId : String(process.env.WEBSMS_SENDER_ID)
+            accessKey: String(env.WEBSMS_ACCESS_KEY),
+            apiKey   : String(env.WEBSMS_API_KEY),
+            clientId : String(env.WEBSMS_CLIENT_ID),
+            senderId : String(env.WEBSMS_SENDER_ID)
         };
 
-        if (env === 'development') {
+        if (appEnv === ENV.DEVELOPMENT) {
             config = {
-                accessKey: String(process.env.WEBSMS_DEV_ACCESS_KEY),
-                apiKey   : String(process.env.WEBSMS_DEV_API_KEY),
-                clientId : String(process.env.WEBSMS_DEV_CLIENT_ID),
-                senderId : String(process.env.WEBSMS_DEV_SENDER_ID)
+                accessKey: String(env.WEBSMS_DEV_ACCESS_KEY),
+                apiKey   : String(env.WEBSMS_DEV_API_KEY),
+                clientId : String(env.WEBSMS_DEV_CLIENT_ID),
+                senderId : String(env.WEBSMS_DEV_SENDER_ID)
             };
         }
 
@@ -32,7 +33,7 @@ export default class WebSMSService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to;
+        this.#to = to.map(phone => `254${String(phone).slice(-9)}`);
 
         return this;
     };

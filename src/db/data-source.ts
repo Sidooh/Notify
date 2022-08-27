@@ -4,6 +4,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Notification } from '../models/Notification';
 import { Setting } from '../models/Setting';
 import { Notifiable } from '../models/Notifiable';
+import { SMSProvider } from '../models/SMSProvider';
 
 export const AppDataSource = new DataSource({
     type          : 'mysql',
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
     socketPath    : process.env.DB_SOCKET,
     synchronize   : process.env.NODE_ENV !== 'production',
     logging       : false,
-    entities      : [Notification, Notifiable, Setting],
+    entities      : [Notification, Notifiable, SMSProvider, Setting],
     migrations    : [],
     subscribers   : [],
     namingStrategy: new SnakeNamingStrategy()

@@ -1,46 +1,44 @@
-import { Request, Response, Router } from 'express';
-import ControllerInterface from '../../utils/interfaces/controller.interface';
+import { Request, Response } from 'express';
 import { SettingRequest } from '../requests/setting.request';
 import { log } from '../../utils/logger';
 import { Setting } from '../../models/Setting';
 import { validate } from '../middleware/validate.middleware';
+import Controller from './controller';
 
-export class SettingController implements ControllerInterface {
-    path: string = '/settings';
-    router: Router = Router();
-
+export class SettingController extends Controller {
     constructor() {
+        super('/settings');
         this.#initRoutes();
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.path}`, this.#index);
-        this.router.post(`${this.path}`, validate(SettingRequest.create), this.#tweak);
-        this.router.delete(`${this.path}/:id`, this.#destroy);
+        this.router.get(`${this.basePath}`, this.#index);
+        this.router.post(`${this.basePath}`, validate(SettingRequest.create), this.#tweak);
+        this.router.delete(`${this.basePath}/:id`, this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {
         const settings = await Setting.find();
 
-        res.send(settings);
+        res.send(this.successResponse({ data: settings }));
     };
 
     #tweak = async ({ body }: Request, res: Response) => {
         log.info('Tweak Settings - ', body);
 
-        const { type, value } = body;
+        let { key, value } = body;
 
-        let setting = await Setting.findOneBy({type})
+        let setting = await Setting.findOneBy({ key });
 
-        if(!setting) {
-            setting = await Setting.create({type, value}).save()
+        if (!setting) {
+            setting = await Setting.save({ key, value });
         } else {
-            setting.type = type;
-            setting.value = value
-            await setting.save()
+            setting.key = key;
+            setting.value = value;
+            await setting.save();
         }
 
-        res.send(setting);
+        res.send(this.successResponse({ data: setting }));
     };
 
     #destroy = async (req: Request, res: Response) => {
@@ -48,6 +46,6 @@ export class SettingController implements ControllerInterface {
 
         const result = await Setting.delete(Number(id));
 
-        res.send({ message: result.affected ? 'Deleted!' : 'Nothing to delete' });
+        res.send(this.successResponse({ data: { message: result.affected ? 'Deleted!' : 'Nothing to delete' } }));
     };
 }

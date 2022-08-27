@@ -1,21 +1,27 @@
 export enum Status {
-    PENDING = 'pending',
-    FAILED = 'failed',
-    COMPLETED = 'completed'
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+    PENDING = 'PENDING',
+    FAILED = 'FAILED',
+    COMPLETED = 'COMPLETED'
 }
-
 export enum Provider {
-    WEBSMS = 'websms',
-    AT = 'africastalking',
-    SLACK = 'slack',
-    GMAIL = 'gmail',
+    WEBSMS = 'WEBSMS',
+    AT = 'AFRICASTALKING',
+    SLACK = 'SLACK',
+    GMAIL = 'GMAIL',
 }
 
 export enum Channel {
-    SLACK = 'slack',
-    SMS = 'sms',
-    MAIL = 'mail',
-    APP = 'app',
+    SLACK = 'SLACK',
+    SMS = 'SMS',
+    MAIL = 'MAIL',
+    APP = 'APP',
+}
+
+export enum ENV {
+    PRODUCTION = 'production',
+    DEVELOPMENT = 'development',
 }
 
 export enum EventType {

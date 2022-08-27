@@ -4,37 +4,71 @@ import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { Notification } from '../../models/Notification';
 import map from 'lodash/map';
-import { Setting } from '../../models/Setting';
+import { Channel, EventType, Provider, Status } from '../../utils/enums';
+import { Help, SMSSettings } from '../../utils/helpers';
+import NotificationRepository from '../../repositories/notification.repository';
 
 export default class SMS implements NotificationInterface {
+    tries = 1;
+    triedProviders = [];
+    smsSettings: SMSSettings;
     notifications;
     destinations;
     #SMSService;
 
-    constructor(notifications: Notification[], destinations: string[], smsSettings: Setting[] | undefined) {
+    constructor(notifications: Notification[], destinations: string[], smsSettings: SMSSettings) {
         this.notifications = notifications;
         this.destinations = destinations;
-
-        const settings = {
-            provider          : smsSettings?.find(setting => setting.type === 'default_sms_provider')?.value,
-            websms_env        : smsSettings?.find(setting => setting.type === 'websms_env')?.value,
-            africastalking_env: smsSettings?.find(setting => setting.type === 'africastalking_env')?.value
-        };
-
-        switch (settings.provider) {
-            case 'africastalking':
-                this.#SMSService = new ATService(settings.africastalking_env);
-                break;
-            default:
-                this.#SMSService = new WebSMSService(settings.websms_env);
-        }
+        this.smsSettings = smsSettings;
     }
 
     send = async () => {
+        switch (this.smsSettings.default_provider) {
+            case Provider.AT:
+                this.#SMSService = new ATService(this.smsSettings.africastalking_env);
+                break;
+            default:
+                this.#SMSService = new WebSMSService(this.smsSettings.websms_env);
+        }
+
         const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
 
-        SMS.send(this.notifications)
-            .then(status => log.info(`SMS NOTIFICATION REQUEST ${status.toUpperCase()} - `, { ids: map(this.notifications, 'id') }))
+        await SMS.send(this.notifications)
+            .then(status => {
+                log.info(`SMS NOTIFICATION REQUEST ${status} - `, { ids: map(this.notifications, 'id') });
+
+                if (status === Status.FAILED) this.retry();
+            })
             .catch(err => log.error(err));
+    };
+
+    retry = () => {
+        Help.sleep(this.tries * 30).then(() => {
+            if (this.tries > 2) {
+                this.triedProviders.push(this.smsSettings.default_provider);
+                this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
+
+                this.tries = 0;
+            }
+
+            if (this.smsSettings.providers?.length) {
+                //  Find next provider with the highest priority
+                this.smsSettings.default_provider = this.smsSettings.providers.reduce((prev, curr) => {
+                    return prev.priority < curr.priority ? prev : curr;
+                }).name;
+
+                log.info(`RETRYING NOTIFICATION WITH ${this.smsSettings.default_provider} AFTER ${this.tries * 2}s`, { tries: this.tries })
+
+                this.tries++;
+                this.send();
+            } else {
+                let message = `Failed to send notification(s) to:\n`;
+                this.notifications.map(n => message += `#${n.id} - ${n.destination}\n`);
+
+                if(!this.smsSettings.providers?.length) message += `\n::: -> SMS Providers have not been set.`;
+
+                NotificationRepository.store(Channel.SLACK, message, EventType.ERROR_ALERT, ['Sidooh']);
+            }
+        });
     };
 }

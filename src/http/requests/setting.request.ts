@@ -1,24 +1,17 @@
 import Joi from 'joi';
+import { Provider } from '../../utils/enums';
 
 export const SettingRequest = {
     create: Joi.object({
         id   : Joi.number(),
-        type : Joi.string().valid('default_sms_provider', 'default_mail_provider', 'websms_env', 'africastalking_env').required(),
-        value: Joi.when('type', {
+        key  : Joi.string().valid('default_sms_provider', 'default_mail_provider').required(),
+        value: Joi.when('key', {
             is  : 'default_sms_provider',
-            then: Joi.string().valid('africastalking', 'websms', 'safaricom')
+            then: Joi.string().valid(Provider.AT, Provider.WEBSMS)
         }).required()
             .when('type', {
                 is  : 'default_mail_provider',
-                then: Joi.string().valid('gmail', 'yahoo', 'mailgun', 'postmark', 'sendgrid')
-            }).required()
-            .when('type', {
-                is  : 'websms_env',
-                then: Joi.string().valid('development', 'production')
-            }).required()
-            .when('type', {
-                is  : 'africastalking_env',
-                then: Joi.string().valid('development', 'production')
+                then: Joi.string().valid(Provider.GMAIL)
             }).required()
     })
 };
