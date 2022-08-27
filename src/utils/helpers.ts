@@ -18,7 +18,7 @@ export const Help = {
     },
 
     getSMSSettings: async (): Promise<SMSSettings> => {
-        const providers = await SMSProvider.find({ select: ['id', 'name', 'priority'] });
+        const providers = await SMSProvider.find({ select: ['id', 'name', 'priority', 'environment'] });
 
         return {
             default_provider  : (await Setting.findOneBy({ key: 'default_sms_provider' }))?.value as Provider,

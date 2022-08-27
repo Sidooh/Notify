@@ -25,13 +25,13 @@ export class SmsController extends Controller {
         this.router.delete(`${this.basePath}/providers/:id`, this.#destroyProvider);
     }
 
-    #index = async({ query }:Request, res:Response) => {
+    #index = async ({ query }: Request, res: Response) => {
         const { with_relations } = query;
 
         const notifications = await SmsRepository.index(String(with_relations));
 
         return res.send(this.successResponse({ data: notifications }));
-    }
+    };
 
     #balance = async (req: Request, res: Response) => {
         const settings = await Help.getSMSSettings();
