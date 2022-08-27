@@ -12,6 +12,9 @@ import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
 import { Auth } from './http/middleware/auth.middleware';
 import { MailController } from './http/controllers/mail.controller';
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
+import { env } from './utils/validate.env';
 
 class App {
     public app: Application;
@@ -20,6 +23,32 @@ class App {
     constructor(port: number) {
         this.app = express();
         this.port = port;
+
+        /** --------------------------------    INIT SENTRY
+         * */
+        if (env.NODE_ENV !== 'test') {
+            Sentry.init({
+                dsn         : env.SENTRY_DSN,
+                integrations: [
+                    // enable HTTP calls tracing
+                    new Sentry.Integrations.Http({ tracing: true }),
+                    // enable Express.js middleware tracing
+                    new Tracing.Integrations.Express({ app: this.app })
+                ],
+
+                // Set tracesSampleRate to 1.0 to capture 100%
+                // of transactions for performance monitoring.
+                // We recommend adjusting this value in production
+                tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE
+            });
+
+            // RequestHandler creates a separate execution context using domains, so that every
+            // transaction/span/breadcrumb is attached to its own Hub instance
+            this.app.use(Sentry.Handlers.requestHandler());
+            // TracingHandler creates a trace for every incoming request
+            this.app.use(Sentry.Handlers.tracingHandler());
+            this.app.use(Sentry.Handlers.errorHandler());
+        }
 
         this.#initMiddleware();
         this.#initControllers();

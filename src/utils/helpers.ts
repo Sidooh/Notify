@@ -2,6 +2,9 @@ import { Setting } from '../models/Setting';
 import { In } from 'typeorm';
 import { ENV, Provider } from './enums';
 import { SMSProvider } from '../models/SMSProvider';
+import jwt from 'jsonwebtoken';
+import { env } from './validate.env';
+import moment from 'moment';
 
 export type SMSSettings = { default_provider: Provider, websms_env: ENV, africastalking_env: ENV, providers: SMSProvider[] }
 
@@ -23,7 +26,9 @@ export const Help = {
             africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment,
             providers         : providers?.sort((a, b) => a.priority - b.priority)
         };
-    }
-};
+    },
 
-export const sleep = s => new Promise(r => setTimeout(r, s * 1000));
+    sleep: s => new Promise(r => setTimeout(r, s * 1000)),
+
+    testToken: 'Bearer ' + jwt.sign({ iat: moment().add(15, 'm').unix() }, env.JWT_KEY)
+};
