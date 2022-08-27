@@ -38,10 +38,10 @@ export default function validateEnv() {
         WEBSMS_CLIENT_ID : str(),
         WEBSMS_SENDER_ID : str(),
 
-        WEBSMS_DEV_ACCESS_KEY: str(),
-        WEBSMS_DEV_API_KEY   : str(),
-        WEBSMS_DEV_CLIENT_ID : str(),
-        WEBSMS_DEV_SENDER_ID : str(),
+        WEBSMS_DEV_ACCESS_KEY: str({ default: null }),
+        WEBSMS_DEV_API_KEY   : str({ default: null }),
+        WEBSMS_DEV_CLIENT_ID : str({ default: null }),
+        WEBSMS_DEV_SENDER_ID : str({ default: null }),
 
         // SLACK_HOOK_URL: url(),
         SLACK_LOGGING: str({
