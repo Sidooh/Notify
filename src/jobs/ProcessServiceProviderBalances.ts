@@ -29,10 +29,6 @@ export const ProcessServiceProviderBalances = () => {
 
         let message = `These Service Provider balances are below threshold:\n`;
 
-        console.log(websms);
-        console.log(AT);
-        console.log(tanda);
-
         if (tanda.float <= env.TANDA_FLOAT_THRESHOLD) message += `\t - Tanda: ${tanda.float}\n`;
         if (websms <= env.WEBSMS_THRESHOLD) message += `\t - Websms: ${websms}\n`;
         if (AT.sms <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${AT.sms}\n`;
