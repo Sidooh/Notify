@@ -15,6 +15,7 @@ export class SmsController extends Controller {
 
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, this.#index);
+        // this.router.get(`${this.basePath}/balances`, this.#balance);
         this.router.get(`${this.basePath}/providers`, this.#getProviders);
         this.router.post(`${this.basePath}/providers`, validate(SMSRequest.upsertProvider), this.#storeProvider);
         this.router.put(`${this.basePath}/providers/:id`, validate(SMSRequest.upsertProvider), this.#updateProvider);
@@ -28,6 +29,19 @@ export class SmsController extends Controller {
 
         return res.send(this.successResponse({ data: notifications }));
     };
+
+    /*#balance = async (req: Request, res: Response) => {
+        const settings = await Help.getSMSSettings();
+
+        if (!settings.default_provider) throw new BadRequestError('Default provider not set!');
+
+        const balances = {
+            websms        : Number((await new WebSMSService(settings.websms_env).balance()).match(/-?\d+\.*\d*!/g)[0]),
+            africastalking: await new ATService(settings.africastalking_env).balance()
+        };
+
+        return res.send(this.successResponse({ data: { default_provider: settings.default_provider, balances } }));
+    };*/
 
     #getProviders = async (req: Request, res: Response) => {
         res.send(this.successResponse({ data: await SMSProvider.find() }));
