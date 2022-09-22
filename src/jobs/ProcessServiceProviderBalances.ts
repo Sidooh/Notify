@@ -37,7 +37,7 @@ export const ProcessServiceProviderBalances = () => {
 
         if (message.includes('-')) {
             await NotificationRepository.store(
-                Channel.SMS, message, EventType.SP_REQUEST_FAILURE, env.ADMIN_CONTACTS.split(',')
+                Channel.SMS, message, EventType.STATUS_UPDATE, env.ADMIN_CONTACTS.split(',')
             );
         }
     });
