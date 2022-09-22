@@ -6,13 +6,18 @@ import { Notification } from '../../../models/Notification';
 import { Notifiable } from '../../../models/Notifiable';
 import { env } from '../../../utils/validate.env';
 
+export enum ATApp {
+    SMS = 'SMS',
+    USSD = 'USSD'
+}
+
 
 export default class ATService implements ServiceInterface {
     #message: string = '';
     #to: string[] = [];
     #AT;
 
-    constructor(appEnv = env.NODE_ENV) {
+    constructor(appEnv = env.NODE_ENV, product = ATApp.SMS) {
         let credentials = {
             apiKey  : String(env.AT_SMS_API_KEY),
             username: String(env.AT_SMS_USERNAME)
@@ -22,6 +27,13 @@ export default class ATService implements ServiceInterface {
             credentials = {
                 apiKey  : String(env.AT_SMS_DEV_API_KEY),
                 username: String(env.AT_SMS_DEV_USERNAME)
+            };
+        }
+
+        if (product === ATApp.USSD) {
+            credentials = {
+                apiKey  : String(env.AT_USSD_API_KEY),
+                username: String(env.AT_USSD_USERNAME)
             };
         }
 
@@ -43,11 +55,11 @@ export default class ATService implements ServiceInterface {
         return this;
     };
 
-    balance = async () => {
+    balance = async (): Promise<number> => {
         const { balance } = await this.#AT.application();
         log.info('AT: BALANCE - ', { balance });
 
-        return balance;
+        return Number(balance.match(/-?\d+\.*\d*/g)[0]);
     };
 
     send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {

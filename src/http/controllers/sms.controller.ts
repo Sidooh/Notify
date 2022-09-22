@@ -40,7 +40,7 @@ export class SmsController extends Controller {
 
         const balances = {
             websms        : Number((await new WebSMSService(settings.websms_env).balance()).match(/-?\d+\.*\d*/g)[0]),
-            africastalking: Number((await new ATService(settings.africastalking_env).balance()).match(/-?\d+\.*\d*/g)[0])
+            africastalking: await new ATService(settings.africastalking_env).balance()
         };
 
         return res.send(this.successResponse({ data: { default_provider: settings.default_provider, balances } }));

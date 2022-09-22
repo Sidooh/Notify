@@ -2,7 +2,7 @@ import { schedule } from 'node-cron';
 import { log } from '../utils/logger';
 import { CONFIG } from '../config';
 import WebSMSService from '../channels/sms/WebSMS/WebSMS.service';
-import ATService from '../channels/sms/AT/AT.service';
+import ATService, { ATApp } from '../channels/sms/AT/AT.service';
 import { Help } from '../utils/helpers';
 import SidoohProducts from '../services/SidoohProducts';
 import NotificationRepository from '../repositories/notification.repository';
@@ -22,9 +22,9 @@ export const ProcessServiceProviderBalances = () => {
                 earnings: productBalances.tanda[0].balances[1].available
             };
         const AT = {
-            sms    : Number((await new ATService(smsSettings.africastalking_env).balance()).slice(3)) / .8,
+            sms    : await new ATService(smsSettings.africastalking_env).balance(),
             airtime: Number(productBalances.at.data.UserData.balance.slice(3)),
-            ussd   : 600
+            ussd   : await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
         };
 
         let message = `These Service Provider balances are below threshold:\n`;
