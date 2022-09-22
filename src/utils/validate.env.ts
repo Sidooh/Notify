@@ -31,6 +31,9 @@ export default function validateEnv() {
         AT_SMS_DEV_USERNAME: str(),
         AT_SMS_FROM        : str(),
 
+        AT_USSD_API_KEY     : str(),
+        AT_USSD_USERNAME    : str(),
+
         WEBSMS_SANDBOX: bool({ default: true }),
         // WEBSMS_API_URL   : url(),
         WEBSMS_ACCESS_KEY: str(),

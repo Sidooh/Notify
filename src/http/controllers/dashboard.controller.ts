@@ -69,7 +69,7 @@ export class DashboardController extends Controller {
 
         const sms_credits = {
             websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
-            africastalking: (Number((await new ATService(smsSettings.africastalking_env).balance()).slice(3)) / .8).toFixed(2)
+            africastalking: (await new ATService(smsSettings.africastalking_env).balance() / .8).toFixed(2)
         };
 
         const startOfDay = moment().startOf('day').toDate();
