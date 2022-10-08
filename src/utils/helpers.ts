@@ -5,6 +5,7 @@ import { SMSProvider } from '../models/SMSProvider';
 import jwt from 'jsonwebtoken';
 import { env } from './validate.env';
 import moment from 'moment';
+import NodeCache from 'node-cache';
 
 export type SMSSettings = { default_provider: Provider, websms_env: ENV, africastalking_env: ENV, providers: SMSProvider[] }
 
@@ -18,7 +19,7 @@ export const Help = {
     },
 
     getSMSSettings: async (): Promise<SMSSettings> => {
-        const providers = await SMSProvider.find({ select: ['id', 'name', 'priority'] });
+        const providers = await SMSProvider.find({ select: ['id', 'name', 'priority', 'environment'] });
 
         return {
             default_provider  : (await Setting.findOneBy({ key: 'default_sms_provider' }))?.value as Provider,
@@ -32,3 +33,5 @@ export const Help = {
 
     testToken: 'Bearer ' + jwt.sign({ iat: moment().add(15, 'm').unix() }, env.JWT_KEY)
 };
+
+export const Cache = new NodeCache({stdTTL: 100, checkperiod: 120});
