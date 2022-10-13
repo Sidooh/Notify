@@ -31,8 +31,8 @@ export default function validateEnv() {
         AT_SMS_DEV_USERNAME: str(),
         AT_SMS_FROM        : str(),
 
-        AT_USSD_API_KEY     : str(),
-        AT_USSD_USERNAME    : str(),
+        AT_USSD_API_KEY : str(),
+        AT_USSD_USERNAME: str(),
 
         WEBSMS_SANDBOX: bool({ default: true }),
         // WEBSMS_API_URL   : url(),
@@ -58,8 +58,9 @@ export default function validateEnv() {
         SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),
         SIDOOH_PRODUCTS_API_URL: url({ default: 'http://localhost:8001/api/v1' }),
 
-        SP_BALANCE_NOTIFICATION_CRON: str({ default: '0 18 */2 * *' }),
-        ADMIN_CONTACTS              : str({ default: '254110039317,254714611696,254711414987' }),
+        SP_BALANCE_NOTIFICATION_ENABLED: bool({ default: true }),
+        SP_BALANCE_NOTIFICATION_CRON   : str({ default: '0 18 */2 * *' }),
+        ADMIN_CONTACTS                 : str({ default: '254110039317,254714611696,254711414987' }),
 
         TANDA_FLOAT_THRESHOLD: num({ default: 25000 }),
         WEBSMS_THRESHOLD     : num({ default: 500 }),

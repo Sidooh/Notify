@@ -10,6 +10,8 @@ import { Channel, EventType } from '../utils/enums';
 import { env } from '../utils/validate.env';
 
 export const ProcessServiceProviderBalances = () => {
+    if (!env.SP_BALANCE_NOTIFICATION_ENABLED) return;
+
     log.info('...[JOB]... Setting up service provider balance job...');
 
     schedule(CONFIG.sidooh.cron.sp_balance_notification_cron, async () => {
@@ -24,7 +26,7 @@ export const ProcessServiceProviderBalances = () => {
         const AT = {
             // sms    : await new ATService(smsSettings.africastalking_env).balance(),
             // airtime: Number(productBalances.at.data.UserData.balance.slice(3)),
-            ussd   : await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
+            ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
         };
 
         let message = `SP Balances:\n`;
