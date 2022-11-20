@@ -11,7 +11,7 @@ export default function validateEnv() {
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
         JWT_KEY  : str(),
 
-        DB_SOCKET: url({ default: '' }),
+        DB_SOCKET: str({ default: '' }),
 
         DB_HOST    : str({ default: '127.0.0.1' }),
         DB_PORT    : num({ default: 3306 }),
