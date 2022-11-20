@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import ServiceInterface from '../../utils/interfaces/service.interface';
+import { env } from '../../utils/validate.env';
 
 export default class MailService implements ServiceInterface {
     fromAddress: string[] = [];
@@ -51,7 +52,7 @@ export default class MailService implements ServiceInterface {
         // send mail with defined transport object
         return await transporter.sendMail({
             from: {
-                name: this.fromName ?? String(process.env.MAIL_FROM_NAME) ?? "Hoodis Notify",
+                name: this.fromName ?? env.MAIL_FROM_NAME,
                 address: this.fromAddress.join(',')
             },
             to: this.recipientAddress,
@@ -66,12 +67,12 @@ export default class MailService implements ServiceInterface {
 
         return nodemailer.createTransport({
             service: "Gmail",
-            host: process.env.MAIL_HOST,
-            port: Number(process.env.MAIL_PORT) | 587,
+            host: env.MAIL_HOST,
+            port: env.MAIL_PORT,
             secure: true, // true for 465, false for other ports
             auth: {
-                user: process.env.MAIL_USERNAME, // generated ethereal user
-                pass: process.env.MAIL_PASSWORD, // generated ethereal password
+                user: env.MAIL_USERNAME, // generated ethereal user
+                pass: env.MAIL_PASSWORD, // generated ethereal password
             },
         });
     }

@@ -10,7 +10,7 @@ validateEnv();
 AppDataSource.initialize().then(async () => {
     log.info('Connected to Database');
 
-    const app = new App(Number(env.PORT || 8005));
+    const app = new App(env.PORT);
 
     app.listen();
 

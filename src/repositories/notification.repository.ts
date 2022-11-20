@@ -1,5 +1,4 @@
 import { Notification } from '../models/Notification';
-import map from 'lodash/map';
 import { log } from '../utils/logger';
 import { Channel } from '../utils/enums';
 import { Mail } from '../channels/mail';
@@ -54,7 +53,7 @@ export default class NotificationRepository {
     };
 
     static send = async (channel: Channel, notifications: Notification[]): Promise<void | boolean> => {
-        const destinations = map(notifications, 'destination');
+        const destinations = notifications.map(n => n.destination);
 
         log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
 
