@@ -2,6 +2,7 @@ import axios from 'axios';
 import ServiceInterface from '../../utils/interfaces/service.interface';
 import { log } from '../../utils/logger';
 import { Status } from '../../utils/enums';
+import { env } from '../../utils/validate.env';
 
 export default class SlackService implements ServiceInterface {
     #message: string;
@@ -17,7 +18,7 @@ export default class SlackService implements ServiceInterface {
     }
 
     send = async (): Promise<{ status: string }> => {
-        return axios.post(process.env.SLACK_HOOK_URL as string, SlackService.template(this.#message)).then(() => {
+        return axios.post(env.SLACK_HOOK_URL as string, SlackService.template(this.#message)).then(() => {
             return {status: Status.COMPLETED}
         }).catch(error => {
             log.error(error)

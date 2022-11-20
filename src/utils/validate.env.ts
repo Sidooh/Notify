@@ -2,15 +2,16 @@ import { bool, cleanEnv, num, port, str, url } from 'envalid';
 
 export default function validateEnv() {
     return cleanEnv(process.env, {
-        PORT: port({ default: 3000 }),
+        PORT: port({ default: 8003 }),
 
         NODE_ENV: str({
             choices: ['test', 'development', 'production']
         }),
 
-        JWT_KEY: str(),
+        LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
+        JWT_KEY  : str(),
 
-        // DB_SOCKET: url(),
+        DB_SOCKET: url({ default: '' }),
 
         DB_HOST    : str({ default: '127.0.0.1' }),
         DB_PORT    : num({ default: 3306 }),
@@ -18,12 +19,14 @@ export default function validateEnv() {
         DB_USERNAME: str(),
         DB_PASSWORD: str(),
 
-        // MAIL_HOST    : str(),
-        // MAIL_PORT    : num({
-        //     choices: [465, 587]
-        // }),
-        // MAIL_USERNAME: str(),
-        // MAIL_PASSWORD: str(),
+        MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
+        MAIL_PORT     : num({
+            default: 587,
+            choices: [465, 587]
+        }),
+        MAIL_USERNAME : str(),
+        MAIL_PASSWORD : str(),
+        MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
         AT_SMS_API_KEY     : str(),
         AT_SMS_USERNAME    : str(),
@@ -34,8 +37,8 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
-        WEBSMS_SANDBOX: bool({ default: true }),
-        // WEBSMS_API_URL   : url(),
+        WEBSMS_SANDBOX   : bool({ default: true }),
+        WEBSMS_API_URL   : url({ default: 'https://api.onfonmedia.co.ke/v1/sms' }),
         WEBSMS_ACCESS_KEY: str(),
         WEBSMS_API_KEY   : str(),
         WEBSMS_CLIENT_ID : str(),
@@ -46,8 +49,8 @@ export default function validateEnv() {
         WEBSMS_DEV_CLIENT_ID : str({ default: null }),
         WEBSMS_DEV_SENDER_ID : str({ default: null }),
 
-        // SLACK_HOOK_URL: url(),
-        SLACK_LOGGING: str({
+        SLACK_HOOK_URL: url({ default: 'https://hooks.slack.com/services/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' }),
+        SLACK_LOGGING : str({
             default: 'enabled',
             choices: ['enabled', 'disabled']
         }),

@@ -3,7 +3,6 @@ import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { Notification } from '../../models/Notification';
-import map from 'lodash/map';
 import { Channel, EventType, Provider, Status } from '../../utils/enums';
 import { Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
@@ -35,7 +34,7 @@ export default class SMS implements NotificationInterface {
 
         await SMS.send(this.notifications)
             .then(status => {
-                log.info(`SMS NOTIFICATION REQUEST ${status} - `, { ids: map(this.notifications, 'id') });
+                log.info(`SMS NOTIFICATION REQUEST ${status} - `, { ids: this.notifications.map(n => n.id) });
 
                 if (status === Status.FAILED) this.retry();
             })
