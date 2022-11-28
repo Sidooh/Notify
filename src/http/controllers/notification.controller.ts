@@ -30,6 +30,8 @@ export class NotificationController extends Controller {
 
     #store = async ({ body }: Request, res: Response): Promise<Response | void> => {
         let { channel, destination, content, event_type } = body;
+        channel = channel.toUpperCase()
+        event_type = event_type.toUpperCase()
 
         const notifications = await NotificationRepository.store(channel, content, event_type, destination);
 
