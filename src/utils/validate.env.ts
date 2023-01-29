@@ -13,11 +13,12 @@ export default function validateEnv() {
 
         DB_SOCKET: str({ default: '' }),
 
-        DB_HOST    : str({ default: '127.0.0.1' }),
-        DB_PORT    : num({ default: 3306 }),
-        DB_DATABASE: str(),
-        DB_USERNAME: str(),
-        DB_PASSWORD: str(),
+        DB_HOST       : str({ default: '127.0.0.1' }),
+        DB_PORT       : num({ default: 3306 }),
+        DB_DATABASE   : str(),
+        DB_USERNAME   : str(),
+        DB_PASSWORD   : str(),
+        SYNCHRONIZE_DB: bool({ default: false }),
 
         MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
         MAIL_PORT     : num({
