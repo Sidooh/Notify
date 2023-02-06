@@ -41,7 +41,7 @@ export const ProcessSystemBalances = () => {
         // if (AT.sms <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${AT.sms}\n`;
         // if (AT.airtime <= env.AT_AIRTIME_THRESHOLD) message += `\t - AT Airtime: ${AT.airtime}\n`;
         if (websms <= env.WEBSMS_THRESHOLD) message += `\t - WebSMS: ${websms}\n`;
-        if (savingsFloatAccount.balance <= (env.SAVINGS_FLOAT_PERCENTAGE_THRESHOLD / 100) * cumulativeSavings) {
+        if (savingsFloatAccount.balance <= (env.SAVINGS_FLOAT_THRESHOLD_PERCENTAGE / 100) * cumulativeSavings) {
             message += `\t - Savings Float: ${savingsFloatAccount.balance}\n`;
         }
 
