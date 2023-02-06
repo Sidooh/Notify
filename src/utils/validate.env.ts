@@ -73,7 +73,7 @@ export default function validateEnv() {
         AT_SMS_THRESHOLD                  : num({ default: 500 }),
         AT_AIRTIME_THRESHOLD              : num({ default: 1000 }),
         AT_USSD_THRESHOLD                 : num({ default: 500 }),
-        SAVINGS_FLOAT_PERCENTAGE_THRESHOLD: num({ default: 10 })
+        SAVINGS_FLOAT_THRESHOLD_PERCENTAGE: num({ default: 10 })
     });
 }
 
