@@ -61,16 +61,19 @@ export default function validateEnv() {
 
         SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),
         SIDOOH_PRODUCTS_API_URL: url({ default: 'http://localhost:8001/api/v1' }),
+        SIDOOH_PAYMENTS_API_URL: url({ default: 'http://localhost:8002/api/v1' }),
+        SIDOOH_SAVINGS_API_URL : url({ default: 'http://localhost:8005/api/v1' }),
 
         SP_BALANCE_NOTIFICATION_ENABLED: bool({ default: true }),
         SP_BALANCE_NOTIFICATION_CRON   : str({ default: '0 18 */2 * *' }),
         ADMIN_CONTACTS                 : str({ default: '254110039317,254714611696,254711414987' }),
 
-        TANDA_FLOAT_THRESHOLD: num({ default: 25000 }),
-        WEBSMS_THRESHOLD     : num({ default: 500 }),
-        AT_SMS_THRESHOLD     : num({ default: 500 }),
-        AT_AIRTIME_THRESHOLD : num({ default: 1000 }),
-        AT_USSD_THRESHOLD    : num({ default: 500 })
+        TANDA_FLOAT_THRESHOLD             : num({ default: 25000 }),
+        WEBSMS_THRESHOLD                  : num({ default: 500 }),
+        AT_SMS_THRESHOLD                  : num({ default: 500 }),
+        AT_AIRTIME_THRESHOLD              : num({ default: 1000 }),
+        AT_USSD_THRESHOLD                 : num({ default: 500 }),
+        SAVINGS_FLOAT_PERCENTAGE_THRESHOLD: num({ default: 10 })
     });
 }
 
