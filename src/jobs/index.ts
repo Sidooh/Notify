@@ -1,7 +1,7 @@
-import { ProcessServiceProviderBalances } from './ProcessServiceProviderBalances';
+import { ProcessSystemBalances } from './ProcessSystemBalances';
 
 const Jobs = async () => {
-    await ProcessServiceProviderBalances()
+    await ProcessSystemBalances()
 }
 
 export default Jobs
