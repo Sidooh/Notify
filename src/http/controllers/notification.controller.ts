@@ -39,9 +39,7 @@ export class NotificationController extends Controller {
     };
 
     #show = async ({ params, query }: Request, res: Response) => {
-        const { with_relations } = query;
-
-        const notification = await NotificationRepository.show(Number(params.id), String(with_relations));
+        const notification = await NotificationRepository.show(Number(params.id), String(query.with));
 
         res.send(this.successResponse({ data: notification }));
     };
