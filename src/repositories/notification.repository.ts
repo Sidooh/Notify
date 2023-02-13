@@ -26,6 +26,8 @@ export default class NotificationRepository {
     static show = async (id:number, withRelations?: string) => {
         const relations = withRelations.split(',');
 
+        console.log(relations);
+
         const notification = await Notification.findOne({
             where: { id }, relations: { notifiables: relations.includes('notifiables') }
         });
