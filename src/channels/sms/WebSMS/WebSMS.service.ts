@@ -85,6 +85,8 @@ export default class WebSMSService implements ServiceInterface {
     };
 
     #saveCallback = async (notifications: Notification[], callback: any): Promise<Notifiable[] | undefined> => {
+        log.info(`WEBSMS: Save Callback`, { notifications, callback })
+
         const callbacks = Notifiable.create(notifications.map(notification => {
             const response = callback.response.find(res => {
                 return String(notification.destination).slice(-9) == String(res.MobileNumber).slice(-9);

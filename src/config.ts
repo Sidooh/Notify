@@ -8,6 +8,12 @@ export const CONFIG = {
             },
             products: {
                 url: env.SIDOOH_PRODUCTS_API_URL
+            },
+            payments: {
+                url: env.SIDOOH_PAYMENTS_API_URL
+            },
+            savings : {
+                url: env.SIDOOH_SAVINGS_API_URL
             }
         },
         cron     : {

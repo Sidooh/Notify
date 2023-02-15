@@ -2,10 +2,11 @@ import { WebSmsConfig } from './types';
 import { Balance } from './balance';
 import { Sms } from './sms';
 import axios, { AxiosInstance } from 'axios';
+import { env } from '../../../../utils/validate.env';
 
 export class WebSms {
     public config: WebSmsConfig;
-    public endpoint = process.env.WEBSMS_API_URL || 'https://api.onfonmedia.co.ke/v1/sms';
+    public endpoint = env.WEBSMS_API_URL;
     public http: AxiosInstance;
 
     constructor(config: WebSmsConfig) {

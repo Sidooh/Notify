@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { NotificationRequest } from '../requests/notification.request';
-import map from 'lodash/map';
 import { Notification } from '../../models/Notification';
 import { validate } from '../middleware/validate.middleware';
 import { NotFoundError } from '../../exceptions/not-found.err';
@@ -31,16 +30,16 @@ export class NotificationController extends Controller {
 
     #store = async ({ body }: Request, res: Response): Promise<Response | void> => {
         let { channel, destination, content, event_type } = body;
+        channel = channel.toUpperCase()
+        event_type = event_type.toUpperCase()
 
         const notifications = await NotificationRepository.store(channel, content, event_type, destination);
 
-        return res.status(201).send(this.successResponse({ data: { ids: map(notifications, 'id') } }));
+        return res.status(201).send(this.successResponse({ data: { ids: notifications.map(n => n.id) } }));
     };
 
     #show = async ({ params, query }: Request, res: Response) => {
-        const { with_relations } = query;
-
-        const notification = await NotificationRepository.show(Number(params.id), String(with_relations));
+        const notification = await NotificationRepository.show(Number(params.id), String(query.with));
 
         res.send(this.successResponse({ data: notification }));
     };
