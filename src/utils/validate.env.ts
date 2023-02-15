@@ -50,7 +50,7 @@ export default function validateEnv() {
         WEBSMS_DEV_CLIENT_ID : str({ default: null }),
         WEBSMS_DEV_SENDER_ID : str({ default: null }),
 
-        SLACK_HOOK_URL: url({ default: 'https://hooks.slack.com/services/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' }),
+        SLACK_HOOK_URL: url({ default: '' }),
         SLACK_LOGGING : str({
             default: 'enabled',
             choices: ['enabled', 'disabled']
