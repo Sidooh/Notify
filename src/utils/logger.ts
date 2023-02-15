@@ -9,8 +9,8 @@ const exceptionHandlers = [
     new transports.File({ filename: 'logs/exception.log' })
 ];
 
-if ((env.SLACK_LOGGING || 'disabled') === 'enabled') {
-    exceptionHandlers.push(<FileTransportInstance>new SlackHook({ webhookUrl: String(env.SLACK_HOOK_URL) }));
+if ((env.SLACK_LOGGING || 'disabled') === 'enabled' && env.SLACK_HOOK_URL !== null) {
+    exceptionHandlers.push(<FileTransportInstance>new SlackHook({ webhookUrl: env.SLACK_HOOK_URL }));
 }
 
 export const log = createLogger({
@@ -31,7 +31,7 @@ export const log = createLogger({
         new transports.Console({ level: 'info' }),
         new SlackHook({
             level     : 'error',
-            webhookUrl: String(env.SLACK_HOOK_URL),
+            webhookUrl: env.SLACK_HOOK_URL,
             formatter : info => {
                 const { timestamp, level, message, ...args } = info;
                 const stack = Object.keys(args).length ? JSON.stringify(args, null, 2) : '';
