@@ -16,14 +16,12 @@ export const ProcessSystemBalances = () => {
         const smsSettings = await Help.getSMSSettings();
 
         const AT = {
-            // sms    : await new ATService(smsSettings.africastalking_env).balance(),
             ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
         };
 
         let message = `! System Balances Below Threshold:\n`;
 
         if (AT.ussd <= env.AT_USSD_THRESHOLD) message += `\t - AT USSD: ${AT.ussd}\n`;
-        // if (AT.sms <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${AT.sms}\n`;
 
         if (message.includes('-')) {
             await NotificationRepository.store(
