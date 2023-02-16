@@ -1448,13 +1448,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node-cron@npm:^3.0.6":
-  version: 3.0.6
-  resolution: "@types/node-cron@npm:3.0.6"
-  checksum: dfddb32f3a84e80413d78ff1bd7b0760765a3876929c54d3f35e0fe9d3365d19a32db38290c1d585de4dc35ab3e67dbe93faf440d8c524a520d5b96a8aa07404
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:*":
   version: 17.0.25
   resolution: "@types/node@npm:17.0.25"
@@ -4803,15 +4796,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-cron@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "node-cron@npm:3.0.2"
-  dependencies:
-    uuid: 8.3.2
-  checksum: dd21585c0d4069a0752022dad9b8380a4393c4783ec78355ffa99ff32b018c3743a35d4ebf9d7c7863949e94e302b440f58c884eb4960e71c7260d817e2d3f25
-  languageName: node
-  linkType: hard
-
 "node-fetch@npm:^2.6.7":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
@@ -5663,7 +5647,6 @@ __metadata:
     "@types/jest": ^29.2.3
     "@types/jsonwebtoken": ^8.5.9
     "@types/node": ^18.11.9
-    "@types/node-cron": ^3.0.6
     "@types/nodemailer": ^6.4.6
     "@types/supertest": ^2.0.12
     africastalking: ^0.5.7
@@ -5681,7 +5664,6 @@ __metadata:
     moment: ^2.29.4
     mysql2: ^2.3.3
     node-cache: ^5.1.2
-    node-cron: ^3.0.2
     nodemailer: ^6.8.0
     nodemon: ^2.0.20
     sqlite3: ^5.1.2
@@ -6443,21 +6425,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.2, uuid@npm:^8.3.2":
-  version: 8.3.2
-  resolution: "uuid@npm:8.3.2"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
-  languageName: node
-  linkType: hard
-
 "uuid@npm:^3.3.2":
   version: 3.4.0
   resolution: "uuid@npm:3.4.0"
   bin:
     uuid: ./bin/uuid
   checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^8.3.2":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
   languageName: node
   linkType: hard
 
