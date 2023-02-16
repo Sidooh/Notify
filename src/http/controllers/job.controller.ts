@@ -5,7 +5,7 @@ import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import NotificationRepository from '../../repositories/notification.repository';
 import { Channel, EventType, Status } from '../../utils/enums';
-import ATService from '../../channels/sms/AT/AT.service';
+import ATService, { ATApp } from '../../channels/sms/AT/AT.service';
 
 export class JobController extends Controller {
     constructor() {
@@ -22,12 +22,16 @@ export class JobController extends Controller {
 
         const smsSettings = await Help.getSMSSettings();
         const websms = Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3));
-        const africasTalking = await new ATService(smsSettings.africastalking_env).balance()
+        const africasTalking = {
+            sms:await new ATService(smsSettings.africastalking_env).balance(),
+            ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
+        };
 
         let message = `! System Balances Below Threshold:\n`;
 
         if (websms <= env.WEBSMS_THRESHOLD) message += `\t - WebSMS: ${websms}\n`;
-        if (africasTalking <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${africasTalking}\n`;
+        if (africasTalking.sms <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${africasTalking.sms}\n`;
+        if (africasTalking.ussd <= env.AT_USSD_THRESHOLD) message += `\t - AT USSD: ${africasTalking.ussd}\n`;
 
         if (message.includes('-')) {
             message += `\n#SRV:Notify`;
