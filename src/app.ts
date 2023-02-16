@@ -74,7 +74,7 @@ class App {
             new DashboardController()
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
-        this.app.use('', new JobController().router)
+        this.app.use('/', new JobController().router)
 
         this.app.all('*', async () => {
             throw new NotFoundError();
