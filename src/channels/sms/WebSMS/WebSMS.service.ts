@@ -14,18 +14,18 @@ export default class WebSMSService implements ServiceInterface {
 
     constructor(appEnv = env.NODE_ENV) {
         let config: WebSmsConfig = {
-            accessKey: String(env.WEBSMS_ACCESS_KEY),
-            apiKey   : String(env.WEBSMS_API_KEY),
-            clientId : String(env.WEBSMS_CLIENT_ID),
-            senderId : String(env.WEBSMS_SENDER_ID)
+            accessKey: env.WEBSMS_ACCESS_KEY,
+            apiKey   : env.WEBSMS_API_KEY,
+            clientId : env.WEBSMS_CLIENT_ID,
+            senderId : env.WEBSMS_SENDER_ID
         };
 
         if (appEnv === ENV.DEVELOPMENT) {
             config = {
-                accessKey: String(env.WEBSMS_DEV_ACCESS_KEY),
-                apiKey   : String(env.WEBSMS_DEV_API_KEY),
-                clientId : String(env.WEBSMS_DEV_CLIENT_ID),
-                senderId : String(env.WEBSMS_DEV_SENDER_ID)
+                accessKey: env.WEBSMS_DEV_ACCESS_KEY,
+                apiKey   : env.WEBSMS_DEV_API_KEY,
+                clientId : env.WEBSMS_DEV_CLIENT_ID,
+                senderId : env.WEBSMS_DEV_SENDER_ID
             };
         }
 
@@ -49,7 +49,7 @@ export default class WebSMSService implements ServiceInterface {
 
         log.info('WEBSMS: BALANCE - ', { balance: response });
 
-        return response;
+        return (Number((response).slice(3))).toFixed(2);
     };
 
     send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
