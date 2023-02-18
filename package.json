@@ -14,7 +14,7 @@
       "build": "tsc -p ."
    },
    "dependencies": {
-      "@nabcellent/wavesms": "^2.3.0",
+      "@nabcellent/wavesms": "^2.3.1",
       "@sentry/node": "^7.23.0",
       "@sentry/tracing": "^7.23.0",
       "africastalking": "^0.6.0",
