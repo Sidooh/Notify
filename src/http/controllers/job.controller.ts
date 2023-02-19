@@ -15,7 +15,7 @@ export class JobController extends Controller {
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.basePath}/providers/check-balances`, this.#checkServiceBalances);
+        this.router.post(`${this.basePath}/providers/check-balances`, this.#checkServiceBalances);
     }
 
     #checkServiceBalances = async (req: Request, res: Response) => {
@@ -37,10 +37,7 @@ export class JobController extends Controller {
         const ATUSSDIsBelowThresh = africasTalking.ussd <= env.AT_USSD_THRESHOLD;
 
         if (wavesmsIsBelowThresh || websmsIsBelowThresh || ATAirtimeIsBelowBelowThresh || ATUSSDIsBelowThresh) {
-            message += `\t - WaveSMS: ${wavesms}\n
-                        \t - WebSMS: ${websms}\n
-                        \t - AT SMS: ${africasTalking.sms}\n
-                        \t - AT USSD: ${africasTalking.ussd}\n`;
+            message += `\t - WaveSMS: ${wavesms}\n\t - WebSMS: ${websms}\n\t - AT SMS: ${africasTalking.sms}\n\n\t - AT USSD: ${africasTalking.ussd}\n`;
         }
 
         if (message.includes('-')) {
