@@ -23,15 +23,19 @@ export class JobController extends Controller {
         const smsSettings = await Help.getSMSSettings();
         const websms = Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3));
         const africasTalking = {
-            sms:await new ATService(smsSettings.africastalking_env).balance(),
+            sms : await new ATService(smsSettings.africastalking_env).balance(),
             ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
         };
 
         let message = `! System Balances Below Threshold:\n`;
 
-        if (websms <= env.WEBSMS_THRESHOLD) message += `\t - WebSMS: ${websms}\n`;
-        if (africasTalking.sms <= env.AT_SMS_THRESHOLD) message += `\t - AT SMS: ${africasTalking.sms}\n`;
-        if (africasTalking.ussd <= env.AT_USSD_THRESHOLD) message += `\t - AT USSD: ${africasTalking.ussd}\n`;
+        const websmsIsBelowThresh = websms <= env.WEBSMS_THRESHOLD;
+        const ATAirtimeIsBelowBelowThresh = africasTalking.sms <= env.AT_SMS_THRESHOLD;
+        const ATUSSDIsBelowThresh = africasTalking.ussd <= env.AT_USSD_THRESHOLD;
+
+        if (websmsIsBelowThresh || ATAirtimeIsBelowBelowThresh || ATUSSDIsBelowThresh) {
+            message += `\t - WebSMS: ${websms}\n\t - AT SMS: ${africasTalking.sms}\n\t - AT USSD: ${africasTalking.ussd}\n`;
+        }
 
         if (message.includes('-')) {
             message += `\n#SRV:Notify`;
