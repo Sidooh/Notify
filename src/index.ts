@@ -3,7 +3,6 @@ import validateEnv, { env } from './utils/validate.env';
 import App from './app';
 import { log } from './utils/logger';
 import { AppDataSource } from './db/data-source';
-import Jobs from './jobs';
 
 validateEnv();
 
@@ -13,7 +12,5 @@ AppDataSource.initialize().then(async () => {
     const app = new App(env.PORT);
 
     app.listen();
-
-    Jobs();
-}).catch(error => log.error('Database connection error: ', error))
+}).catch(error => log.error('Database connection error: ', error));
 

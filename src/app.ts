@@ -15,6 +15,7 @@ import { MailController } from './http/controllers/mail.controller';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { env } from './utils/validate.env';
+import { JobController } from './http/controllers/job.controller';
 
 class App {
     public app: Application;
@@ -72,6 +73,8 @@ class App {
             new MailController(),
             new DashboardController()
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
+
+        this.app.use('/', new JobController().router)
 
         this.app.all('*', async () => {
             throw new NotFoundError();
