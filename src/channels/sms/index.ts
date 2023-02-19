@@ -67,7 +67,7 @@ export default class SMS implements NotificationInterface {
 
                 if (!this.smsSettings.providers?.length) message += `\n::: -> SMS Providers have not been set.`;
 
-                NotificationRepository.store(Channel.SLACK, message, EventType.ERROR_ALERT, ['Sidooh']);
+                NotificationRepository.notify(Channel.SLACK, message, EventType.ERROR_ALERT, ['Sidooh']);
             }
         });
     };
