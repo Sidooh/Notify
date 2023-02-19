@@ -7,7 +7,7 @@ export const SettingRequest = {
         key  : Joi.string().valid('default_sms_provider', 'default_mail_provider').required(),
         value: Joi.when('key', {
             is  : 'default_sms_provider',
-            then: Joi.string().valid(Provider.AT, Provider.WEBSMS)
+            then: Joi.string().valid(Provider.AT, Provider.WEBSMS, Provider.WAVESMS)
         }).required()
             .when('type', {
                 is  : 'default_mail_provider',

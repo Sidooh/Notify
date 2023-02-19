@@ -72,6 +72,7 @@ export default function validateEnv() {
         SP_BALANCE_NOTIFICATION_CRON   : str({ default: '0 18 */2 * *' }),
         ADMIN_CONTACTS                 : str({ default: '254110039317,254714611696,254711414987' }),
 
+        WAVESMS_THRESHOLD : num({ default: 500 }),
         WEBSMS_THRESHOLD : num({ default: 500 }),
         AT_SMS_THRESHOLD : num({ default: 500 }),
         AT_USSD_THRESHOLD: num({ default: 500 })

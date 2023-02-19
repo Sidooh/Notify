@@ -49,7 +49,7 @@ export default class WebSMSService implements ServiceInterface {
 
         log.info('WEBSMS: BALANCE - ', { balance: response });
 
-        return (Number((response).slice(3))).toFixed(2);
+        return Number((Number((response).slice(3))).toFixed(2));
     };
 
     send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
