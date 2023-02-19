@@ -8,4 +8,3 @@ export const SMSRequest = {
         environment: Joi.string().valid(...Object.values(ENV).map(e => e)).required()
     })
 };
-
