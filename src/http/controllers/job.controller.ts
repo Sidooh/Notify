@@ -15,7 +15,7 @@ export class JobController extends Controller {
     }
 
     #initRoutes(): void {
-        this.router.get(`${this.basePath}/providers/check-balances`, this.#checkServiceBalances);
+        this.router.post(`${this.basePath}/providers/check-balances`, this.#checkServiceBalances);
     }
 
     #checkServiceBalances = async (req: Request, res: Response) => {
