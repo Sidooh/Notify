@@ -29,6 +29,10 @@ export default function validateEnv() {
         MAIL_PASSWORD : str(),
         MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
+        WAVE_SMS_API_KEY   : str(),
+        WAVE_SMS_PARTNER_ID: str(),
+        WAVE_SMS_SENDER_ID : str({ default: 'Test' }),
+
         AT_SMS_API_KEY     : str(),
         AT_SMS_USERNAME    : str(),
         AT_SMS_DEV_API_KEY : str(),
@@ -68,9 +72,10 @@ export default function validateEnv() {
         SP_BALANCE_NOTIFICATION_CRON   : str({ default: '0 18 */2 * *' }),
         ADMIN_CONTACTS                 : str({ default: '254110039317,254714611696,254711414987' }),
 
-        WEBSMS_THRESHOLD                  : num({ default: 500 }),
-        AT_SMS_THRESHOLD                  : num({ default: 500 }),
-        AT_USSD_THRESHOLD                 : num({ default: 500 }),
+        WAVESMS_THRESHOLD: num({ default: 500 }),
+        WEBSMS_THRESHOLD : num({ default: 500 }),
+        AT_SMS_THRESHOLD : num({ default: 500 }),
+        AT_USSD_THRESHOLD: num({ default: 500 })
     });
 }
 

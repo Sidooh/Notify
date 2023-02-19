@@ -7,6 +7,7 @@ import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import ATService from '../../channels/sms/AT/AT.service';
 import Controller from './controller';
+import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
 
 export class DashboardController extends Controller {
     constructor() {
@@ -68,7 +69,8 @@ export class DashboardController extends Controller {
         const smsSettings = await Help.getSMSSettings();
 
         const sms_credits = {
-            websms        : (Number((await new WebSMSService(smsSettings.websms_env).balance()).slice(3))).toFixed(2),
+            wavesms       : await new WaveSMSService().balance(),
+            websms        : await new WebSMSService(smsSettings.websms_env).balance(),
             africastalking: (await new ATService(smsSettings.africastalking_env).balance() / .8).toFixed(2)
         };
 

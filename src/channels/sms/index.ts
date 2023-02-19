@@ -6,6 +6,7 @@ import { Notification } from '../../models/Notification';
 import { Channel, EventType, Provider, Status } from '../../utils/enums';
 import { Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
+import WaveSMSService from './WaveSMS/WaveSMS.service';
 
 export default class SMS implements NotificationInterface {
     tries = 1;
@@ -26,19 +27,19 @@ export default class SMS implements NotificationInterface {
             case Provider.AT:
                 this.#SMSService = new ATService(this.smsSettings.africastalking_env);
                 break;
-            default:
+            case Provider.WEBSMS:
                 this.#SMSService = new WebSMSService(this.smsSettings.websms_env);
+                break;
+            default:
+                this.#SMSService = new WaveSMSService();
         }
 
-        const SMS = this.#SMSService.to(this.destinations).message(this.notifications[0].content);
-
-        await SMS.send(this.notifications)
+        await this.#SMSService.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
             .then(status => {
                 log.info(`SMS NOTIFICATION REQUEST ${status} - `, { ids: this.notifications.map(n => n.id) });
 
                 if (status === Status.FAILED) this.retry();
-            })
-            .catch(err => log.error(err));
+            }).catch(err => log.error(err));
     };
 
     retry = () => {
@@ -56,7 +57,7 @@ export default class SMS implements NotificationInterface {
                     return prev.priority < curr.priority ? prev : curr;
                 }).name;
 
-                log.info(`RETRYING NOTIFICATION WITH ${this.smsSettings.default_provider} AFTER ${this.tries * 2}s`, { tries: this.tries })
+                log.info(`RETRYING NOTIFICATION WITH ${this.smsSettings.default_provider} AFTER ${this.tries * 2}s`, { tries: this.tries });
 
                 this.tries++;
                 this.send();
@@ -64,7 +65,7 @@ export default class SMS implements NotificationInterface {
                 let message = `Failed to send notification(s) to:\n`;
                 this.notifications.map(n => message += `#${n.id} - ${n.destination}\n`);
 
-                if(!this.smsSettings.providers?.length) message += `\n::: -> SMS Providers have not been set.`;
+                if (!this.smsSettings.providers?.length) message += `\n::: -> SMS Providers have not been set.`;
 
                 NotificationRepository.notify(Channel.SLACK, message, EventType.ERROR_ALERT, ['Sidooh']);
             }

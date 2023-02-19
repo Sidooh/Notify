@@ -3,7 +3,7 @@ import SlackHook from 'winston-slack-webhook-transport';
 import { FileTransportInstance } from 'winston/lib/winston/transports';
 import { env } from './validate.env';
 
-const { combine, timestamp, printf, align } = format;
+const { combine, timestamp, printf, align, colorize, json } = format;
 
 const exceptionHandlers = [
     new transports.File({ filename: 'logs/exception.log' })
@@ -13,22 +13,30 @@ if ((env.SLACK_LOGGING || 'disabled') === 'enabled' && env.SLACK_HOOK_URL !== nu
     exceptionHandlers.push(<FileTransportInstance>new SlackHook({ webhookUrl: env.SLACK_HOOK_URL }));
 }
 
+const errorFilter = format((info, opts) => {
+    return info.level === 'error' ? info : false;
+});
+
 export const log = createLogger({
     levels     : config.syslog.levels,
+    level      : env.LOG_LEVEL,
     format     : combine(
+        colorize({ all: true }),
         timestamp({ format: 'YYYY-MM-DD hh:mm:ss.SSS A' }),
         align(),
         printf(info => {
             const { timestamp, level, message, ...args } = info;
-            const ts = timestamp.slice(0, 19).replace('T', ' ');
 
-            return `${ts} [${level}]: ${message} ${Object.keys(args).length ? JSON.stringify(args, null, 2) : ''}`;
+            return `${timestamp} [${level}]: ${message} ${Object.keys(args).length ? JSON.stringify(args, null, 2) : ''}`;
         })
     ),
     exceptionHandlers,
     transports : [
-        new transports.File({ filename: 'logs/notify.log', level: env.LOG_LEVEL }),
-        new transports.Console({ level: 'info' }),
+        new transports.File({ filename: 'logs/notify.log' }),
+        new transports.File({
+            filename: 'logs/errors.log', level: 'error', format: combine(errorFilter(), timestamp(), json())
+        }),
+        new transports.Console({ level: env.LOG_LEVEL }),
         new SlackHook({
             level     : 'error',
             webhookUrl: env.SLACK_HOOK_URL,
