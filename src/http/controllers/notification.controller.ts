@@ -33,7 +33,7 @@ export class NotificationController extends Controller {
         channel = channel.toUpperCase()
         event_type = event_type.toUpperCase()
 
-        const notifications = await NotificationRepository.store(channel, content, event_type, destination);
+        const notifications = await NotificationRepository.notify(channel, content, event_type, destination);
 
         return res.status(201).send(this.successResponse({ data: { ids: notifications.map(n => n.id) } }));
     };

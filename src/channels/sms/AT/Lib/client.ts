@@ -1,10 +1,11 @@
 import { AfricasTalkingCredentials } from './types';
+import africastalking from 'africastalking';
 
 export class AfricasTalking {
     public AT;
 
     constructor(credentials: AfricasTalkingCredentials) {
-        this.AT = require('africastalking')(credentials);
+        this.AT = africastalking(credentials);
     }
 
     public async application() {

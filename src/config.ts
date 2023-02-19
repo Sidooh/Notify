@@ -25,19 +25,11 @@ export const CONFIG = {
                     threshold: env.AT_SMS_THRESHOLD
                 },
                 ussd   : {
-                    threshold: env.AT_SMS_THRESHOLD
-                },
-                airtime: {
-                    threshold: env.AT_SMS_THRESHOLD
+                    threshold: env.AT_USSD_THRESHOLD
                 }
             },
             websms: {
                 threshold: env.WEBSMS_THRESHOLD
-            },
-            tanda : {
-                float: {
-                    threshold: env.TANDA_FLOAT_THRESHOLD
-                }
             }
         }
     }
