@@ -5,7 +5,7 @@ export const NotificationRequest = {
         store: Joi.object({
             channel    : Joi.string().valid(...Object.values(Channel).map(c => c)).insensitive().required(),
             content    : Joi.string().required(),
-            event_type : Joi.string().valid(...Object.values(EventType).map(e => e)).insensitive().default(EventType.DEFAULT),
+            event_type : Joi.string().uppercase().default(EventType.DEFAULT),
             destination: Joi
                 .when('channel', {
                     is  : Channel.SMS,
