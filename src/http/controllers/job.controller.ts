@@ -27,7 +27,7 @@ export class JobController extends Controller {
             ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
         };
 
-        let message = `! System Balances Below Threshold:\n`;
+        let message = `Provider Balances:\n`;
 
         const websmsIsBelowThresh = websms <= env.WEBSMS_THRESHOLD;
         const ATAirtimeIsBelowBelowThresh = africasTalking.sms <= env.AT_SMS_THRESHOLD;

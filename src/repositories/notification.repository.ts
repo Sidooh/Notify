@@ -35,7 +35,7 @@ export default class NotificationRepository {
         return notification
     }
 
-    static store = async (channel, content, event_type, destinations) => {
+    static notify = async (channel, content, event_type, destinations) => {
         log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
 
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
@@ -68,8 +68,4 @@ export default class NotificationRepository {
 
         await channelService.send();
     };
-
-    static notify = async (channel, content, event_type, destinations) => {
-        await this.store(channel, content, event_type, destinations)
-    }
 }
