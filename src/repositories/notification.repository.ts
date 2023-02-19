@@ -68,4 +68,8 @@ export default class NotificationRepository {
 
         await channelService.send();
     };
+
+    static notify = async (channel, content, event_type, destinations) => {
+        await this.store(channel, content, event_type, destinations)
+    }
 }

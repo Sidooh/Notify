@@ -40,7 +40,7 @@ export class JobController extends Controller {
         if (message.includes('-')) {
             message += `\n#SRV:Notify`;
 
-            await NotificationRepository.store(Channel.SMS, message, EventType.STATUS_UPDATE, env.ADMIN_CONTACTS.split(','));
+            await NotificationRepository.notify(Channel.SMS, message, EventType.STATUS_UPDATE, env.ADMIN_CONTACTS.split(','));
         }
 
         return res.send(this.successResponse({ data: Status.COMPLETED }));
