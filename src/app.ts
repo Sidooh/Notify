@@ -5,7 +5,7 @@ import 'express-async-errors';
 import cookieParser from 'cookie-parser';
 import { log } from './utils/logger';
 import { NotificationController, SettingController } from './http/controllers';
-import { SmsController } from './http/controllers/sms.controller';
+import { SmsProviderController } from './http/controllers/sms-provider.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
@@ -69,7 +69,7 @@ class App {
         [
             new NotificationController(),
             new SettingController(),
-            new SmsController(),
+            new SmsProviderController(),
             new MailController(),
             new DashboardController()
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));

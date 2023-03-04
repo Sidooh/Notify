@@ -3,9 +3,12 @@ import { WebSms } from './Lib/client';
 import { WebSmsConfig } from './Lib/types';
 import { log } from '../../../utils/logger';
 import { ENV, Provider, Status } from '../../../utils/enums';
-import { Notification } from '../../../models/Notification';
-import { Notifiable } from '../../../models/Notifiable';
+import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
+import { prisma } from '../../../db/prisma';
+import { SMSNotificationResponse } from '../../../utils/types';
+
+const Notifiable = prisma.notifiable;
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
@@ -33,7 +36,7 @@ export default class WebSMSService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to.map(phone => `254${String(phone).slice(-9)}`);
+        this.#to = to;
 
         return this;
     };
@@ -52,18 +55,18 @@ export default class WebSMSService implements ServiceInterface {
         return Number((Number((response).slice(3))).toFixed(2));
     };
 
-    send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResponse> = async (notifications: Notification[]) => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
-        const response = await this.#WebSMS.sms(this.#message).to(this.#to).send()
+        const { status, responses } = await this.#WebSMS.sms(this.#message).to(this.#to).send()
             .then(response => {
                 log.info(`WEBSMS: RESPONSE`, response);
 
-                let status = Status.COMPLETED;
+                let status = true;
                 if (response.ErrorCode !== 0) {
                     log.alert(response.ErrorDescription, response);
 
-                    status = Status.FAILED;
+                    status = false;
                     response = {
                         Data: [{
                             MessageErrorCode       : response.ErrorCode,
@@ -72,42 +75,47 @@ export default class WebSMSService implements ServiceInterface {
                     };
                 }
 
-                return { status, response: response.Data };
+                return { status, responses: response.Data };
             }).catch(error => {
                 log.error(error);
 
-                return { status: Status.FAILED, response: error };
+                return { status: false };
             });
 
-        const webSmsCallback = await this.#saveCallback(notifications, response);
-
-        return webSmsCallback?.every(cb => (cb.status === Status.COMPLETED)) ? Status.COMPLETED : Status.FAILED;
+        if (status) {
+            return await this.#save(notifications, responses);
+        } else {
+            return { COMPLETED: [], FAILED: notifications.map(n => Number(n.id)) };
+        }
     };
 
-    #saveCallback = async (notifications: Notification[], callback: any): Promise<Notifiable[] | undefined> => {
-        log.info(`WEBSMS: Save Callback`, { notifications, callback })
+    #save = async (notifications: Notification[], responses: any): Promise<SMSNotificationResponse> => {
+        log.info(`WEBSMS: Save Callback`);
 
-        const callbacks = Notifiable.create(notifications.map(notification => {
-            const response = callback.response.find(res => {
+        const results = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+
+        const notifiables = notifications.map(notification => {
+            const response = responses.find(res => {
                 return String(notification.destination).slice(-9) == String(res.MobileNumber).slice(-9);
             });
 
             let status = response?.MessageErrorCode === 0 ? Status.COMPLETED : Status.FAILED;
 
-            notification.status = status;
-            notification.save();
+            results[status].push(notification.id);
 
             return {
                 notification_id: notification.id,
                 message_id     : response?.MessageId,
                 phone          : response?.MobileNumber,
-                description    : response?.MessageErrorDescription || callback.response[0].MessageErrorDescription,
-                status_code    : response?.MessageErrorCode || callback.response[0].MessageErrorCode,
+                description    : response?.MessageErrorDescription || responses[0].MessageErrorDescription,
+                status_code    : response?.MessageErrorCode || responses[0].MessageErrorCode,
                 provider       : Provider.WEBSMS,
                 status
             };
-        }));
+        });
 
-        return await Notifiable.save(callbacks);
+        await Notifiable.createMany({ data: notifiables });
+
+        return results;
     };
 }

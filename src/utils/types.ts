@@ -1,0 +1,1 @@
+export type SMSNotificationResponse = { COMPLETED: number[], FAILED: number[] }

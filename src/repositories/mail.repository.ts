@@ -5,13 +5,13 @@ import { BadRequestError } from '../exceptions/bad-request.err';
 
 export default class MailRepository {
     static index = async (withRelations?: string) => {
-        const relations = withRelations.split(',');
+        const relations = withRelations?.split(',');
 
         try {
             return await Notification.find({
                 select   : ['id', 'event_type', 'content', 'channel', 'destination', 'status', 'created_at'],
                 where    : { channel: Channel.MAIL },
-                relations: { notifiables: relations.includes('notifiables') }, order: { id: 'DESC' }
+                relations: { notifiables: relations?.includes('notifiables') }, order: { id: 'DESC' }
             });
         } catch (err) {
             log.error(err);

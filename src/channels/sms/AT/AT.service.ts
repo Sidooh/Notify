@@ -2,9 +2,12 @@ import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
 import { ENV, Provider, Status } from '../../../utils/enums';
-import { Notification } from '../../../models/Notification';
-import { Notifiable } from '../../../models/Notifiable';
 import { env } from '../../../utils/validate.env';
+import { prisma } from '../../../db/prisma';
+import { Notification } from '@prisma/client';
+import { SMSNotificationResponse } from '../../../utils/types';
+
+const Notifiable = prisma.notifiable;
 
 export enum ATApp {
     SMS = 'SMS',
@@ -41,10 +44,7 @@ export default class ATService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to.map(phone => {
-            phone = phone.toString();
-            return `+254${(phone.length > 9 ? phone.slice(-9) : phone)}`;
-        });
+        this.#to = to.map(phone => `+${phone}`);
 
         return this;
     };
@@ -62,7 +62,7 @@ export default class ATService implements ServiceInterface {
         return Number(balance.match(/-?\d+\.*\d*/g)[0]);
     };
 
-    send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResponse> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
             from   : env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
@@ -75,22 +75,18 @@ export default class ATService implements ServiceInterface {
             .then(async (response: any) => {
                 log.info('AT: RESPONSE - ', response);
 
-                const atCallbacks = await this.#saveCallback(notifications, response);
-
-                if (atCallbacks.every(cb => (cb.status === Status.COMPLETED))) return Status.COMPLETED;
-
-                log.error('AT CALLBACK SAVE ERROR: CALLBACKS - ', { atCallbacks });
-                return Status.FAILED;
-            })
-            .catch((error: any) => {
+                return await this.#save(notifications, response);
+            }).catch((error: any) => {
                 log.error(error);
 
-                return Status.FAILED;
+                return { COMPLETED: [], FAILED: notifications.map(n => Number(n.id)) };
             });
     };
 
-    #saveCallback = async (notifications: Notification[], callback: any): Promise<Notifiable[]> => {
-        const callbacks = Notifiable.create(notifications.map(notification => {
+    #save = async (notifications: Notification[], callback: any): Promise<SMSNotificationResponse> => {
+        const results = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+
+        const notifiables = notifications.map(notification => {
             let regex = /[+-]?\d+(\.\d+)?/g;
 
             const recipient = callback.SMSMessageData.Recipients.find(recipient => {
@@ -99,8 +95,7 @@ export default class ATService implements ServiceInterface {
 
             const status = recipient?.statusCode === 101 ? Status.COMPLETED : Status.FAILED;
 
-            notification.status = status;
-            notification.save();
+            results[status].push(notification.id);
 
             return {
                 notification_id: notification.id,
@@ -112,8 +107,10 @@ export default class ATService implements ServiceInterface {
                 status_code    : recipient?.statusCode,
                 status
             };
-        }));
+        });
 
-        return await Notifiable.save(callbacks);
+        await Notifiable.createMany({ data: notifiables });
+
+        return results;
     };
 }
