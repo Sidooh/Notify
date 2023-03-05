@@ -5,6 +5,7 @@ import moment from 'moment';
 import NodeCache from 'node-cache';
 import { prisma } from '../db/prisma';
 import { SmsProvider } from '@prisma/client';
+import { ValidationError } from 'joi';
 
 const Setting = prisma.setting;
 const SmsProvider = prisma.smsProvider;
@@ -40,3 +41,15 @@ export const Help = {
 };
 
 export const Cache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
+
+export const validateExists = async (model, id) => {
+    const provider = await model.findUnique({ where: { id } });
+
+    if (!provider) throw new ValidationError(`${model.name} Not Found!`, [{
+        type   : 'any.invalid',
+        path   : ['name'],
+        message: `${model.name} Not Found!`
+    }], []);
+
+    return id
+}

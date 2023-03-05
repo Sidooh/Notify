@@ -21,7 +21,7 @@ export class SmsProviderController extends Controller {
         this.router.get(`${this.basePath}`, this.#index);
         this.router.post(`${this.basePath}`, validate(SmsProviderRequest.store), this.#store);
         this.router.put(`${this.basePath}/:id`, validate(SmsProviderRequest.update), this.#update);
-        this.router.delete(`${this.basePath}/:id`, this.#destroy);
+        this.router.delete(`${this.basePath}/:id`, validate(SmsProviderRequest.destroy), this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {

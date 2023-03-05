@@ -19,8 +19,8 @@ export class SettingController extends Controller {
 
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, this.#index);
-        this.router.post(`${this.basePath}`, validate(SettingRequest.create), this.#tweak);
-        this.router.delete(`${this.basePath}/:id`, this.#destroy);
+        this.router.post(`${this.basePath}`, validate(SettingRequest.upsert), this.#tweak);
+        this.router.delete(`${this.basePath}/:id`, validate(SettingRequest.destroy), this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {

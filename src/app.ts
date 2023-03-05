@@ -11,7 +11,6 @@ import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
 import { Auth } from './http/middleware/auth.middleware';
-import { MailController } from './http/controllers/mail.controller';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { env } from './utils/validate.env';
@@ -70,7 +69,6 @@ class App {
             new NotificationController(),
             new SettingController(),
             new SmsProviderController(),
-            new MailController(),
             new DashboardController()
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 

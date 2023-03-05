@@ -1,11 +1,12 @@
 import Joi, { ValidationError } from 'joi';
 import { ENV, Provider } from '../../utils/enums';
 import { prisma } from '../../db/prisma';
+import { validateExists } from '../../utils/helpers';
 
 const SMSProvider = prisma.smsProvider;
 
 export const SmsProviderRequest = {
-    store : Joi.object({
+    store  : Joi.object({
         name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT).external(async (value) => {
             const provider = await SMSProvider.findFirst({ where: { name: value } });
 
@@ -30,20 +31,13 @@ export const SmsProviderRequest = {
         }).required(),
         environment: Joi.string().valid(...Object.values(ENV).map(e => e)).required()
     }),
-    update: Joi.object({
-        id         : Joi.number().external((id) => {
-            const provider = SMSProvider.findUnique({ where: { id } });
-
-            if (!provider) throw new ValidationError('Provider Not Found!', [{
-                type   : 'any.invalid',
-                path   : ['name'],
-                message: 'Provider Not Found!'
-            }], []);
-
-            return id
-        }).required(),
+    update : Joi.object({
+        id         : Joi.number().external(id => validateExists(SMSProvider, id)).required(),
         name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT).required(),
         priority   : Joi.number().valid(1, 2, 3).required(),
         environment: Joi.string().valid(...Object.values(ENV).map(e => e)).required()
+    }),
+    destroy: Joi.object({
+        id: Joi.number().external(id => validateExists(SMSProvider, id)).required()
     })
 };
