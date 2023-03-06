@@ -8,7 +8,7 @@ import { Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 import WaveSMSService from './WaveSMS/WaveSMS.service';
 
-export default class SMS implements NotificationInterface {
+export class SMS implements NotificationInterface {
     tries = 1;
     triedProviders:string[] = [];
     smsSettings: SMSSettings;

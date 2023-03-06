@@ -2,7 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     test: {
-        setupFiles: ['./tests/env.ts','./tests/setup.ts'],
-        include   : ['src/**/*.test.ts']
+        include   : ['src/**/*.test.ts'],
+        reporters : ['verbose'],
+        setupFiles: ['./tests/env.ts', './tests/mocks.ts', './tests/setup.ts']
     }
 });

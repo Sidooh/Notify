@@ -3,7 +3,7 @@ import SlackService from './slack.service';
 import { Notification } from '@prisma/client';
 import NotificationRepository from '../../repositories/notification.repository';
 
-export default class Slack implements NotificationInterface {
+export class Slack implements NotificationInterface {
     notifications;
     service;
 

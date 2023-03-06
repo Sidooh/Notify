@@ -1,8 +1,8 @@
 import { log } from '../utils/logger';
 import { Channel } from '../utils/enums';
 import { Mail } from '../channels/mail';
-import SMS from '../channels/sms';
-import Slack from '../channels/slack';
+import { SMS } from '../channels/sms';
+import { Slack } from '../channels/slack';
 import { Help } from '../utils/helpers';
 import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';

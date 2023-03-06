@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Provider } from '../../utils/enums';
 import db from '../../db/__mocks__/prisma';
 import { SettingRepository } from '../setting.repository';
@@ -14,11 +14,7 @@ const setting: Setting = {
     updated_at: new Date
 };
 
-describe('notification.repository', () => {
-    beforeEach(() => {
-        vi.restoreAllMocks();
-    });
-
+describe('setting.repository', () => {
     describe('findMany', () => {
         it('should return a list of settings.', async () => {
             db.setting.findMany.mockResolvedValueOnce([setting]);
