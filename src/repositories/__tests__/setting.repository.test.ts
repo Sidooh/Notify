@@ -20,15 +20,17 @@ describe('notification.repository', () => {
     });
 
     describe('findMany', () => {
-        it('should return a list of settings', async () => {
+        it('should return a list of settings.', async () => {
             db.setting.findMany.mockResolvedValueOnce([setting]);
 
             const settings = await repo.findMany();
 
             expect(settings).toStrictEqual([setting]);
         });
+    });
 
-        it('should create new setting if not exists', async () => {
+    describe('Tweak', () => {
+        it('should create new setting if not exists.', async () => {
             db.setting.upsert.mockResolvedValueOnce(setting);
 
             const res = await repo.tweak('default_sms_provider', Provider.WAVESMS);
@@ -36,12 +38,12 @@ describe('notification.repository', () => {
             expect(res).toStrictEqual(setting);
         });
 
-        it('should create new setting if not exists', async () => {
-            db.setting.upsert.mockResolvedValueOnce(setting);
+        it('should update a setting exists.', async () => {
+            db.setting.upsert.mockResolvedValueOnce({ ...setting, value: Provider.WEBSMS });
 
-            const res = await repo.tweak('default_sms_provider', Provider.WAVESMS);
+            const res = await repo.tweak('default_sms_provider', Provider.WEBSMS);
 
-            expect(res).toStrictEqual(setting);
+            expect(res).toStrictEqual({ ...setting, value: Provider.WEBSMS });
         });
     });
 });
