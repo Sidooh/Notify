@@ -1,1 +1,1 @@
-export type SMSNotificationResponse = { COMPLETED: number[], FAILED: number[] }
+export type SMSNotificationResults = { COMPLETED: bigint[], FAILED: bigint[] }

@@ -1,9 +1,9 @@
-import { prisma } from '../db/prisma';
+import db from '../db/prisma';
 import { Prisma } from '@prisma/client';
 import { log } from '../utils/logger';
 import { BadRequestError } from '../exceptions/bad-request.err';
 
-const SmsProvider = prisma.smsProvider;
+const SmsProvider = db.smsProvider;
 
 export class SmsProviderRepository {
     async findMany(args?: Prisma.SmsProviderFindManyArgs) {

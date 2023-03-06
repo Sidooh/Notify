@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { Provider } from '../../utils/enums';
 import { validateExists } from '../../utils/helpers';
-import { prisma } from '../../db/prisma';
+import prisma from '../../db/prisma';
 
 export const SettingRequest = {
     upsert: Joi.object({

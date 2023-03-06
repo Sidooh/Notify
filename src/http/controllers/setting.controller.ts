@@ -24,7 +24,7 @@ export class SettingController extends Controller {
     }
 
     #index = async (req: Request, res: Response) => {
-        const settings = await this.repo.findAll();
+        const settings = await this.repo.findMany();
 
         res.json(this.successResponse({ data: settings }));
     };

@@ -5,8 +5,8 @@ import { log } from '../../../utils/logger';
 import { ENV, Provider, Status } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
-import { prisma } from '../../../db/prisma';
-import { SMSNotificationResponse } from '../../../utils/types';
+import prisma from '../../../db/prisma';
+import { SMSNotificationResults } from '../../../utils/types';
 
 const Notifiable = prisma.notifiable;
 
@@ -55,7 +55,7 @@ export default class WebSMSService implements ServiceInterface {
         return Number((Number((response).slice(3))).toFixed(2));
     };
 
-    send: (notifications: Notification[]) => Promise<SMSNotificationResponse> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
         const { status, responses } = await this.#WebSMS.sms(this.#message).to(this.#to).send()
@@ -85,14 +85,14 @@ export default class WebSMSService implements ServiceInterface {
         if (status) {
             return await this.#save(notifications, responses);
         } else {
-            return { COMPLETED: [], FAILED: notifications.map(n => Number(n.id)) };
+            return { COMPLETED: [], FAILED: notifications.map(n => n.id) };
         }
     };
 
-    #save = async (notifications: Notification[], responses: any): Promise<SMSNotificationResponse> => {
+    #save = async (notifications: Notification[], responses: any): Promise<SMSNotificationResults> => {
         log.info(`WEBSMS: Save Callback`);
 
-        const results = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {
             const response = responses.find(res => {

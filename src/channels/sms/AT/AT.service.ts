@@ -3,9 +3,9 @@ import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
 import { ENV, Provider, Status } from '../../../utils/enums';
 import { env } from '../../../utils/validate.env';
-import { prisma } from '../../../db/prisma';
+import prisma from '../../../db/prisma';
 import { Notification } from '@prisma/client';
-import { SMSNotificationResponse } from '../../../utils/types';
+import { SMSNotificationResults } from '../../../utils/types';
 
 const Notifiable = prisma.notifiable;
 
@@ -62,7 +62,7 @@ export default class ATService implements ServiceInterface {
         return Number(balance.match(/-?\d+\.*\d*/g)[0]);
     };
 
-    send: (notifications: Notification[]) => Promise<SMSNotificationResponse> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
             from   : env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
@@ -83,8 +83,8 @@ export default class ATService implements ServiceInterface {
             });
     };
 
-    #save = async (notifications: Notification[], callback: any): Promise<SMSNotificationResponse> => {
-        const results = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+    #save = async (notifications: Notification[], callback: any): Promise<SMSNotificationResults> => {
+        const results:SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {
             let regex = /[+-]?\d+(\.\d+)?/g;

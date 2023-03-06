@@ -1,15 +1,15 @@
-import { prisma } from '../db/prisma';
+import db from '../db/prisma';
 import { log } from '../utils/logger';
 import { BadRequestError } from '../exceptions/bad-request.err';
 
-const Setting = prisma.setting;
+const Setting = db.setting;
 
 export class SettingRepository {
-    async findAll() {
+    async findMany() {
         return await Setting.findMany();
     }
 
-    async tweak(key?: string, value?: string) {
+    async tweak(key: string, value: string) {
         return await Setting.upsert({ where: { key }, update: { value }, create: { key, value } });
     };
 

@@ -10,7 +10,7 @@ import WaveSMSService from './WaveSMS/WaveSMS.service';
 
 export default class SMS implements NotificationInterface {
     tries = 1;
-    triedProviders = [];
+    triedProviders:string[] = [];
     smsSettings: SMSSettings;
     notifications;
     destinations;

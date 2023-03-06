@@ -7,9 +7,9 @@ import { Help } from '../utils/helpers';
 import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { Notification as NotificationType, Prisma } from '@prisma/client';
-import { prisma } from '../db/prisma';
+import db from '../db/prisma';
 
-const Notification = prisma.notification;
+const Notification = db.notification;
 
 export type NotificationIndexBuilder = { where?: Prisma.NotificationWhereInput, withRelations?: string }
 
@@ -65,7 +65,7 @@ export default class NotificationRepository {
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
         if (!Array.isArray(destinations)) destinations = [destinations];
 
-        const notifications = await prisma.$transaction(destinations.map(destination => Notification.create({
+        const notifications = await db.$transaction(destinations.map(destination => Notification.create({
             data: { channel, destination, content, event_type }
         })));
 

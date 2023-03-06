@@ -5,7 +5,7 @@ import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import ATService from '../../channels/sms/AT/AT.service';
 import Controller from './controller';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
-import { prisma } from '../../db/prisma';
+import prisma from '../../db/prisma';
 import NotificationRepository from '../../repositories/notification.repository';
 
 const Notification = prisma.notification;

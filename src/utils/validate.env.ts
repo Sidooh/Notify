@@ -49,10 +49,10 @@ export default function validateEnv() {
         WEBSMS_CLIENT_ID : str(),
         WEBSMS_SENDER_ID : str(),
 
-        WEBSMS_DEV_ACCESS_KEY: str({ default: null }),
-        WEBSMS_DEV_API_KEY   : str({ default: null }),
-        WEBSMS_DEV_CLIENT_ID : str({ default: null }),
-        WEBSMS_DEV_SENDER_ID : str({ default: null }),
+        WEBSMS_DEV_ACCESS_KEY: str({ default: undefined }),
+        WEBSMS_DEV_API_KEY   : str({ default: undefined }),
+        WEBSMS_DEV_CLIENT_ID : str({ default: undefined }),
+        WEBSMS_DEV_SENDER_ID : str({ default: undefined }),
 
         SLACK_HOOK_URL: url({ default: '' }),
         SLACK_LOGGING : str({
@@ -60,7 +60,7 @@ export default function validateEnv() {
             choices: ['enabled', 'disabled']
         }),
 
-        SENTRY_DSN               : url({ default: null }),
+        SENTRY_DSN               : url({ default: undefined }),
         SENTRY_TRACES_SAMPLE_RATE: num({ default: 0.0 }),
 
         SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),

@@ -1,34 +1,34 @@
-import { Sms } from '../src/channels/sms/WebSMS/Lib/sms';
-import { WebSms } from '../src/channels/sms/WebSMS/Lib/client';
 import axios from 'axios';
+import { vi } from 'vitest';
 
 /**
  * _________________________________________________________________    MOCKS
  * */
-
-jest.mock('axios');
-jest.mock('winston', () => ({
+vi.mock('axios');
+vi.mock('winston', () => ({
     config      : {
         syslog: []
     },
     format      : {
-        combine  : jest.fn(),
-        timestamp: jest.fn(),
-        printf   : jest.fn(),
-        align    : jest.fn()
+        json  : vi.fn(),
+        colorize  : vi.fn(),
+        combine  : vi.fn(),
+        timestamp: vi.fn(),
+        printf   : vi.fn(),
+        align    : vi.fn()
     },
-    createLogger: jest.fn().mockReturnValue({
-        info : jest.fn(),
-        debug: jest.fn(),
-        error: jest.fn()
+    createLogger: vi.fn().mockReturnValue({
+        info : vi.fn(),
+        debug: vi.fn(),
+        error: vi.fn()
     }),
     transports  : {
-        File   : jest.fn(),
-        Console: jest.fn()
+        File   : vi.fn(),
+        Console: vi.fn()
     }
 }));
 
-jest.spyOn(new Sms(new WebSms({
+/*vi.spyOn(new Sms(new WebSms({
     accessKey: '',
     apiKey   : '',
     clientId : '',
@@ -40,4 +40,4 @@ jest.spyOn(new Sms(new WebSms({
     const { data } = await mockedAxios.post('/SendBulkSMS', {});
 
     return data;
-});
+});*/

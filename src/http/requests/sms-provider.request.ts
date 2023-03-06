@@ -1,6 +1,6 @@
 import Joi, { ValidationError } from 'joi';
 import { ENV, Provider } from '../../utils/enums';
-import { prisma } from '../../db/prisma';
+import prisma from '../../db/prisma';
 import { validateExists } from '../../utils/helpers';
 
 const SMSProvider = prisma.smsProvider;

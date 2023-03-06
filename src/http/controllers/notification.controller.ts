@@ -30,7 +30,7 @@ export class NotificationController extends Controller {
             withRelations: String(query.with)
         };
 
-        if (query.channel) builder.where.channel = String(query.channel);
+        if (query.channel) builder.where!.channel = String(query.channel);
 
         const notifications = await this.repo.index(builder);
 

@@ -13,6 +13,9 @@ process.env.DB_DATABASE = 'something';
 process.env.DB_PASSWORD = 'something';
 process.env.DB_USERNAME = 'something';
 
+process.env.WAVE_SMS_API_KEY = 'something'
+process.env.WAVE_SMS_PARTNER_ID = 'something'
+
 process.env.WEBSMS_ACCESS_KEY = 'something';
 process.env.WEBSMS_API_KEY = 'something';
 process.env.WEBSMS_CLIENT_ID = 'something';

@@ -1,20 +1,20 @@
-import { DataSource } from 'typeorm';
-import { Notification } from '../src/models/Notification';
-import { Notifiable } from '../src/models/Notifiable';
-import { Setting } from '../src/models/Setting';
-import { SMSProvider } from '../src/models/SMSProvider';
+// import { mockReset } from 'jest-mock-extended';
+// import { prismaMock } from './mocks';
 
-const dataSource = new DataSource({
-    type       : 'sqlite',
-    database   : ':memory:',
-    dropSchema : true,
-    entities   : [Notification, Notifiable, SMSProvider, Setting],
-    synchronize: true,
-    logging    : false
+import { vi } from 'vitest';
+
+vi.mock('../src/db/prisma');
+
+/*beforeAll(async () => {
+    console.error = jest.fn().mockImplementation(() => {});
+    console.info = jest.fn().mockImplementation(() => {});
+    console.log = jest.fn().mockImplementation(() => {});
 });
 
-beforeAll(async () => await dataSource.initialize());
+beforeEach(() => {
+    mockReset(prismaMock)
+})*/
 
-afterAll(async () => await dataSource.destroy());
+// afterAll(async () => await dataSource.destroy());
 
-jest.setTimeout(10000);
+// jest.setTimeout(10000);

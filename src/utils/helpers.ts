@@ -1,15 +1,15 @@
-import { Provider } from './enums';
+import { ENV, Provider } from './enums';
 import jwt from 'jsonwebtoken';
 import { env } from './validate.env';
 import moment from 'moment';
 import NodeCache from 'node-cache';
-import { prisma } from '../db/prisma';
+import db from '../db/prisma';
 import { SmsProvider } from '@prisma/client';
 import { ValidationError } from 'joi';
 
-const Setting = prisma.setting;
-const SmsProvider = prisma.smsProvider;
-export type SMSSettings = { default_provider: string, websms_env: string, africastalking_env: string, providers: Partial<SmsProvider>[] }
+const Setting = db.setting;
+const SmsProvider = db.smsProvider;
+export type SMSSettings = { default_provider: string, websms_env: string, africastalking_env: string, providers: SmsProvider[] }
 
 export const Help = {
     getSettings: async (key: string | string[]) => {
@@ -28,10 +28,10 @@ export const Help = {
         });
 
         return {
-            default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value,
-            websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment,
-            africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment,
-            providers         : providers?.sort((a, b) => a.priority - b.priority)
+            default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value ?? Provider.WEBSMS,
+            websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment ?? ENV.PRODUCTION,
+            africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment ?? ENV.PRODUCTION,
+            providers         : providers?.sort((a, b) => a.priority - b.priority) as SmsProvider[]
         };
     },
 
@@ -51,5 +51,5 @@ export const validateExists = async (model, id) => {
         message: `${model.name} Not Found!`
     }], []);
 
-    return id
-}
+    return id;
+};
