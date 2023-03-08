@@ -17,6 +17,7 @@
    },
    "dependencies": {
       "@nabcellent/wavesms": "^3.0.0",
+      "@nabcellent/websms": "^1.1.1",
       "@prisma/client": "4.11.0",
       "@sentry/node": "^7.23.0",
       "@sentry/tracing": "^7.23.0",

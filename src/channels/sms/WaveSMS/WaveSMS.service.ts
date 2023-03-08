@@ -37,11 +37,11 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     balance = async () => {
-        const response = await this.#WaveSMS.balance.fetch();
+        const balance = await this.#WaveSMS.balance.fetch();
 
-        log.info('WAVESMS: BALANCE - ', { balance: response });
+        log.info('WAVESMS: BALANCE - ', { balance });
 
-        return response;
+        return balance;
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {

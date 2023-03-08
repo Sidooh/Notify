@@ -1,4 +1,4 @@
-import { ENV, Provider } from './enums';
+import { Provider } from './enums';
 import jwt from 'jsonwebtoken';
 import { env } from './validate.env';
 import moment from 'moment';
@@ -9,7 +9,7 @@ import { ValidationError } from 'joi';
 
 const Setting = db.setting;
 const SmsProvider = db.smsProvider;
-export type SMSSettings = { default_provider: string, websms_env: string, africastalking_env: string, providers: SmsProvider[] }
+export type SMSSettings = { default_provider: string, websms_env?: string, africastalking_env?: string, providers: SmsProvider[] }
 
 export const Help = {
     getSettings: async (key: string | string[]) => {
@@ -29,8 +29,8 @@ export const Help = {
 
         return {
             default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value ?? Provider.WEBSMS,
-            websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment ?? ENV.PRODUCTION,
-            africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment ?? ENV.PRODUCTION,
+            websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment,
+            africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment,
             providers         : providers?.sort((a, b) => a.priority - b.priority) as SmsProvider[]
         };
     },
