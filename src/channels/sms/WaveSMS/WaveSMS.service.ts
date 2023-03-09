@@ -81,7 +81,7 @@ export default class WaveSMSService implements ServiceInterface {
 
             return {
                 notification_id: notification.id,
-                message_id     : response?.messageid as string,
+                message_id     : response?.message_id as string,
                 phone          : String(response?.mobile),
                 description    : response?.['response-description'],
                 status_code    : response?.['response-code'],
