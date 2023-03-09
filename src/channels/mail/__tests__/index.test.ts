@@ -4,9 +4,8 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { Mail as Mailer } from '../index';
 import Mail from 'nodemailer/lib/mailer';
 import { Channel, EventType, Status } from '../../../utils/enums';
-import Service from '../service';
 
-let mail: Mailer, service: Service;
+let mail: Mailer;
 describe('mailer', () => {
     beforeEach(() => {
         mail = new Mailer([{
