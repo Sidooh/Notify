@@ -1,16 +1,16 @@
 import NotificationInterface from '../../utils/interfaces/notification.interface';
-import SlackService from './slack.service';
+import { Service } from './service';
 import { Notification } from '@prisma/client';
 import NotificationRepository from '../../repositories/notification.repository';
 
 export class Slack implements NotificationInterface {
-    notifications;
-    service;
+    notifications: Notification[];
+    service: Service;
 
     constructor(notifications: Notification[]) {
         this.notifications = notifications;
 
-        this.service = new SlackService();
+        this.service = new Service;
     }
 
     send = async () => {

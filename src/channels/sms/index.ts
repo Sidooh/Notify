@@ -10,16 +10,16 @@ import WaveSMSService from './WaveSMS/WaveSMS.service';
 
 export class SMS implements NotificationInterface {
     tries = 1;
-    triedProviders:string[] = [];
+    triedProviders: string[] = [];
     smsSettings: SMSSettings;
-    notifications;
+    notifications: Notification[];
     destinations;
-    service;
+    service: ATService | WebSMSService | WaveSMSService;
     repo: NotificationRepository;
 
-    constructor(notifications: Notification[], destinations: string[], smsSettings: SMSSettings) {
+    constructor(notifications: Notification[], smsSettings: SMSSettings) {
         this.notifications = notifications;
-        this.destinations = destinations;
+        this.destinations = notifications.map(n => n.destination);
         this.smsSettings = smsSettings;
 
         this.repo = new NotificationRepository;
@@ -53,7 +53,7 @@ export class SMS implements NotificationInterface {
             }).catch(err => log.error(err));
     };
 
-    retry = (ids: number) => {
+    retry = (ids: bigint[]) => {
         Help.sleep(this.tries * 45).then(async () => {
             if (this.tries > 2) {
                 this.triedProviders.push(this.smsSettings.default_provider);

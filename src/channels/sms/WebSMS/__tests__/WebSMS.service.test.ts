@@ -1,10 +1,10 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { WaveSMS } from '@nabcellent/wavesms';
-import WaveSMSService from '../WaveSMS.service';
+import { WebSms } from '@nabcellent/websms';
+import WebSMSService from '../WebSMS.service';
 import { Channel, EventType, Status } from '../../../../utils/enums';
 import { SMSNotificationResults } from '../../../../utils/types';
 
-let wave: WaveSMS, service: WaveSMSService, notification = {
+let wave: WebSms, service: WebSMSService, notification = {
     id         : 1n,
     channel    : Channel.SMS,
     content    : 'Hello World',
@@ -15,14 +15,15 @@ let wave: WaveSMS, service: WaveSMSService, notification = {
     updated_at : new Date
 };
 
-describe('WaveSMS service', () => {
+describe('WebSMS service', () => {
     beforeAll(() => {
-        wave = new WaveSMS({
+        wave = new WebSms({
             apiKey   : '',
-            partnerId: '',
-            senderId : ''
+            senderId : '',
+            clientId : '',
+            accessKey: ''
         });
-        service = new WaveSMSService;
+        service = new WebSMSService;
     });
 
     afterEach(() => {
@@ -40,7 +41,7 @@ describe('WaveSMS service', () => {
 
             const res = service.to(['254110039317']);
 
-            expect(res).toBeInstanceOf(WaveSMSService);
+            expect(res).toBeInstanceOf(WebSMSService);
             expect(toSpy).toHaveBeenNthCalledWith(1, ['254110039317']);
         });
     });
@@ -51,7 +52,7 @@ describe('WaveSMS service', () => {
 
             const res = service.message('Hello World!');
 
-            expect(res).toBeInstanceOf(WaveSMSService);
+            expect(res).toBeInstanceOf(WebSMSService);
             expect(messageSpy).toHaveBeenNthCalledWith(1, 'Hello World!');
         });
     });
@@ -62,10 +63,10 @@ describe('WaveSMS service', () => {
 
             const res = await service.balance();
 
-            expect(balanceSpy).toHaveBeenCalledOnce()
-            expect(res).toStrictEqual(70)
+            expect(balanceSpy).toHaveBeenCalledOnce();
+            expect(res).toStrictEqual(70);
         });
-    })
+    });
 
     describe('send', () => {
         it('should send a message', async function() {

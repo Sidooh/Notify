@@ -83,7 +83,7 @@ export default class NotificationRepository {
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
         } else if (channel === Channel.SMS) {
-            channelService = new SMS(notifications, destinations, await Help.getSMSSettings());
+            channelService = new SMS(notifications, await Help.getSMSSettings());
         } else {
             channelService = new Slack(notifications);
         }
