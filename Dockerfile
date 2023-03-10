@@ -5,6 +5,8 @@ FROM node:lts-slim as build
 
 WORKDIR /app
 
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY ["package.json", "yarn.lock", ".yarnrc.yml", "./"]
 COPY [".yarn/plugins/", "./.yarn/plugins/"]
 COPY [".yarn/releases/", "./.yarn/releases/"]
