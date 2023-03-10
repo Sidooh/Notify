@@ -1,7 +1,7 @@
 # Build Stage 1
 # This build created a staging docker image
 #
-FROM node:16.15.0-alpine as builder
+FROM node:18-alpine as build
 
 WORKDIR /app
 
@@ -11,22 +11,23 @@ RUN ["yarn", "plugin", "import", "typescript"]
 COPY ["package.json", "yarn.lock", "./"]
 COPY [".yarnrc.yml", "."]
 
-RUN ["yarn", "install"]
+RUN yarn
 
 COPY ["src/", "./src/"]
-COPY ["tsconfig.json", "."]
+COPY ["tsconfig.json", "prisma", "./"]
 
-RUN ["yarn", "run", "build"]
+RUN npx prisma generate
+RUN yarn build
 
 
 
 # Build Stage 2
 # This build takes the production build from staging build
 #
-FROM gcr.io/distroless/nodejs:16
+FROM gcr.io/distroless/nodejs:18
 WORKDIR /app
 
-COPY --from=builder /app/ ./
+COPY --from=build /app/ ./
 
 EXPOSE 8003
 
