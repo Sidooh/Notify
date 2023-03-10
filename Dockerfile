@@ -27,6 +27,6 @@ WORKDIR /app
 
 COPY --chown=nobody --from=build /app ./
 
-EXPOSE 8080
+EXPOSE 8003
 
 CMD ["dist/index.js"]

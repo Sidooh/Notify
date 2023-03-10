@@ -9,9 +9,7 @@ process.env.AT_SMS_USERNAME = 'something';
 process.env.AT_USSD_API_KEY = 'something';
 process.env.AT_USSD_USERNAME = 'something';
 
-process.env.DB_DATABASE = 'something';
-process.env.DB_PASSWORD = 'something';
-process.env.DB_USERNAME = 'something';
+process.env.DATABASE_URL = 'something';
 
 process.env.WAVE_SMS_API_KEY = 'something'
 process.env.WAVE_SMS_PARTNER_ID = 'something'
