@@ -25,10 +25,8 @@ RUN yarn build
 FROM node:lts-slim
 WORKDIR /app
 
-USER node
-
-COPY --from=build --chown=node /app/node_modules ./node_modules
-COPY --from=build --chown=node /app/dist .
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist .
 
 EXPOSE 8003
 
