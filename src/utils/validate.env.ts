@@ -4,21 +4,10 @@ export default function validateEnv() {
     return cleanEnv(process.env, {
         PORT: port({ default: 8003 }),
 
-        NODE_ENV: str({
-            choices: ['test', 'development', 'production']
-        }),
-
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
         JWT_KEY  : str(),
 
-        DB_SOCKET: str({ default: '' }),
-
-        DB_HOST       : str({ default: '127.0.0.1' }),
-        DB_PORT       : num({ default: 3306 }),
-        DB_DATABASE   : str(),
-        DB_USERNAME   : str(),
-        DB_PASSWORD   : str(),
-        SYNCHRONIZE_DB: bool({ default: false }),
+        DATABASE_URL: str(),
 
         MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
         MAIL_PORT     : num({
@@ -33,11 +22,12 @@ export default function validateEnv() {
         WAVE_SMS_PARTNER_ID: str(),
         WAVE_SMS_SENDER_ID : str({ default: 'Test' }),
 
-        AT_SMS_API_KEY     : str(),
-        AT_SMS_USERNAME    : str(),
-        AT_SMS_DEV_API_KEY : str(),
-        AT_SMS_DEV_USERNAME: str(),
-        AT_SMS_FROM        : str(),
+        AT_SMS_API_KEY : str(),
+        AT_SMS_USERNAME: str(),
+        AT_SMS_FROM    : str(),
+
+        AT_SMS_DEV_API_KEY : str({ default: '' }),
+        AT_SMS_DEV_USERNAME: str({ default: '' }),
 
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),

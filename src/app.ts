@@ -26,7 +26,7 @@ class App {
 
         /** --------------------------------    INIT SENTRY
          * */
-        if (env.NODE_ENV !== 'test') {
+        if (process.env.NODE_ENV !== 'test') {
             Sentry.init({
                 dsn         : env.SENTRY_DSN,
                 integrations: [

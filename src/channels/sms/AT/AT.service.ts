@@ -20,7 +20,7 @@ export default class ATService implements ServiceInterface {
     #to: string[] = [];
     #AT;
 
-    constructor(appEnv = env.NODE_ENV, product = ATApp.SMS) {
+    constructor(appEnv = process.env.NODE_ENV, product = ATApp.SMS) {
         let credentials = {
             apiKey  : String(env.AT_SMS_API_KEY),
             username: String(env.AT_SMS_USERNAME)
@@ -65,7 +65,7 @@ export default class ATService implements ServiceInterface {
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
-            from   : env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
+            from   : process.env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
             message: this.#message
         };
 
