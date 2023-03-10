@@ -23,7 +23,7 @@ export default class NotificationRepository {
                     id    : true, event_type: true, content: true, channel: true, destination: true,
                     status: true, created_at: true,
 
-                    notifiables: relations?.includes('notifiables')
+                    notifiables: relations?.includes('notifiables') && { select: { id: true, provider: true } }
                 },
                 where,
                 orderBy: { id: 'desc' }
