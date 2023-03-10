@@ -5,8 +5,6 @@ FROM node:lts-slim as build
 
 WORKDIR /app
 
-RUN apt-get update -y && apt-get install -y openssl
-
 COPY ["package.json", "yarn.lock", ".yarnrc.yml", "./"]
 COPY [".yarn/plugins/", "./.yarn/plugins/"]
 COPY [".yarn/releases/", "./.yarn/releases/"]
@@ -24,10 +22,10 @@ RUN yarn build
 # Build Stage 2
 # This build takes the production build from staging build
 #
-FROM gcr.io/distroless/nodejs:18
+FROM node:lts-slim
 WORKDIR /app
 
-COPY --chown=nobody --from=build /app ./
+COPY --chown=node --from=build /app ./
 
 EXPOSE 8003
 
