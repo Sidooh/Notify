@@ -1,7 +1,7 @@
 # Build Stage 1
 # This build created a staging docker image
 #
-FROM node:18-alpine as build
+FROM node:lts-slim as build
 
 WORKDIR /app
 
