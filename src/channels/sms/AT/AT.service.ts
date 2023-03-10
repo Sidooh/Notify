@@ -59,7 +59,7 @@ export default class ATService implements ServiceInterface {
         const { balance } = await this.#AT.application();
         log.info('AT: BALANCE - ', { balance });
 
-        return Number(balance.match(/-?\d+\.*\d*/g)[0]);
+        return Number(Number(balance.match(/-?\d+\.*\d*/g)[0] / .8).toFixed(2));
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {

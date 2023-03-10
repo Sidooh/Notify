@@ -31,7 +31,11 @@ export const validate = (schema: Joi.Schema): RequestHandler => {
 
             const errors: Joi.ValidationErrorItem[] = [];
 
-            err.details.forEach((err: Joi.ValidationErrorItem) => errors.push(err));
+            err.details.forEach((err: Joi.ValidationErrorItem) => {
+                err.message = err.message.replaceAll('"', '')
+
+                errors.push(err)
+            });
 
             throw new ValidationError(errors);
         }

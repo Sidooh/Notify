@@ -32,10 +32,10 @@ export const SmsProviderRequest = {
         environment: Joi.string().valid(...Object.values(ENV).map(e => e)).required()
     }),
     update : Joi.object({
-        id         : Joi.number().external(id => validateExists(SMSProvider, id)).required(),
-        name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT).required(),
-        priority   : Joi.number().valid(1, 2, 3).required(),
-        environment: Joi.string().valid(...Object.values(ENV).map(e => e)).required()
+        provider   : Joi.number().label('id').external(id => validateExists(SMSProvider, id)).required(),
+        name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT),
+        priority   : Joi.number().valid(1, 2, 3),
+        environment: Joi.string().valid(...Object.values(ENV).map(e => e))
     }),
     destroy: Joi.object({
         id: Joi.number().external(id => validateExists(SMSProvider, id)).required()

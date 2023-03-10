@@ -51,5 +51,5 @@ export const validateExists = async (model, id) => {
         message: `${model.name} Not Found!`
     }], []);
 
-    return id;
+    return provider;
 };

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { BadRequestError } from '../../exceptions/bad-request.err';
 import Controller from './controller';
 import { validate } from '../middleware/validate.middleware';
 import { SmsProviderRequest } from '../requests/sms-provider.request';
 import { SmsProviderRepository } from '../../repositories/sms-provider.repository';
 import { HttpStatusCode } from 'axios';
+import { SmsProvider } from '@prisma/client';
 
 export class SmsProviderController extends Controller {
     private repo: SmsProviderRepository;
@@ -20,7 +20,7 @@ export class SmsProviderController extends Controller {
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, this.#index);
         this.router.post(`${this.basePath}`, validate(SmsProviderRequest.store), this.#store);
-        this.router.put(`${this.basePath}/:id`, validate(SmsProviderRequest.update), this.#update);
+        this.router.put(`${this.basePath}/:provider`, validate(SmsProviderRequest.update), this.#update);
         this.router.delete(`${this.basePath}/:id`, validate(SmsProviderRequest.destroy), this.#destroy);
     }
 
@@ -39,15 +39,16 @@ export class SmsProviderController extends Controller {
     };
 
     #update = async ({ body, params }: Request, res: Response) => {
-        const id = Number(params.id);
+        let provider = params.provider as unknown as SmsProvider;
         const { name, environment, priority } = body;
 
-        const providers = await this.repo.findMany({ select: { id: true, name: true, priority: true } });
+        if (name || environment) {
+            provider = await this.repo.update({ name, environment }, { id: provider.id });
+        }
 
-        if (providers.find(p => p.priority === priority && Number(p.id) !== id))
-            throw new BadRequestError('Priority already taken!');
-
-        const provider = await this.repo.update({ name, priority, environment }, { id });
+        if (priority !== provider.priority) {
+            provider = await this.repo.updatePriority(provider.id, provider.priority, priority) as SmsProvider;
+        }
 
         res.send(this.successResponse({ data: provider }));
     };
