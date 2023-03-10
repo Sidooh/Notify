@@ -26,8 +26,8 @@ FROM node:lts-slim
 WORKDIR /app
 
 COPY --from=build --chown=node /app/node_modules ./node_modules
-COPY --from=build --chown=node /app/dist ./dist
+COPY --from=build --chown=node /app/dist .
 
 EXPOSE 8003
 
-CMD ["dist/index.js"]
+CMD ["index.js"]
