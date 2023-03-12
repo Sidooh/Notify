@@ -1,36 +1,47 @@
-import MailService from './mail.service';
+import Service from './service';
 import NotificationInterface from '../../utils/interfaces/notification.interface';
 import { log } from '../../utils/logger';
-import { Notification } from '../../models/Notification';
-import { Provider, Status } from '../../utils/enums';
+import { Notification } from '@prisma/client';
+import { Status } from '../../utils/enums';
+import NotificationRepository from '../../repositories/notification.repository';
 
 export class Mail implements NotificationInterface {
-    notifications
-    #MailService
+    notifications: Notification[];
+    service: Service;
+    repo: NotificationRepository;
 
     constructor(notifications: Notification[]) {
-        this.notifications = notifications
-        this.#MailService = new MailService()
+        this.notifications = notifications;
+        this.service = new Service;
+        this.repo = new NotificationRepository;
     }
 
     send = async () => {
-        this.notifications.forEach(notification => {
-            this.#MailService.from('sidooh@gmail.com')
-                .to(notification.destination)
-                .html(notification.content)
-                .send().then(response => {
-                return {status: !!response.accepted ? Status.COMPLETED : Status.FAILED}
-            }).catch(error => {
-                log.error(error, error.message);
+        this.service.from('sidooh@gmail.com')
+            .to(this.notifications.map(n => n.destination))
+            .html(this.notifications[0].content)
+            .send().then(async response => {
 
-                return {status: Status.FAILED}
-            }).then(async ({status}) => {
-                notification.status = status
-                notification.provider = Provider.GMAIL
-                await notification.save()
+            const COMPLETED: bigint[] = [], FAILED: bigint[] = [];
 
-                return status === Status.COMPLETED
-            })
-        })
-    }
+            response.accepted.forEach(e => {
+                const id = this.notifications.find(n => n.destination === e)?.id;
+
+                if (id) COMPLETED.push(id);
+            });
+            response.rejected.forEach(e => {
+                const id = this.notifications.find(n => n.destination === e)?.id;
+
+                if (id) FAILED.push(id);
+            });
+
+            if (COMPLETED.length > 0) {
+                await this.repo.updateMany({ status: Status.COMPLETED }, { id: { in: COMPLETED } });
+            }
+
+            if (COMPLETED.length > 0) {
+                await this.repo.updateMany({ status: Status.FAILED }, { id: { in: FAILED } });
+            }
+        }).catch(async err => log.error(err, err.message));
+    };
 }

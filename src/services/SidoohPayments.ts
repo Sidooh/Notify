@@ -12,7 +12,6 @@ export default class SidoohPayments extends SidoohService {
             log.info('...[SRV - PAYMENTS]: RES - ', { data });
             return data;
         }, error => {
-            console.log(error);
             const message = error.isAxiosError ? error.message : error?.response?.message || error?.response?.data;
             log.error('...[SRV - PAYMENTS]: ERR - ', { message });
         });

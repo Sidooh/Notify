@@ -1,58 +1,80 @@
-import { Notification } from '../models/Notification';
 import { log } from '../utils/logger';
 import { Channel } from '../utils/enums';
 import { Mail } from '../channels/mail';
-import SMS from '../channels/sms';
-import Slack from '../channels/slack';
+import { SMS } from '../channels/sms';
+import { Slack } from '../channels/slack';
 import { Help } from '../utils/helpers';
 import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';
+import { Notification as NotificationType, Prisma } from '@prisma/client';
+import db from '../db/prisma';
+
+const Notification = db.notification;
+
+export type NotificationIndexBuilder = { where?: Prisma.NotificationWhereInput, withRelations?: string }
 
 export default class NotificationRepository {
-    static index = async (withRelations?: string) => {
-        const relations = withRelations.split(',');
+    index = async ({ where, withRelations }: NotificationIndexBuilder) => {
+        const relations = withRelations?.split(',');
 
         try {
-            return await Notification.find({
-                relations: { notifiables: relations.includes('notifiables') }, order: { id: 'DESC' },
-                select   : ['id', 'event_type', 'content', 'channel', 'destination', 'status', 'created_at']
+            return await Notification.findMany({
+                select : {
+                    id    : true, event_type: true, content: true, channel: true, destination: true,
+                    status: true, created_at: true,
+
+                    notifiables: relations?.includes('notifiables') && { select: { id: true, provider: true } }
+                },
+                where,
+                orderBy: { id: 'desc' }
             });
         } catch (err) {
             log.error(err);
+
             throw new BadRequestError('Unable to fetch notifications!');
         }
-    }
+    };
 
-    static show = async (id:number, withRelations?: string) => {
-        const relations = withRelations.split(',');
+    find = async (id: number, withRelations?: string) => {
+        const relations = withRelations?.split(',');
 
-        const notification = await Notification.findOne({
-            where: { id }, relations: { notifiables: relations.includes('notifiables') }
+        const notification = await Notification.findUnique({
+            where: { id }, include: { notifiables: relations?.includes('notifiables') }
         });
 
         if (!notification) throw new NotFoundError('Notification Not Found!');
 
-        return notification
-    }
+        return notification;
+    };
 
-    static notify = async (channel, content, event_type, destinations) => {
+    findMany = async (args: Prisma.NotificationFindManyArgs) => {
+        return await Notification.findMany(args);
+    };
+
+    update = async (data: Prisma.NotificationUpdateInput, where: Prisma.NotificationWhereUniqueInput) => {
+        return await Notification.update({ data, where });
+    };
+
+    updateMany = async (data: Prisma.NotificationUpdateInput, where: Prisma.NotificationWhereInput) => {
+        return await Notification.updateMany({ data, where });
+    };
+
+    notify = async (channel, content, event_type, destinations) => {
         log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
 
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
         if (!Array.isArray(destinations)) destinations = [destinations];
 
-        const notifications = Notification.create(destinations.map(destination => ({
-            channel, destination, content, event_type
+        const notifications = await db.$transaction(destinations.map(destination => Notification.create({
+            data: { channel, destination, content, event_type }
         })));
-
-        await Notification.insert(notifications);
 
         this.send(channel, notifications);
 
         return notifications;
     };
 
-    static send = async (channel: Channel, notifications: Notification[]): Promise<void | boolean> => {
+    send = async (channel: Channel | string, notifications: NotificationType[]): Promise<void | boolean> => {
         const destinations = notifications.map(n => n.destination);
 
         log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
@@ -61,7 +83,7 @@ export default class NotificationRepository {
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
         } else if (channel === Channel.SMS) {
-            channelService = new SMS(notifications, destinations, await Help.getSMSSettings());
+            channelService = new SMS(notifications, await Help.getSMSSettings());
         } else {
             channelService = new Slack(notifications);
         }

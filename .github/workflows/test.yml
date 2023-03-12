@@ -2,7 +2,7 @@ name: test-notify
 
 on:
   push:
-    branches: [ red.dev ]
+    branches: [ red.dev, prisma ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -18,10 +18,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'yarn'
 
       # Runs a single command using the runners shell
       - name: Install dependencies
         run: yarn install
 
       - name: Run tests
-        run: yarn run test:ci
+        run: yarn test

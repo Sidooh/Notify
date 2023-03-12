@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
-import { Notification } from '../../models/Notification';
 import moment from 'moment';
-import { AppDataSource } from '../../db/data-source';
-import { Between } from 'typeorm';
 import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import ATService from '../../channels/sms/AT/AT.service';
 import Controller from './controller';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
+import prisma from '../../db/prisma';
+import NotificationRepository from '../../repositories/notification.repository';
+
+const Notification = prisma.notification;
 
 export class DashboardController extends Controller {
     constructor() {
@@ -22,47 +23,12 @@ export class DashboardController extends Controller {
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
-        const startDate = moment().startOf('week');
-        const endDate = moment().endOf('week');
+        let notificationsTimeSeries = await prisma.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
+                                                             FROM notifications
+                                                             GROUP BY date
+                                                             ORDER BY date`;
 
-        let weeklyNotifications = await AppDataSource.getRepository(Notification).createQueryBuilder('notification')
-            .select('DAY(created_at) AS day, MONTH(created_at) as month, YEAR(created_at) as year')
-            .addSelect('COUNT(created_at)', 'count')
-            .where({
-                created_at: Between(startDate.toDate(), endDate.toDate())
-            })
-            .groupBy('year, month, day')
-            .getRawMany();
-
-        const freqCount = 7;
-
-        const getDayName = (day: number, month: number, year: number) => {
-            return moment(`${day}-${month}-${year}`, 'DD-MM-YYYY').format('ddd');
-        };
-
-        let datasets = [], labels = [];
-        for (let day: number = 0; day < freqCount; day++) {
-            let label, count;
-
-            if (weeklyNotifications.find(dataset => dataset.day === startDate.date())) {
-                let {
-                    month, year, count: notificationsCount
-                } = weeklyNotifications.find(({ day }) => day === startDate.date());
-
-                label = getDayName(startDate.date(), month, year);
-                count = Number(notificationsCount);
-            } else {
-                label = getDayName(startDate.date(), Number(startDate.format('M')), startDate.year());
-                count = 0;
-            }
-
-            labels.push(label);
-            datasets.push(count);
-
-            startDate.add(1, 'd');
-        }
-
-        return res.send(this.successResponse({ data: { labels, datasets } }));
+        return res.send(notificationsTimeSeries);
     };
 
     #getSummaries = async (req: Request, res: Response) => {
@@ -71,14 +37,21 @@ export class DashboardController extends Controller {
         const sms_credits = {
             wavesms       : await new WaveSMSService().balance(),
             websms        : await new WebSMSService(smsSettings.websms_env).balance(),
-            africastalking: (await new ATService(smsSettings.africastalking_env).balance() / .8).toFixed(2)
+            africastalking: await new ATService(smsSettings.africastalking_env).balance()
         };
 
         const startOfDay = moment().startOf('day').toDate();
         return res.send(this.successResponse({
             data: {
                 total_notifications      : await Notification.count(),
-                total_notifications_today: await Notification.count({ where: { created_at: Between(startOfDay, moment().toDate()) } }),
+                total_notifications_today: await Notification.count({
+                    where: {
+                        created_at: {
+                            gte: startOfDay,
+                            lte: moment().toDate()
+                        }
+                    }
+                }),
 
                 sms_credits,
                 default_sms_provider: smsSettings.default_provider
@@ -88,9 +61,12 @@ export class DashboardController extends Controller {
 
     #getRecentNotifications = async (req: Request, res: Response) => {
         return res.send(this.successResponse({
-            data: await Notification.find({
-                select: ['id', 'destination', 'channel', 'event_type', 'content', 'status', 'created_at'],
-                order : { id: 'DESC' }, take: 20, relations: { notifiables: true }
+            data: await (new NotificationRepository).findMany({
+                select : {
+                    id    : true, destination: true, channel: true, event_type: true, content: true,
+                    status: true, created_at: true
+                },
+                orderBy: { id: 'desc' }, take: 50
             })
         }));
     };

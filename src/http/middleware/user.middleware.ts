@@ -25,7 +25,7 @@ const bearerToken = (authorization: string) => {
 export const User = (req: Request, res: Response, next: NextFunction) => {
     if (!req.cookies.jwt && !req.headers.authorization) return next();
 
-    const token = req.cookies.jwt || bearerToken(req.headers.authorization);
+    const token = req.cookies.jwt || bearerToken(String(req.headers.authorization));
 
     try {
         req.user = jwt.verify(token, env.JWT_KEY) as UserPayload;
