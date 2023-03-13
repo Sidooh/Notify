@@ -23,12 +23,16 @@ export class SmsProviderRepository {
     };
 
     async updatePriority(id: bigint, currentPriority: number, newPriority: number): Promise<SmsProviderType | null> {
+        const count = await SmsProvider.count()
+
         await db.$queryRaw`UPDATE sms_providers
-                     SET priority = CASE
-                                        WHEN priority = ${currentPriority} THEN ${newPriority}
-                                        WHEN priority >= ${newPriority} THEN priority + 1
-                                        ELSE priority
-                         END`;
+                           SET priority = CASE
+                                              WHEN priority = ${currentPriority} THEN ${newPriority}
+                                              WHEN ${newPriority} >= ${count} THEN
+                                                  IF(priority <= ${newPriority}, priority - 1, priority)
+                                              ELSE
+                                                  IF(priority >= ${newPriority}, priority + 1, priority)
+                               END`;
 
         return await this.find(id);
     };
