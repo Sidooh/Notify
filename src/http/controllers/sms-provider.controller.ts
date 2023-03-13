@@ -21,7 +21,7 @@ export class SmsProviderController extends Controller {
         this.router.get(`${this.basePath}`, this.#index);
         this.router.post(`${this.basePath}`, validate(SmsProviderRequest.store), this.#store);
         this.router.put(`${this.basePath}/:provider`, validate(SmsProviderRequest.update), this.#update);
-        this.router.delete(`${this.basePath}/:id`, validate(SmsProviderRequest.destroy), this.#destroy);
+        this.router.delete(`${this.basePath}/:provider`, validate(SmsProviderRequest.destroy), this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {
@@ -53,10 +53,10 @@ export class SmsProviderController extends Controller {
         res.send(this.successResponse({ data: provider }));
     };
 
-    #destroy = async (req: Request, res: Response) => {
-        const { id } = req.params;
+    #destroy = async ({ params }: Request, res: Response) => {
+        const provider = params.provider as unknown as SmsProvider;
 
-        await this.repo.destroy(Number(id));
+        await this.repo.destroy(provider.id);
 
         res.status(HttpStatusCode.NoContent).send();
     };

@@ -2,8 +2,9 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Joi from 'joi';
 import { ValidationError } from '../../exceptions/validation.err';
 import { log } from '../../utils/logger';
+import { NotifyRequestObjects } from '../../utils/types';
 
-export const validate = (schema: Joi.Schema): RequestHandler => {
+export const validate = (request: Joi.Schema | NotifyRequestObjects): RequestHandler => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const validationOptions = {
             abortEarly  : false,
@@ -12,18 +13,20 @@ export const validate = (schema: Joi.Schema): RequestHandler => {
         };
 
         try {
-            let data;
-            if (['post', 'put', 'patch'].includes(req.method.toLowerCase())) {
-                data = { ...req.query, ...req.params, ...req.body };
+            if (Joi.isSchema(request)) {
+                req.body = await request.validateAsync(req.body, validationOptions);
             } else {
-                data = { ...req.body, ...req.params, ...req.query };
+                if (Joi.isSchema(request.query)) {
+                    req.query = await request.query.validateAsync(req.query, validationOptions);
+                }
+                if (Joi.isSchema(request.params)) {
+                    req.params = await request.params.validateAsync(req.params, validationOptions);
+                    console.log(req.params, request.params);
+                }
+                if (Joi.isSchema(request.body)) {
+                    req.body = await request.body.validateAsync(req.body, validationOptions);
+                }
             }
-
-            data = await schema.validateAsync(data, validationOptions);
-
-            req.body = data;
-            req.query = data;
-            req.params = data;
 
             next();
         } catch (err: any) {
@@ -32,9 +35,9 @@ export const validate = (schema: Joi.Schema): RequestHandler => {
             const errors: Joi.ValidationErrorItem[] = [];
 
             err.details.forEach((err: Joi.ValidationErrorItem) => {
-                err.message = err.message.replaceAll('"', '')
+                err.message = err.message.replaceAll('"', '');
 
-                errors.push(err)
+                errors.push(err);
             });
 
             throw new ValidationError(errors);

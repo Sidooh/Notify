@@ -5,6 +5,7 @@ import { validate } from '../middleware/validate.middleware';
 import Controller from './controller';
 import { SettingRepository } from '../../repositories/setting.repository';
 import { HttpStatusCode } from 'axios';
+import { Setting } from '@prisma/client';
 
 export class SettingController extends Controller {
     private repo: SettingRepository;
@@ -20,7 +21,7 @@ export class SettingController extends Controller {
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, this.#index);
         this.router.post(`${this.basePath}`, validate(SettingRequest.upsert), this.#tweak);
-        this.router.delete(`${this.basePath}/:id`, validate(SettingRequest.destroy), this.#destroy);
+        this.router.delete(`${this.basePath}/:setting`, validate(SettingRequest.destroy), this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {
@@ -39,10 +40,10 @@ export class SettingController extends Controller {
         res.send(this.successResponse({ data: setting }));
     };
 
-    #destroy = async (req: Request, res: Response) => {
-        const { id } = req.params;
+    #destroy = async ({ params }: Request, res: Response) => {
+        const setting = params.setting as unknown as Setting;
 
-        await this.repo.destroy(Number(id));
+        await this.repo.destroy(Number(setting.id));
 
         res.status(HttpStatusCode.NoContent).send();
     };

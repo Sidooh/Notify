@@ -33,7 +33,7 @@ export class SmsProviderRepository {
         return await this.find(id);
     };
 
-    async destroy(id: number) {
+    async destroy(id: bigint|number) {
         try {
             return await SmsProvider.delete({ where: { id } });
         } catch (e) {

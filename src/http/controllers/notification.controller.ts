@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { NotificationRequest } from '../requests/notification.request';
 import { validate } from '../middleware/validate.middleware';
-import { NotFoundError } from '../../exceptions/not-found.err';
 import Controller from './controller';
 import NotificationRepository, { NotificationIndexBuilder } from '../../repositories/notification.repository';
 import { Status } from '../../utils/enums';
+import { Notification } from '@prisma/client';
 
 export class NotificationController extends Controller {
     private repo: NotificationRepository;
@@ -20,7 +20,7 @@ export class NotificationController extends Controller {
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, validate(NotificationRequest.index), this.#index);
         this.router.post(`${this.basePath}`, validate(NotificationRequest.store), this.#store);
-        this.router.post(`${this.basePath}/:id/retry`, this.#retry);
+        this.router.post(`${this.basePath}/:notification/retry`, validate(NotificationRequest.retry), this.#retry);
         this.router.get(`${this.basePath}/:id`, this.#show);
     }
 
@@ -54,10 +54,7 @@ export class NotificationController extends Controller {
     };
 
     #retry = async ({ params }: Request, res: Response) => {
-        const id = Number(params.id);
-        let notification = await this.repo.find(id);
-
-        if (!notification) throw new NotFoundError('Notification Not Found!');
+        let notification = params.notification as unknown as Notification;
 
         if (notification.status !== Status.FAILED)
             return res.send(this.errorResponse({
@@ -67,7 +64,7 @@ export class NotificationController extends Controller {
         await this.repo.send(notification.channel, [notification]);
 
         res.send(this.successResponse({
-            data: await this.repo.find(id, 'notifiables')
+            data: await this.repo.find(notification.id, 'notifiables')
         }));
     };
 }

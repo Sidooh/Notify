@@ -35,7 +35,7 @@ export default class NotificationRepository {
         }
     };
 
-    find = async (id: number, withRelations?: string) => {
+    find = async (id: bigint | number, withRelations?: string) => {
         const relations = withRelations?.split(',');
 
         const notification = await Notification.findUnique({

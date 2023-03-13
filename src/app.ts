@@ -66,10 +66,10 @@ class App {
 
     #initControllers(): void {
         [
-            new NotificationController(),
-            new SettingController(),
-            new SmsProviderController(),
-            new DashboardController()
+            new NotificationController,
+            new SettingController,
+            new SmsProviderController,
+            new DashboardController
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
         this.app.use('/', new JobController().router)
