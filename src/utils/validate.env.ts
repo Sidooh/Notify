@@ -7,6 +7,16 @@ export default function validateEnv() {
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
         JWT_KEY  : str(),
 
+        //  Typeorm Configs
+        DB_HOST       : str({ default: '127.0.0.1' }),
+        DB_PORT       : num({ default: 3306 }),
+        DB_DATABASE   : str({ default: '' }),
+        DB_USERNAME   : str({ default: '' }),
+        DB_PASSWORD   : str({ default: '' }),
+        DB_SOCKET     : str({ default: '' }),
+        SYNCHRONIZE_DB: bool({ default: false }),
+
+        //  Prisma Config
         DATABASE_URL: str(),
 
         MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
