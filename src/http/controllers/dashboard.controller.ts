@@ -23,12 +23,12 @@ export class DashboardController extends Controller {
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
-        let notificationsTimeSeries = await prisma.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
-                                                             FROM notifications
-                                                             GROUP BY date
-                                                             ORDER BY date`;
+        let data = await prisma.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
+                                          FROM notifications
+                                          GROUP BY date
+                                          ORDER BY date`;
 
-        return res.send(notificationsTimeSeries);
+        return res.send(this.successResponse({ data }));
     };
 
     #getSummaries = async (req: Request, res: Response) => {
