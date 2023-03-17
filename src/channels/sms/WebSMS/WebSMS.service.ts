@@ -105,6 +105,7 @@ export default class WebSMSService implements ServiceInterface {
                 phone          : response?.phone,
                 description    : response?.description,
                 status_code    : response?.code,
+                cost           : env.WEBSMS_COST,
                 provider       : Provider.WEBSMS,
                 status
             };
