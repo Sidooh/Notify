@@ -28,10 +28,6 @@ export default function validateEnv() {
         MAIL_PASSWORD : str(),
         MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
-        WAVE_SMS_API_KEY   : str(),
-        WAVE_SMS_PARTNER_ID: str(),
-        WAVE_SMS_SENDER_ID : str({ default: 'Test' }),
-
         AT_SMS_API_KEY : str(),
         AT_SMS_USERNAME: str(),
         AT_SMS_FROM    : str(),
@@ -42,12 +38,18 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
+        WAVESMS_API_KEY   : str(),
+        WAVESMS_PARTNER_ID: str(),
+        WAVESMS_SENDER_ID : str({ default: 'Test' }),
+        WAVESMS_COST      : num({ default: .2 }),
+
         WEBSMS_SANDBOX   : bool({ default: true }),
         WEBSMS_API_URL   : url({ default: 'https://api.onfonmedia.co.ke/v1/sms' }),
         WEBSMS_ACCESS_KEY: str(),
         WEBSMS_API_KEY   : str(),
         WEBSMS_CLIENT_ID : str(),
         WEBSMS_SENDER_ID : str(),
+        WEBSMS_COST      : num({ default: .3 }),
 
         WEBSMS_DEV_ACCESS_KEY: str({ default: undefined }),
         WEBSMS_DEV_API_KEY   : str({ default: undefined }),

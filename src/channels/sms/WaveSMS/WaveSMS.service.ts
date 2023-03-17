@@ -16,9 +16,9 @@ export default class WaveSMSService implements ServiceInterface {
 
     constructor() {
         let config: WaveSMSConfig = {
-            apiKey   : env.WAVE_SMS_API_KEY,
-            partnerId: env.WAVE_SMS_PARTNER_ID,
-            senderId : env.WAVE_SMS_SENDER_ID
+            apiKey   : env.WAVESMS_API_KEY,
+            partnerId: env.WAVESMS_PARTNER_ID,
+            senderId : env.WAVESMS_SENDER_ID
         };
 
         this.#WaveSMS = new WaveSMS(config);
@@ -51,11 +51,11 @@ export default class WaveSMSService implements ServiceInterface {
             .then(data => {
                 log.info(`WAVESMS: RESPONSES`, data);
 
-                return data
+                return data;
             }).catch(error => {
                 log.error(error);
 
-                return undefined
+                return undefined;
             });
 
         if (responses) {
@@ -68,7 +68,7 @@ export default class WaveSMSService implements ServiceInterface {
     #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<SMSNotificationResults> => {
         log.info(`WAVESMS: Save Response`);
 
-        const results:SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {
             let response = responses.find(res => {
@@ -85,6 +85,7 @@ export default class WaveSMSService implements ServiceInterface {
                 phone          : String(response?.mobile),
                 description    : response?.['response-description'],
                 status_code    : response?.['response-code'],
+                cost           : env.WAVESMS_COST,
                 provider       : Provider.WAVESMS,
                 status
             };

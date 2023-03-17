@@ -14,8 +14,8 @@ process.env.JWT_KEY = 'something';
 process.env.MAIL_PASSWORD = 'something';
 process.env.MAIL_USERNAME = 'something';
 
-process.env.WAVE_SMS_API_KEY = 'something'
-process.env.WAVE_SMS_PARTNER_ID = 'something'
+process.env.WAVESMS_API_KEY = 'something'
+process.env.WAVESMS_PARTNER_ID = 'something'
 
 process.env.WEBSMS_ACCESS_KEY = 'something';
 process.env.WEBSMS_API_KEY = 'something';
