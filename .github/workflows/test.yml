@@ -6,7 +6,7 @@ on:
       - main
       - develop
   push:
-    branches: [ red.dev, prisma ]
+    branches: [ red.dev ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
