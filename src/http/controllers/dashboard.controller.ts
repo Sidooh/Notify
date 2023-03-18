@@ -64,8 +64,8 @@ export class DashboardController extends Controller {
 
     #getProviderBalances = async (req: Request, res: Response) => {
         return res.send(this.successResponse({
-            wavesms_balance       : await new WebSMSService().balance(),
-            websms_balance        : await new WaveSMSService().balance(),
+            wavesms_balance       : await new WaveSMSService().balance(),
+            websms_balance        : await new WebSMSService().balance(),
             africastalking_balance: await new ATService().balance(),
         }));
     };
