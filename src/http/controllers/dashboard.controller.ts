@@ -20,6 +20,7 @@ export class DashboardController extends Controller {
         this.router.get(`${this.basePath}/chart`, this.#dashboardChart);
         this.router.get(`${this.basePath}/summaries`, this.#getSummaries);
         this.router.get(`${this.basePath}/recent-notifications`, this.#getRecentNotifications);
+        this.router.get(`${this.basePath}/providers/balances`, this.#getProviderBalances);
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
@@ -28,47 +29,44 @@ export class DashboardController extends Controller {
                                           GROUP BY date
                                           ORDER BY date`;
 
-        return res.send(this.successResponse({ data }));
+        return res.send(this.successResponse(data));
     };
 
     #getSummaries = async (req: Request, res: Response) => {
         const smsSettings = await Help.getSMSSettings();
 
-        const sms_credits = {
-            wavesms       : await new WaveSMSService().balance(),
-            websms        : await new WebSMSService(smsSettings.websms_env).balance(),
-            africastalking: await new ATService(smsSettings.africastalking_env).balance()
-        };
-
         const startOfDay = moment().startOf('day').toDate();
         return res.send(this.successResponse({
-            data: {
-                total_notifications      : await Notification.count(),
-                total_notifications_today: await Notification.count({
-                    where: { created_at: { gte: startOfDay } }
-                }),
+            total_notifications      : await Notification.count(),
+            total_notifications_today: await Notification.count({
+                where: { created_at: { gte: startOfDay } }
+            }),
 
-                sms_costs                : await prisma.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
-                sms_costs_today          : await prisma.notifiable.aggregate({
-                    where: { created_at: { gte: startOfDay } },
-                    _sum : { cost: true }
-                }).then(r => r._sum.cost ?? 0),
+            sms_costs      : await prisma.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
+            sms_costs_today: await prisma.notifiable.aggregate({
+                where: { created_at: { gte: startOfDay } },
+                _sum : { cost: true }
+            }).then(r => r._sum.cost ?? 0),
 
-                sms_credits,
-                default_sms_provider: smsSettings.default_provider
-            }
+            default_sms_provider: smsSettings.default_provider
         }));
     };
 
     #getRecentNotifications = async (req: Request, res: Response) => {
+        return res.send(this.successResponse(await (new NotificationRepository).findMany({
+            select : {
+                id    : true, destination: true, channel: true, event_type: true, content: true,
+                status: true, created_at: true
+            },
+            orderBy: { id: 'desc' }, take: 50
+        })));
+    };
+
+    #getProviderBalances = async (req: Request, res: Response) => {
         return res.send(this.successResponse({
-            data: await (new NotificationRepository).findMany({
-                select : {
-                    id    : true, destination: true, channel: true, event_type: true, content: true,
-                    status: true, created_at: true
-                },
-                orderBy: { id: 'desc' }, take: 50
-            })
+            wavesms_balance       : await new WebSMSService().balance(),
+            websms_balance        : await new WaveSMSService().balance(),
+            africastalking_balance: await new ATService().balance(),
         }));
     };
 }

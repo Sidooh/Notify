@@ -27,7 +27,7 @@ export class SettingController extends Controller {
     #index = async (req: Request, res: Response) => {
         const settings = await this.repo.findMany();
 
-        res.json(this.successResponse({ data: settings }));
+        res.json(this.successResponse(settings));
     };
 
     #tweak = async ({ body }: Request, res: Response) => {
@@ -37,7 +37,7 @@ export class SettingController extends Controller {
 
         const setting = await this.repo.tweak(key, value);
 
-        res.send(this.successResponse({ data: setting }));
+        res.send(this.successResponse(setting));
     };
 
     #destroy = async ({ params }: Request, res: Response) => {

@@ -46,6 +46,6 @@ export class JobController extends Controller {
             (new NotificationRepository).notify(Channel.SMS, message, EventType.STATUS_UPDATE, env.ADMIN_CONTACTS.split(','));
         }
 
-        return res.send(this.successResponse({ data: Status.COMPLETED }));
+        return res.send(this.successResponse(Status.COMPLETED));
     };
 }

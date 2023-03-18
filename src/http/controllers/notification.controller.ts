@@ -34,7 +34,7 @@ export class NotificationController extends Controller {
 
         const notifications = await this.repo.index(builder);
 
-        return res.send(this.successResponse({ data: notifications }));
+        return res.send(this.successResponse(notifications));
     };
 
     #store = async ({ body }: Request, res: Response): Promise<Response | void> => {
@@ -44,13 +44,13 @@ export class NotificationController extends Controller {
 
         const notifications = await this.repo.notify(channel, content, event_type, destination);
 
-        return res.status(201).send(this.successResponse({ data: { ids: notifications.map(n => n.id) } }));
+        return res.status(201).send(this.successResponse({ ids: notifications.map(n => n.id) }));
     };
 
     #show = async ({ params, query }: Request, res: Response) => {
         const notification = await this.repo.find(Number(params.id), String(query.with));
 
-        res.send(this.successResponse({ data: notification }));
+        res.send(this.successResponse(notification));
     };
 
     #retry = async ({ params }: Request, res: Response) => {
@@ -63,8 +63,6 @@ export class NotificationController extends Controller {
 
         await this.repo.send(notification.channel, [notification]);
 
-        res.send(this.successResponse({
-            data: await this.repo.find(notification.id, 'notifiables')
-        }));
+        res.send(this.successResponse(await this.repo.find(notification.id, 'notifiables')));
     };
 }
