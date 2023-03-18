@@ -47,6 +47,7 @@ export class DashboardController extends Controller {
                 total_notifications_today: await Notification.count({
                     where: { created_at: { gte: startOfDay } }
                 }),
+
                 sms_costs                : await prisma.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
                 sms_costs_today          : await prisma.notifiable.aggregate({
                     where: { created_at: { gte: startOfDay } },
