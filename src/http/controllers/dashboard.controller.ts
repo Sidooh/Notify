@@ -45,13 +45,13 @@ export class DashboardController extends Controller {
             data: {
                 total_notifications      : await Notification.count(),
                 total_notifications_today: await Notification.count({
-                    where: {
-                        created_at: {
-                            gte: startOfDay,
-                            lte: moment().toDate()
-                        }
-                    }
+                    where: { created_at: { gte: startOfDay } }
                 }),
+                sms_costs                : await prisma.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
+                sms_costs_today          : await prisma.notifiable.aggregate({
+                    where: { created_at: { gte: startOfDay } },
+                    _sum : { cost: true }
+                }).then(r => r._sum.cost ?? 0),
 
                 sms_credits,
                 default_sms_provider: smsSettings.default_provider
