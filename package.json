@@ -1,6 +1,6 @@
 {
    "name": "sidooh-notify",
-   "packageManager": "yarn@3.4.1",
+   "packageManager": "yarn@3.5.0",
    "version": "1.0.0",
    "description": "Sidooh notification service",
    "repository": "https://github.com/Sidooh/Notify",
@@ -16,8 +16,8 @@
       "test:ui": "vitest --ui"
    },
    "dependencies": {
-      "@nabcellent/wavesms": "^2.0.3",
-      "@nabcellent/websms": "^2.0.1",
+      "@nabcellent/wavesms": "^2.0.5",
+      "@nabcellent/websms": "^3.0.2",
       "@prisma/client": "4.11.0",
       "@sentry/node": "^7.23.0",
       "@sentry/tracing": "^7.23.0",

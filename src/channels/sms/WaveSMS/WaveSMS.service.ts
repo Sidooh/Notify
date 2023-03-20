@@ -85,7 +85,7 @@ export default class WaveSMSService implements ServiceInterface {
                 phone          : String(response?.mobile),
                 description    : response?.['response-description'],
                 status_code    : response?.['response-code'],
-                cost           : env.WAVESMS_COST,
+                cost           : response?.cost,
                 provider       : Provider.WAVESMS,
                 status
             };

@@ -8,7 +8,7 @@ export default class Controller {
         this.basePath = basePath;
     }
 
-    protected successResponse({ data }: { data: any }) {
+    protected successResponse(data) {
         return {
             result: 1,
             data

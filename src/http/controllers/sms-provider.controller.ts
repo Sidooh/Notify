@@ -27,7 +27,7 @@ export class SmsProviderController extends Controller {
     #index = async (req: Request, res: Response) => {
         const providers = await this.repo.findMany();
 
-        res.send(this.successResponse({ data: providers }));
+        res.send(this.successResponse(providers));
     };
 
     #store = async ({ body }: Request, res: Response) => {
@@ -35,7 +35,7 @@ export class SmsProviderController extends Controller {
 
         const provider = await this.repo.create({ name, environment, priority });
 
-        res.send(this.successResponse({ data: provider }));
+        res.send(this.successResponse(provider));
     };
 
     #update = async ({ body, params }: Request, res: Response) => {
@@ -50,7 +50,7 @@ export class SmsProviderController extends Controller {
             provider = await this.repo.updatePriority(provider.id, provider.priority, priority) as SmsProvider;
         }
 
-        res.send(this.successResponse({ data: provider }));
+        res.send(this.successResponse(provider));
     };
 
     #destroy = async ({ params }: Request, res: Response) => {

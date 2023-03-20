@@ -12,7 +12,7 @@ const Notifiable = prisma.notifiable;
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
     #to: string[] = [];
-    #WebSMS:WebSms;
+    #WebSMS: WebSms;
 
     constructor(appEnv = process.env.NODE_ENV) {
         let config: WebSmsConfig = {
@@ -66,7 +66,8 @@ export default class WebSMSService implements ServiceInterface {
                         ...response,
                         data: [{
                             code       : response.code,
-                            description: String(response.description)
+                            description: String(response.description),
+                            cost       : 0
                         }]
                     };
                 }
@@ -105,7 +106,7 @@ export default class WebSMSService implements ServiceInterface {
                 phone          : response?.phone,
                 description    : response?.description,
                 status_code    : response?.code,
-                cost           : env.WEBSMS_COST,
+                cost           : response?.cost,
                 provider       : Provider.WEBSMS,
                 status
             };
