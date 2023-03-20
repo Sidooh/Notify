@@ -55,11 +55,11 @@ export default class ATService implements ServiceInterface {
         return this;
     };
 
-    balance = async (): Promise<number> => {
+    async balance(): Promise<number> {
         const { balance } = await this.#AT.application();
         log.info('AT: BALANCE - ', { balance });
 
-        return Number(Number(balance.match(/-?\d+\.*\d*/g)[0] / .8).toFixed(2));
+        return Number(balance.match(/-?\d+\.*\d*/g)[0] / .8);
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
@@ -84,7 +84,7 @@ export default class ATService implements ServiceInterface {
     };
 
     #save = async (notifications: Notification[], callback: any): Promise<SMSNotificationResults> => {
-        const results:SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {
             let regex = /[+-]?\d+(\.\d+)?/g;

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import moment from 'moment';
 import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
-import ATService from '../../channels/sms/AT/AT.service';
+import ATService, { ATApp } from '../../channels/sms/AT/AT.service';
 import Controller from './controller';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
 import prisma from '../../db/prisma';
@@ -21,6 +21,7 @@ export class DashboardController extends Controller {
         this.router.get(`${this.basePath}/summaries`, this.#getSummaries);
         this.router.get(`${this.basePath}/recent-notifications`, this.#getRecentNotifications);
         this.router.get(`${this.basePath}/providers/balances`, this.#getProviderBalances);
+        this.router.get(`${this.basePath}/ussd-balance`, this.#getUSSDBalance);
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
@@ -66,7 +67,11 @@ export class DashboardController extends Controller {
         return res.send(this.successResponse({
             wavesms_balance       : await new WaveSMSService().balance(),
             websms_balance        : await new WebSMSService().balance(),
-            africastalking_balance: await new ATService().balance(),
+            africastalking_balance: await new ATService().balance() / .8,
         }));
     };
+
+    #getUSSDBalance = async(req:Request, res:Response)=> {
+        return res.send(this.successResponse(await new ATService(process.env.NODE_ENV, ATApp.USSD).balance() * .8))
+    }
 }

@@ -26,7 +26,7 @@ export class JobController extends Controller {
         const wavesms = await new WaveSMSService().balance();
         const africasTalking = {
             sms : await new ATService(smsSettings.africastalking_env).balance(),
-            ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance()
+            ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance() * .8
         };
 
         let message = `Provider Balances:\n`;
