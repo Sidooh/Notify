@@ -321,9 +321,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nabcellent/wavesms@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "@nabcellent/wavesms@npm:2.0.4"
+"@nabcellent/wavesms@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@nabcellent/wavesms@npm:2.0.5"
   dependencies:
     axios: ^1.3.3
     cookie-parser: ~1.4.4
@@ -331,13 +331,13 @@ __metadata:
     libphonenumber-js: ^1.10.21
     moment: ^2.29.4
     winston: ^3.8.2
-  checksum: 13d6343681e85e96d0cd7fc6a2406e8d5ffb99dc5bc3ad9f5871249397fe1fa2d38aecb8053567c807d9cf205395daf66511fccb8ef801a0ca625bc04fa677a5
+  checksum: 1121eeb0e7989fd887a2eefe711779a0fc996985ea730257d7538ad3bad78aedcaabc9dc8b971151c1485b1ea4d50bfcc4b771a4df9ee79afaaac36f0413379b
   languageName: node
   linkType: hard
 
-"@nabcellent/websms@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@nabcellent/websms@npm:3.0.1"
+"@nabcellent/websms@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@nabcellent/websms@npm:3.0.2"
   dependencies:
     axios: ^1.3.4
     cookie-parser: ^1.4.6
@@ -345,7 +345,7 @@ __metadata:
     libphonenumber-js: ^1.10.21
     moment: ^2.29.4
     winston: ^3.8.2
-  checksum: 509e3a4a3a57857909973f3f3f34e98fe11b6d0b8e69ef37aea9964fbfcb1cd3e93d8ee8996ff41cff8fa1e47207b6edca919ff9df9f94b9a408821580155efc
+  checksum: 3f9c2cee1c6a8ba60180229b9820d99ff118fd0320fbe400637d6ef1d8bf17aa677c15bff82636df79bcad093ce211b285220bf5e8908aa82071ba1bf75b2fbf
   languageName: node
   linkType: hard
 
@@ -3526,8 +3526,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sidooh-notify@workspace:."
   dependencies:
-    "@nabcellent/wavesms": ^2.0.4
-    "@nabcellent/websms": ^3.0.1
+    "@nabcellent/wavesms": ^2.0.5
+    "@nabcellent/websms": ^3.0.2
     "@prisma/client": 4.11.0
     "@sentry/node": ^7.23.0
     "@sentry/tracing": ^7.23.0
