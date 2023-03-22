@@ -91,7 +91,7 @@ export default class WaveSMSService implements ServiceInterface {
             };
         });
 
-        Notifiable.createMany({ data: notifiables });
+        await Notifiable.createMany({ data: notifiables });
 
         return results;
     };
