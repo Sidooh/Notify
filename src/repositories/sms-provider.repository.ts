@@ -28,10 +28,11 @@ export class SmsProviderRepository {
         await db.$queryRaw`UPDATE sms_providers
                            SET priority = CASE
                                               WHEN priority = ${currentPriority} THEN ${newPriority}
-                                              WHEN ${newPriority} >= ${count} THEN
+                                              WHEN priority BETWEEN ${newPriority} AND ${currentPriority - 1}
+                                                  THEN priority + 1
+                                              WHEN ${newPriority} >= ${currentPriority} THEN
                                                   IF(priority <= ${newPriority}, priority - 1, priority)
-                                              ELSE
-                                                  IF(priority >= ${newPriority}, priority + 1, priority)
+                                              ELSE priority
                                END`;
 
         return await this.find(id);
