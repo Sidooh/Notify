@@ -75,7 +75,7 @@ export default class WaveSMSService implements ServiceInterface {
                 return String(notification.destination).slice(-9) == String(res.mobile).slice(-9);
             });
 
-            let status = response?.['response-code'] === 200 ? Status.COMPLETED : Status.FAILED;
+            let status = response?.code === 200 ? Status.COMPLETED : Status.FAILED;
 
             results[status].push(notification.id);
 
@@ -83,8 +83,8 @@ export default class WaveSMSService implements ServiceInterface {
                 notification_id: notification.id,
                 message_id     : response?.message_id as string,
                 phone          : String(response?.mobile),
-                description    : response?.['response-description'],
-                status_code    : response?.['response-code'],
+                description    : response?.description,
+                status_code    : response?.code,
                 cost           : response?.cost,
                 provider       : Provider.WAVESMS,
                 status
