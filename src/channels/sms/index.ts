@@ -34,9 +34,9 @@ export class SMS implements NotificationInterface {
                 this.service = new WebSMSService(this.smsSettings.websms_env);
                 break;
             default:
-                const onlySafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM)
+                const onlySafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM);
 
-                this.service = onlySafaricom? new WaveSMSService() : new WebSMSService(this.smsSettings.websms_env);
+                this.service = onlySafaricom ? new WaveSMSService() : new WebSMSService(this.smsSettings.websms_env);
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
@@ -44,11 +44,11 @@ export class SMS implements NotificationInterface {
                 log.info(`SMS NOTIFICATION RESPONSE - `, { requested });
 
                 if (!requested) {
-                    const ids = this.notifications.map(n => n.id)
+                    const ids = this.notifications.map(n => n.id);
 
                     this.repo.updateMany({ status: Status.FAILED }, { id: { in: ids } });
 
-                    this.retry(ids)
+                    this.retry(ids);
                 }
             }).catch(err => log.error(err));
     };
