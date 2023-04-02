@@ -21,7 +21,6 @@ export const validate = (request: Joi.Schema | NotifyRequestObjects): RequestHan
                 }
                 if (Joi.isSchema(request.params)) {
                     req.params = await request.params.validateAsync(req.params, validationOptions);
-                    console.log(req.params, request.params);
                 }
                 if (Joi.isSchema(request.body)) {
                     req.body = await request.body.validateAsync(req.body, validationOptions);

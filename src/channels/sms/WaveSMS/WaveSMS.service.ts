@@ -85,6 +85,10 @@ export default class WaveSMSService implements ServiceInterface {
 
         await Notifiable.createMany({ data: notifiables });
 
-        return true
+        return true;
+    };
+
+    query = async (messageId) => {
+        return await this.#WaveSMS.sms.getDeliveryReport(messageId);
     };
 }

@@ -1,5 +1,5 @@
 import { log } from '../utils/logger';
-import { Channel } from '../utils/enums';
+import { Channel, Provider, Status } from '../utils/enums';
 import { Mail } from '../channels/mail';
 import { SMS } from '../channels/sms';
 import { Slack } from '../channels/slack';
@@ -8,8 +8,10 @@ import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { Notification as NotificationType, Prisma } from '@prisma/client';
 import db from '../db/prisma';
+import WaveSMSService from '../channels/sms/WaveSMS/WaveSMS.service';
 
 const Notification = db.notification;
+const Notifiable = db.notifiable;
 
 export type NotificationIndexBuilder = { where?: Prisma.NotificationWhereInput, withRelations?: string }
 
@@ -93,4 +95,131 @@ export default class NotificationRepository {
 
         await channelService.send();
     };
+
+    checkNotification = async (notification: NotificationType) => {
+        // Check Notifiable
+        let notifiables = await Notifiable.findMany({
+            where: { notification_id: notification.id, status: { not: Status.COMPLETED } }
+        });
+
+        if (notifiables.length > 0) {
+            for (const n of notifiables) {
+                if (n.message_id && n.provider === Provider.WAVESMS) {
+                    await this.queryStatus(n.id)
+                }
+            }
+        } else {
+            await this.send(notification.channel, [notification]);
+        }
+
+        return (await Notification.findUnique({ where: { id: notification.id } }))!;
+    };
+
+    handleCompleted = async (messageId: string) => {
+        log.info('[NOTIFY]: Handle Completed Notification - ', { messageId });
+
+        const notifiable = await Notifiable.findFirst({
+            select: { id: true },
+            where : { message_id: String(messageId) }
+        });
+
+        if (!notifiable) {
+            return log.error('Notifiable Not Found!');
+        }
+
+        await Notifiable.update({
+            where: { id: notifiable.id },
+            data : {
+                status      : Status.COMPLETED,
+                notification: { update: { status: Status.COMPLETED } }
+            }
+        });
+    };
+
+    handleFailed = async (messageId: string) => {
+        log.info('[NOTIFY]: Handle Failed Notification - ', { messageId });
+
+        const notifiable = await Notifiable.findFirst({
+            select: { id: true, notification_id: true, notification: true },
+            where : { message_id: messageId, status: { not: Status.COMPLETED } }
+        });
+
+        if (!notifiable) {
+            return log.error('Notifiable Not Found!');
+        }
+
+        await Notifiable.update({
+            where: { id: notifiable.id },
+            data : {
+                status      : Status.FAILED,
+                notification: { update: { status: Status.FAILED } }
+            }
+        });
+
+        new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
+    };
+
+    queryStatus = async (notifiableId?: bigint) => {
+        const process = async (notifiableId, messageId, provider) => {
+            log.info(`Querying: ${messageId}`);
+
+            let sent;
+            if(provider === Provider.WAVESMS) {
+                try {
+                    const report = await new WaveSMSService().query(messageId)
+
+                    sent = report.delivery_description === 'DeliveredToTerminal'
+                } catch (e) {
+                    log.error(`Failed to report: ${messageId}`)
+                }
+            }
+
+            if (sent) {
+                await Notifiable.update({
+                    where: { id: notifiableId },
+                    data : {
+                        status      : Status.COMPLETED,
+                        notification: { update: { status: Status.COMPLETED } }
+                    }
+                });
+            } else {
+                await Notifiable.update({
+                    where: { id: notifiableId },
+                    data : {
+                        status      : Status.FAILED,
+                        notification: { update: { status: Status.FAILED } }
+                    }
+                });
+            }
+
+            log.info(`Query Successful: ${messageId}`);
+        };
+
+        if (notifiableId) {
+            const n = await Notifiable.findUnique({ where: { id: notifiableId } });
+
+            if (!n || n.status === Status.COMPLETED) {
+                return log.error('Nothing to Query!');
+            }
+
+            await process(n.id, n.message_id, n.provider);
+        } else {
+            const notifiables = await Notifiable.findMany({
+                where: {
+                    provider: Provider.WAVESMS,
+                    status: { not: Status.COMPLETED }
+                }
+            });
+
+            if (notifiables.length > 0) {
+                for (const n of notifiables) {
+                    if (n.message_id) {
+                        await process(n.id, n.message_id, n.provider);
+                    }
+                }
+            } else {
+                log.error('Nothing to Query!');
+            }
+        }
+    }
 }
