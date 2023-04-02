@@ -21,7 +21,13 @@ export class CallbackController extends Controller {
         res.send()
     }
 
-    #websms = (req: Request, res: Response) => {
-        // this.repo
+    #websms = ({ body }: Request, res: Response) => {
+        if(body.code == 0) {
+            this.repo.handleCompleted(body.message_id)
+        } else {
+            this.repo.handleFailed(body.message_id)
+        }
+
+        res.send()
     }
 }
