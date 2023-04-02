@@ -15,6 +15,7 @@ import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { env } from './utils/validate.env';
 import { JobController } from './http/controllers/job.controller';
+import { CallbackController } from './http/controllers/callback.controller';
 
 class App {
     public app: Application;
@@ -65,6 +66,7 @@ class App {
     }
 
     #initControllers(): void {
+        //  Authenticated Routes
         [
             new NotificationController,
             new SettingController,
@@ -72,7 +74,11 @@ class App {
             new DashboardController
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
-        this.app.use('/', new JobController().router)
+        //  Unauthenticated Routes
+        [
+            new JobController,
+            new CallbackController
+        ].forEach(controller => this.app.use('/', controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();
