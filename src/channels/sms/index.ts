@@ -42,7 +42,11 @@ export class SMS implements NotificationInterface {
                 log.info(`SMS NOTIFICATION RESPONSE - `, { requested });
 
                 if (!requested) {
-                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: this.notifications.map(n => n.id) } });
+                    const ids = this.notifications.map(n => n.id)
+
+                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: ids } });
+
+                    this.retry(ids)
                 }
             }).catch(err => log.error(err));
     };
