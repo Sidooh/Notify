@@ -9,7 +9,7 @@ export class CallbackRepository {
         log.info('[NOTIFY]: Handle Completed Notification - ', { messageId })
 
         const notifiable = await Notifiable.findFirst({
-            select: { id: true, notification: true },
+            select: { id: true },
             where : { message_id: String(messageId) }
         });
 
