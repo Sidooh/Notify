@@ -16,10 +16,10 @@ export class CallbackController extends Controller {
     #wavesms = ({ body }: Request, res: Response) => {
         log.info('...[CB]: WAVESMS...', { body })
 
-        if(body['response-code'] == 200) {
-            this.repo.handleCompleted(body['message-id'])
+        if(body.description == 'DeliveredToTerminal') {
+            this.repo.handleCompleted(body.messageid)
         } else {
-            this.repo.handleFailed(body['message-id'])
+            this.repo.handleFailed(body.messageid)
         }
 
         res.send()
