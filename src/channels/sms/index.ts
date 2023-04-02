@@ -3,8 +3,8 @@ import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { Notification } from '@prisma/client';
-import { Channel, EventType, Provider, Status } from '../../utils/enums';
-import { Help, SMSSettings } from '../../utils/helpers';
+import { Channel, EventType, Provider, Status, Telco } from '../../utils/enums';
+import { getTelcoFromPhone, Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 import WaveSMSService from './WaveSMS/WaveSMS.service';
 
@@ -34,7 +34,9 @@ export class SMS implements NotificationInterface {
                 this.service = new WebSMSService(this.smsSettings.websms_env);
                 break;
             default:
-                this.service = new WaveSMSService();
+                const onlySafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM)
+
+                this.service = onlySafaricom? new WaveSMSService() : new WebSMSService(this.smsSettings.websms_env);
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)

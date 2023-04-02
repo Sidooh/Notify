@@ -40,10 +40,10 @@ export class SmsProviderController extends Controller {
 
     #update = async ({ body, params }: Request, res: Response) => {
         let provider = params.provider as unknown as SmsProvider;
-        const { name, environment, priority } = body;
+        const { name, environment, priority, status } = body;
 
-        if (name || environment) {
-            provider = await this.repo.update({ name, environment }, { id: provider.id });
+        if (name || environment || status) {
+            provider = await this.repo.update({ name, environment, status }, { id: provider.id });
         }
 
         if (priority !== provider.priority) {
