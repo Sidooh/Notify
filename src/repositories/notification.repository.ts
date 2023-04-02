@@ -205,10 +205,7 @@ export default class NotificationRepository {
             await process(n.id, n.message_id, n.provider);
         } else {
             const notifiables = await Notifiable.findMany({
-                where: {
-                    provider: Provider.WAVESMS,
-                    status: { not: Status.COMPLETED }
-                }
+                where: { status: { not: Status.COMPLETED } }
             });
 
             if (notifiables.length > 0) {
