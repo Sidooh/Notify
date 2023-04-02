@@ -38,17 +38,11 @@ export class SMS implements NotificationInterface {
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
-            .then(results => {
-                log.info(`SMS NOTIFICATION RESPONSE - `, results);
+            .then(requested => {
+                log.info(`SMS NOTIFICATION RESPONSE - `, { requested });
 
-                if (results.COMPLETED.length > 0) {
-                    this.repo.updateMany({ status: Status.COMPLETED }, { id: { in: results.COMPLETED } });
-                }
-
-                if (results.FAILED.length > 0) {
-                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: results.FAILED } });
-
-                    this.retry(results.FAILED);
+                if (!requested) {
+                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: this.notifications.map(n => n.id) } });
                 }
             }).catch(err => log.error(err));
     };
