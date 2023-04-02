@@ -1,12 +1,14 @@
 import prisma from '../db/prisma';
 import { Status } from '../utils/enums';
 import { log } from '../utils/logger';
+import { Help } from '../utils/helpers';
+import { SMS } from '../channels/sms';
 
 const Notifiable = prisma.notifiable;
 
 export class CallbackRepository {
     handleCompleted = async (messageId: string) => {
-        log.info('[NOTIFY]: Handle Completed Notification - ', { messageId })
+        log.info('[NOTIFY]: Handle Completed Notification - ', { messageId });
 
         const notifiable = await Notifiable.findFirst({
             select: { id: true },
@@ -27,7 +29,7 @@ export class CallbackRepository {
     };
 
     handleFailed = async (messageId: string) => {
-        log.info('[NOTIFY]: Handle Failed Notification - ', { messageId })
+        log.info('[NOTIFY]: Handle Failed Notification - ', { messageId });
 
         const notifiable = await Notifiable.findFirst({
             select: { id: true, notification_id: true, notification: true },
@@ -46,6 +48,6 @@ export class CallbackRepository {
             }
         });
 
-        // new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
+        new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
     };
 }
