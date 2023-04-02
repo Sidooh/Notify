@@ -2,7 +2,7 @@ import { CustomError } from './custom.err';
 import { ValidationErrorItem } from 'joi';
 
 export class ValidationError extends CustomError {
-    statusCode = 400;
+    statusCode = 422;
 
     constructor(public errors: ValidationErrorItem[]) {
         super('Invalid request!');

@@ -1,6 +1,10 @@
 name: test-notify
 
 on:
+  pull_request:
+    branches:
+      - main
+      - develop
   push:
     branches: [ red.dev ]
 
@@ -18,10 +22,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'yarn'
 
       # Runs a single command using the runners shell
       - name: Install dependencies
         run: yarn install
 
       - name: Run tests
-        run: yarn run test:ci
+        run: yarn test

@@ -13,10 +13,6 @@ if ((env.SLACK_LOGGING || 'disabled') === 'enabled' && env.SLACK_HOOK_URL !== nu
     exceptionHandlers.push(<FileTransportInstance>new SlackHook({ webhookUrl: env.SLACK_HOOK_URL }));
 }
 
-const errorFilter = format((info, opts) => {
-    return info.level === 'error' ? info : false;
-});
-
 export const log = createLogger({
     levels     : config.syslog.levels,
     level      : env.LOG_LEVEL,
@@ -32,10 +28,7 @@ export const log = createLogger({
     ),
     exceptionHandlers,
     transports : [
-        new transports.File({ filename: 'logs/notify.log' }),
-        new transports.File({
-            filename: 'logs/errors.log', level: 'error', format: combine(errorFilter(), timestamp(), json())
-        }),
+        new transports.File({ filename: 'logs/notify.log', format:combine(timestamp(), json()) }),
         new transports.Console({ level: env.LOG_LEVEL }),
         new SlackHook({
             level     : 'error',

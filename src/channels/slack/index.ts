@@ -1,26 +1,24 @@
 import NotificationInterface from '../../utils/interfaces/notification.interface';
-import SlackService from './slack.service';
-import { Notification } from '../../models/Notification';
-import { Provider } from '../../utils/enums';
+import { Service } from './service';
+import { Notification } from '@prisma/client';
+import NotificationRepository from '../../repositories/notification.repository';
 
-export default class Slack implements NotificationInterface {
-    notifications
-    #SlackService
+export class Slack implements NotificationInterface {
+    notifications: Notification[];
+    service: Service;
 
     constructor(notifications: Notification[]) {
-        this.notifications = notifications
-        this.#SlackService = new SlackService()
+        this.notifications = notifications;
+
+        this.service = new Service;
     }
 
     send = async () => {
         this.notifications.map(notification => {
-            this.#SlackService.message(notification.content).send()
-                .then(async ({status}) => {
-                    notification.status = status
-                    notification.provider = Provider.SLACK
-
-                    await notification.save()
-                })
-        })
-    }
+            this.service.message(notification.content).send()
+                .then(async ({ status }) => {
+                    await (new NotificationRepository).update({ status }, { id: notification.id });
+                });
+        });
+    };
 }

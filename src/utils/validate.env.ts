@@ -4,21 +4,20 @@ export default function validateEnv() {
     return cleanEnv(process.env, {
         PORT: port({ default: 8003 }),
 
-        NODE_ENV: str({
-            choices: ['test', 'development', 'production']
-        }),
-
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
         JWT_KEY  : str(),
 
-        DB_SOCKET: str({ default: '' }),
-
+        //  Typeorm Configs
         DB_HOST       : str({ default: '127.0.0.1' }),
         DB_PORT       : num({ default: 3306 }),
-        DB_DATABASE   : str(),
-        DB_USERNAME   : str(),
-        DB_PASSWORD   : str(),
+        DB_DATABASE   : str({ default: '' }),
+        DB_USERNAME   : str({ default: '' }),
+        DB_PASSWORD   : str({ default: '' }),
+        DB_SOCKET     : str({ default: '' }),
         SYNCHRONIZE_DB: bool({ default: false }),
+
+        //  Prisma Config
+        DATABASE_URL: str(),
 
         MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
         MAIL_PORT     : num({
@@ -29,18 +28,20 @@ export default function validateEnv() {
         MAIL_PASSWORD : str(),
         MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
-        WAVE_SMS_API_KEY   : str(),
-        WAVE_SMS_PARTNER_ID: str(),
-        WAVE_SMS_SENDER_ID : str({ default: 'Test' }),
+        AT_SMS_API_KEY : str(),
+        AT_SMS_USERNAME: str(),
+        AT_SMS_FROM    : str(),
 
-        AT_SMS_API_KEY     : str(),
-        AT_SMS_USERNAME    : str(),
-        AT_SMS_DEV_API_KEY : str(),
-        AT_SMS_DEV_USERNAME: str(),
-        AT_SMS_FROM        : str(),
+        AT_SMS_DEV_API_KEY : str({ default: '' }),
+        AT_SMS_DEV_USERNAME: str({ default: '' }),
 
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
+
+        WAVESMS_API_KEY   : str(),
+        WAVESMS_PARTNER_ID: str(),
+        WAVESMS_SENDER_ID : str({ default: 'Test' }),
+        WAVESMS_COST      : num({ default: .2 }),
 
         WEBSMS_SANDBOX   : bool({ default: true }),
         WEBSMS_API_URL   : url({ default: 'https://api.onfonmedia.co.ke/v1/sms' }),
@@ -48,11 +49,12 @@ export default function validateEnv() {
         WEBSMS_API_KEY   : str(),
         WEBSMS_CLIENT_ID : str(),
         WEBSMS_SENDER_ID : str(),
+        WEBSMS_COST      : num({ default: .3 }),
 
-        WEBSMS_DEV_ACCESS_KEY: str({ default: null }),
-        WEBSMS_DEV_API_KEY   : str({ default: null }),
-        WEBSMS_DEV_CLIENT_ID : str({ default: null }),
-        WEBSMS_DEV_SENDER_ID : str({ default: null }),
+        WEBSMS_DEV_ACCESS_KEY: str({ default: undefined }),
+        WEBSMS_DEV_API_KEY   : str({ default: undefined }),
+        WEBSMS_DEV_CLIENT_ID : str({ default: undefined }),
+        WEBSMS_DEV_SENDER_ID : str({ default: undefined }),
 
         SLACK_HOOK_URL: url({ default: '' }),
         SLACK_LOGGING : str({
@@ -60,7 +62,7 @@ export default function validateEnv() {
             choices: ['enabled', 'disabled']
         }),
 
-        SENTRY_DSN               : url({ default: null }),
+        SENTRY_DSN               : url({ default: undefined }),
         SENTRY_TRACES_SAMPLE_RATE: num({ default: 0.0 }),
 
         SIDOOH_ACCOUNTS_API_URL: url({ default: 'http://localhost:8000/api/v1' }),

@@ -1,51 +1,50 @@
 import { Request, Response } from 'express';
 import { SettingRequest } from '../requests/setting.request';
 import { log } from '../../utils/logger';
-import { Setting } from '../../models/Setting';
 import { validate } from '../middleware/validate.middleware';
 import Controller from './controller';
+import { SettingRepository } from '../../repositories/setting.repository';
+import { HttpStatusCode } from 'axios';
+import { Setting } from '@prisma/client';
 
 export class SettingController extends Controller {
+    private repo: SettingRepository;
+
     constructor() {
         super('/settings');
+
+        this.repo = new SettingRepository();
+
         this.#initRoutes();
     }
 
     #initRoutes(): void {
         this.router.get(`${this.basePath}`, this.#index);
-        this.router.post(`${this.basePath}`, validate(SettingRequest.create), this.#tweak);
-        this.router.delete(`${this.basePath}/:id`, this.#destroy);
+        this.router.post(`${this.basePath}`, validate(SettingRequest.upsert), this.#tweak);
+        this.router.delete(`${this.basePath}/:setting`, validate(SettingRequest.destroy), this.#destroy);
     }
 
     #index = async (req: Request, res: Response) => {
-        const settings = await Setting.find();
+        const settings = await this.repo.findMany();
 
-        res.send(this.successResponse({ data: settings }));
+        res.json(this.successResponse(settings));
     };
 
     #tweak = async ({ body }: Request, res: Response) => {
-        log.info('Tweak Settings - ', body);
+        log.info('Tweak Setting - ', body);
 
         let { key, value } = body;
 
-        let setting = await Setting.findOneBy({ key });
+        const setting = await this.repo.tweak(key, value);
 
-        if (!setting) {
-            setting = await Setting.save({ key, value });
-        } else {
-            setting.key = key;
-            setting.value = value;
-            await setting.save();
-        }
-
-        res.send(this.successResponse({ data: setting }));
+        res.send(this.successResponse(setting));
     };
 
-    #destroy = async (req: Request, res: Response) => {
-        const { id } = req.params;
+    #destroy = async ({ params }: Request, res: Response) => {
+        const setting = params.setting as unknown as Setting;
 
-        const result = await Setting.delete(Number(id));
+        await this.repo.destroy(Number(setting.id));
 
-        res.send(this.successResponse({ data: { message: result.affected ? 'Deleted!' : 'Nothing to delete' } }));
+        res.status(HttpStatusCode.NoContent).send();
     };
 }

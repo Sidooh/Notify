@@ -5,17 +5,17 @@ import 'express-async-errors';
 import cookieParser from 'cookie-parser';
 import { log } from './utils/logger';
 import { NotificationController, SettingController } from './http/controllers';
-import { SmsController } from './http/controllers/sms.controller';
+import { SmsProviderController } from './http/controllers/sms-provider.controller';
 import { DashboardController } from './http/controllers/dashboard.controller';
 import { ErrorMiddleware } from './http/middleware/error.middleware';
 import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
 import { Auth } from './http/middleware/auth.middleware';
-import { MailController } from './http/controllers/mail.controller';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { env } from './utils/validate.env';
 import { JobController } from './http/controllers/job.controller';
+import { CallbackController } from './http/controllers/callback.controller';
 
 class App {
     public app: Application;
@@ -27,7 +27,7 @@ class App {
 
         /** --------------------------------    INIT SENTRY
          * */
-        if (env.NODE_ENV !== 'test') {
+        if (process.env.NODE_ENV !== 'test') {
             Sentry.init({
                 dsn         : env.SENTRY_DSN,
                 integrations: [
@@ -66,15 +66,19 @@ class App {
     }
 
     #initControllers(): void {
+        //  Authenticated Routes
         [
-            new NotificationController(),
-            new SettingController(),
-            new SmsController(),
-            new MailController(),
-            new DashboardController()
+            new NotificationController,
+            new SettingController,
+            new SmsProviderController,
+            new DashboardController
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
-        this.app.use('/', new JobController().router)
+        //  Unauthenticated Routes
+        [
+            new JobController,
+            new CallbackController
+        ].forEach(controller => this.app.use('/', controller.router));
 
         this.app.all('*', async () => {
             throw new NotFoundError();

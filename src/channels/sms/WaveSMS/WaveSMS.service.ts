@@ -1,10 +1,12 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
-import { Provider, Status } from '../../../utils/enums';
-import { Notification } from '../../../models/Notification';
-import { Notifiable } from '../../../models/Notifiable';
+import { Provider } from '../../../utils/enums';
+import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
 import { WaveSMS, WaveSMSConfig, WaveSMSResponse } from '@nabcellent/wavesms';
+import prisma from '../../../db/prisma';
+
+const Notifiable = prisma.notifiable;
 
 export default class WaveSMSService implements ServiceInterface {
     #message: string = '';
@@ -13,16 +15,16 @@ export default class WaveSMSService implements ServiceInterface {
 
     constructor() {
         let config: WaveSMSConfig = {
-            apiKey   : env.WAVE_SMS_API_KEY,
-            partnerId: env.WAVE_SMS_PARTNER_ID,
-            senderId : env.WAVE_SMS_SENDER_ID
+            apiKey   : env.WAVESMS_API_KEY,
+            partnerId: env.WAVESMS_PARTNER_ID,
+            senderId : env.WAVESMS_SENDER_ID
         };
 
         this.#WaveSMS = new WaveSMS(config);
     }
 
     to = (to: string[]) => {
-        this.#to = to.map(phone => `254${String(phone).slice(-9)}`);
+        this.#to = to;
 
         return this;
     };
@@ -34,14 +36,14 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     balance = async () => {
-        const response = await this.#WaveSMS.balance.fetch();
+        const balance = await this.#WaveSMS.balance.fetch();
 
-        log.info('WAVESMS: BALANCE - ', { balance: response });
+        log.info('WAVESMS: BALANCE - ', { balance });
 
-        return response;
+        return balance;
     };
 
-    send: (notifications: Notification[]) => Promise<string> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<boolean> = async (notifications: Notification[]) => {
         log.info('WAVESMS: SEND NOTIFICATIONS - ', { notifications });
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
@@ -52,38 +54,37 @@ export default class WaveSMSService implements ServiceInterface {
             }).catch(error => {
                 log.error(error);
 
-                throw new Error(error);
+                return undefined;
             });
 
-        const waveSmsResponse = await this.#save(notifications, responses);
-
-        return waveSmsResponse?.every(r => (r.status === Status.COMPLETED)) ? Status.COMPLETED : Status.FAILED;
+        if (responses) {
+            return await this.#save(notifications, responses);
+        } else {
+            return false;
+        }
     };
 
-    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<Notifiable[] | undefined> => {
+    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<boolean> => {
         log.info(`WAVESMS: Save Response`);
 
-        const notifiables = Notifiable.create(notifications.map(notification => {
+        const notifiables = notifications.map(notification => {
             let response = responses.find(res => {
                 return String(notification.destination).slice(-9) == String(res.mobile).slice(-9);
             });
 
-            let status = response?.['response-code'] === 200 ? Status.COMPLETED : Status.FAILED;
-
-            notification.status = status;
-            notification.save();
-
             return {
                 notification_id: notification.id,
-                message_id     : response?.messageid as string,
-                phone          : String(response.mobile),
-                description    : response['response-description'],
-                status_code    : response['response-code'],
-                provider       : Provider.WAVESMS,
-                status
+                message_id     : response?.message_id as string,
+                phone          : String(response?.mobile),
+                description    : response?.description,
+                status_code    : response?.code,
+                cost           : response?.cost,
+                provider       : Provider.WAVESMS
             };
-        }));
+        });
 
-        return await Notifiable.save(notifiables);
+        await Notifiable.createMany({ data: notifiables });
+
+        return true
     };
 }
