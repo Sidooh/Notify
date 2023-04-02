@@ -1,12 +1,15 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
-import { ENV, Provider } from '../../../utils/enums';
+import { ENV, Provider, Status } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
-import prisma from '../../../db/prisma';
+import db from '../../../db/prisma';
 import { WebSms, WebSmsConfig, WebSmsResponseData } from '@nabcellent/websms';
+import { SMSNotificationResults } from '../../../utils/types';
+import { SMS } from '../index';
+import { Help } from '../../../utils/helpers';
 
-const Notifiable = prisma.notifiable;
+const Notifiable = db.notifiable;
 
 export default class WebSMSService implements ServiceInterface {
     #message: string = '';
@@ -79,7 +82,7 @@ export default class WebSMSService implements ServiceInterface {
             });
 
         if (responses) {
-            return await this.#save(notifications, responses)
+            return await this.#save(notifications, responses);
         } else {
             return false;
         }
@@ -88,10 +91,16 @@ export default class WebSMSService implements ServiceInterface {
     #save = async (notifications: Notification[], responses: WebSmsResponseData[]): Promise<boolean> => {
         log.info(`WEBSMS: Save Callback`);
 
+        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+
         const notifiables = notifications.map(notification => {
             const response = responses.find(res => {
                 return String(notification.destination).slice(-9) == String(res.phone).slice(-9);
             });
+
+            let status = response?.code === 0 ? Status.COMPLETED : Status.FAILED;
+
+            results[status].push(notification.id);
 
             return {
                 notification_id: notification.id,
@@ -101,10 +110,20 @@ export default class WebSMSService implements ServiceInterface {
                 status_code    : response?.code,
                 cost           : response?.cost,
                 provider       : Provider.WEBSMS,
+                status
             };
         });
 
         await Notifiable.createMany({ data: notifiables });
+
+        if(results.COMPLETED.length > 0) {
+            db.notification.updateMany({ where: { id: { in: results.COMPLETED } }, data: { status: Status.COMPLETED } })
+        }
+        if(results.FAILED.length > 0) {
+            db.notification.updateMany({ where: { id: { in: results.FAILED } }, data: { status: Status.FAILED } })
+
+            new SMS(notifications, await Help.getSMSSettings()).retry(results.FAILED)
+        }
 
         return true;
     };

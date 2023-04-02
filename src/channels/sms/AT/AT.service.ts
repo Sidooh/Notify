@@ -64,7 +64,7 @@ export default class ATService implements ServiceInterface {
     send: (notifications: Notification[]) => Promise<boolean> = async (notifications: Notification[]) => {
         const options = {
             to     : this.#to,
-            from   : process.env.NODE_ENV === 'production' ? String(env.AT_SMS_FROM) : undefined,
+            from   : process.env.NODE_ENV === 'production' ? env.AT_SMS_FROM : undefined,
             message: this.#message
         };
 

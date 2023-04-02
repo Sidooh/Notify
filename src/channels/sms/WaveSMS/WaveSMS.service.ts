@@ -58,15 +58,13 @@ export default class WaveSMSService implements ServiceInterface {
             });
 
         if (responses) {
-            await this.#save(notifications, responses);
-
-            return true;
+            return await this.#save(notifications, responses);
         } else {
             return false;
         }
     };
 
-    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<void> => {
+    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<boolean> => {
         log.info(`WAVESMS: Save Response`);
 
         const notifiables = notifications.map(notification => {
@@ -86,5 +84,7 @@ export default class WaveSMSService implements ServiceInterface {
         });
 
         await Notifiable.createMany({ data: notifiables });
+
+        return true
     };
 }
