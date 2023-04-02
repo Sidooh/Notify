@@ -6,6 +6,8 @@ const Notifiable = prisma.notifiable;
 
 export class CallbackRepository {
     handleCompleted = async (messageId: string) => {
+        log.info('[NOTIFY]: Handle Completed Notification - ', { messageId })
+
         const notifiable = await Notifiable.findFirst({
             select: { id: true, notification: true },
             where : { message_id: String(messageId) }
@@ -25,6 +27,8 @@ export class CallbackRepository {
     };
 
     handleFailed = async (messageId: string) => {
+        log.info('[NOTIFY]: Handle Failed Notification - ', { messageId })
+
         const notifiable = await Notifiable.findFirst({
             select: { id: true, notification_id: true, notification: true },
             where : { message_id: messageId, status: { not: Status.COMPLETED } }
