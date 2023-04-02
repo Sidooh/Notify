@@ -1,8 +1,6 @@
 import prisma from '../db/prisma';
 import { Status } from '../utils/enums';
 import { log } from '../utils/logger';
-import { SMS } from '../channels/sms';
-import { Help } from '../utils/helpers';
 
 const Notifiable = prisma.notifiable;
 
@@ -44,6 +42,6 @@ export class CallbackRepository {
             }
         });
 
-        new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
+        // new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
     };
 }
