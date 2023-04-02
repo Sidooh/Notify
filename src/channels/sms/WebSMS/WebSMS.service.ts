@@ -117,10 +117,10 @@ export default class WebSMSService implements ServiceInterface {
         await Notifiable.createMany({ data: notifiables });
 
         if(results.COMPLETED.length > 0) {
-            db.notification.updateMany({ where: { id: { in: results.COMPLETED } }, data: { status: Status.COMPLETED } })
+            await db.notification.updateMany({ where: { id: { in: results.COMPLETED } }, data: { status: Status.COMPLETED } })
         }
         if(results.FAILED.length > 0) {
-            db.notification.updateMany({ where: { id: { in: results.FAILED } }, data: { status: Status.FAILED } })
+            await db.notification.updateMany({ where: { id: { in: results.FAILED } }, data: { status: Status.FAILED } })
 
             new SMS(notifications, await Help.getSMSSettings()).retry(results.FAILED)
         }
