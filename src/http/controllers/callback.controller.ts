@@ -1,6 +1,7 @@
 import Controller from './controller';
 import { CallbackRepository } from '../../repositories/callback.repository';
 import { Request, Response } from 'express';
+import { log } from '../../utils/logger';
 
 export class CallbackController extends Controller {
 
@@ -13,6 +14,8 @@ export class CallbackController extends Controller {
     }
 
     #wavesms = ({ body }: Request, res: Response) => {
+        log.info('...[CB]: WAVESMS...', { body })
+
         if(body['response-code'] == 200) {
             this.repo.handleCompleted(body['message-id'])
         } else {
@@ -23,6 +26,8 @@ export class CallbackController extends Controller {
     }
 
     #websms = ({ body }: Request, res: Response) => {
+        log.info('...[CB]: WEBSMS...', { body })
+
         if(body.code == 0) {
             this.repo.handleCompleted(body.message_id)
         } else {
@@ -33,6 +38,8 @@ export class CallbackController extends Controller {
     }
 
     #africastalking = ({ body }: Request, res: Response) => {
+        log.info('...[CB]: AFRICASTALKING...', { body })
+
         if(body.status == 'Success') {
             this.repo.handleCompleted(body.id)
         } else {
