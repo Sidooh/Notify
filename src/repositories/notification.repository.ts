@@ -105,7 +105,7 @@ export default class NotificationRepository {
         if (notifiables.length > 0) {
             for (const n of notifiables) {
                 if (n.message_id && n.provider === Provider.WAVESMS) {
-                    await this.queryStatus(n.id)
+                    await this.queryStatus(n.id);
                 }
             }
         } else {
@@ -163,34 +163,27 @@ export default class NotificationRepository {
         const process = async (notifiableId, messageId, provider) => {
             log.info(`Querying: ${messageId}`);
 
-            let sent;
-            if(provider === Provider.WAVESMS) {
+            let status = Status.PENDING;
+            if (provider === Provider.WAVESMS) {
                 try {
-                    const report = await new WaveSMSService().query(messageId)
+                    const report = await new WaveSMSService().query(messageId);
 
-                    sent = report.delivery_description === 'DeliveredToTerminal'
+                    if(report.delivery_description === 'DeliveredToTerminal') {
+                        status = Status.COMPLETED
+                    }
                 } catch (e) {
-                    log.error(`Failed to report: ${messageId}`)
+                    log.error(`Failed to report: ${messageId}`);
+
+                    status = Status.FAILED
                 }
             }
 
-            if (sent) {
-                await Notifiable.update({
-                    where: { id: notifiableId },
-                    data : {
-                        status      : Status.COMPLETED,
-                        notification: { update: { status: Status.COMPLETED } }
-                    }
-                });
-            } else {
-                await Notifiable.update({
-                    where: { id: notifiableId },
-                    data : {
-                        status      : Status.FAILED,
-                        notification: { update: { status: Status.FAILED } }
-                    }
-                });
-            }
+            await Notifiable.update({
+                where: { id: notifiableId },
+                data : {
+                    status, notification: { update: { status } }
+                }
+            });
 
             log.info(`Query Successful: ${messageId}`);
         };
@@ -218,5 +211,5 @@ export default class NotificationRepository {
                 log.error('Nothing to Query!');
             }
         }
-    }
+    };
 }
