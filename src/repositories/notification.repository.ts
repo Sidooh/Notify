@@ -163,42 +163,41 @@ export default class NotificationRepository {
         const process = async (notifiableId, messageId, provider) => {
             log.info(`Querying: ${messageId}`);
 
-            let status = Status.PENDING;
+            const updateNotification = async (status: Status) => {
+                await Notifiable.update({
+                    where: { id: notifiableId },
+                    data : {
+                        status, notification: { update: { status } }
+                    }
+                });
+            };
+
             if (provider === Provider.WAVESMS) {
                 try {
                     const report = await new WaveSMSService().query(messageId);
 
-                    if(report.delivery_description === 'DeliveredToTerminal') {
-                        status = Status.COMPLETED
+                    if (report.delivery_description === 'DeliveredToTerminal') {
+                        await updateNotification(Status.COMPLETED);
                     }
-                } catch (e) {
-                    log.error(`Failed to report: ${messageId}`);
-
-                    status = Status.FAILED
+                } catch (error) {
+                    log.error(`Failed to report: ${messageId}`, { error });
                 }
             }
-
-            await Notifiable.update({
-                where: { id: notifiableId },
-                data : {
-                    status, notification: { update: { status } }
-                }
-            });
 
             log.info(`Query Successful: ${messageId}`);
         };
 
         if (notifiableId) {
-            const n = await Notifiable.findUnique({ where: { id: notifiableId } });
+            const n = await Notifiable.findFirst({ where: { id: notifiableId, status: Status.PENDING } });
 
-            if (!n || n.status === Status.COMPLETED) {
+            if (!n) {
                 return log.error('Nothing to Query!');
             }
 
             await process(n.id, n.message_id, n.provider);
         } else {
             const notifiables = await Notifiable.findMany({
-                where: { status: { not: Status.COMPLETED } }
+                where: { status: Status.PENDING }
             });
 
             if (notifiables.length > 0) {

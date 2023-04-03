@@ -26,24 +26,23 @@ export class SMS implements NotificationInterface {
     }
 
     send = async () => {
-        switch (this.smsSettings.default_provider) {
-            case Provider.AT:
-                this.service = new ATService(this.smsSettings.africastalking_env);
-                break;
-            case Provider.WEBSMS:
-                this.service = new WebSMSService(this.smsSettings.websms_env);
-                break;
-            default:
-                const onlySafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM);
-                const hasTelkom = this.notifications.some(n => getTelcoFromPhone(n.destination) === Telco.TELKOM);
+        const provider = this.smsSettings.default_provider
 
-                if(onlySafaricom) {
+        const hasAirtel = this.notifications.some(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL);
+
+        if(hasAirtel) {
+            this.service = new WebSMSService(this.smsSettings.websms_env)
+        } else {
+            switch (provider) {
+                case Provider.AT:
+                    this.service = new ATService(this.smsSettings.africastalking_env);
+                    break;
+                case Provider.WEBSMS:
+                    this.service = new WebSMSService(this.smsSettings.websms_env);
+                    break;
+                default:
                     this.service = new WaveSMSService()
-                } else if(hasTelkom) {
-                    this.service = new ATService(this.smsSettings.africastalking_env)
-                } else {
-                    this.service = new WebSMSService(this.smsSettings.websms_env)
-                }
+            }
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
