@@ -35,8 +35,15 @@ export class SMS implements NotificationInterface {
                 break;
             default:
                 const onlySafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM);
+                const hasTelkom = this.notifications.some(n => getTelcoFromPhone(n.destination) === Telco.TELKOM);
 
-                this.service = onlySafaricom ? new WaveSMSService() : new WebSMSService(this.smsSettings.websms_env);
+                if(onlySafaricom) {
+                    this.service = new WaveSMSService()
+                } else if(hasTelkom) {
+                    this.service = new ATService(this.smsSettings.africastalking_env)
+                } else {
+                    this.service = new WebSMSService(this.smsSettings.websms_env)
+                }
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
