@@ -178,6 +178,8 @@ export default class NotificationRepository {
 
                     if (report.delivery_description === 'DeliveredToTerminal') {
                         await updateNotification(Status.COMPLETED);
+                    } else if ([1007].includes(report.code)) {
+                        await updateNotification(Status.FAILED);
                     }
                 } catch (error) {
                     log.error(`Failed to report: ${messageId}`, { error });

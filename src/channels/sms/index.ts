@@ -3,8 +3,8 @@ import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { Notification } from '@prisma/client';
-import { Channel, EventType, Provider, Status, Telco } from '../../utils/enums';
-import { getTelcoFromPhone, Help, SMSSettings } from '../../utils/helpers';
+import { Channel, EventType, Provider, Status } from '../../utils/enums';
+import { Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 import WaveSMSService from './WaveSMS/WaveSMS.service';
 
@@ -26,42 +26,36 @@ export class SMS implements NotificationInterface {
     }
 
     send = async () => {
-        const provider = this.smsSettings.default_provider
-
-        const hasAirtel = this.notifications.some(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL);
-
-        if(hasAirtel) {
-            this.service = new WebSMSService(this.smsSettings.websms_env)
-        } else {
-            switch (provider) {
-                case Provider.AT:
-                    this.service = new ATService(this.smsSettings.africastalking_env);
-                    break;
-                case Provider.WEBSMS:
-                    this.service = new WebSMSService(this.smsSettings.websms_env);
-                    break;
-                default:
-                    this.service = new WaveSMSService()
-            }
+        switch (this.smsSettings.default_provider) {
+            case Provider.AT:
+                this.service = new ATService(this.smsSettings.africastalking_env);
+                break;
+            case Provider.WEBSMS:
+                this.service = new WebSMSService(this.smsSettings.websms_env);
+                break;
+            default:
+                this.service = new WaveSMSService();
         }
 
         await this.service.to(this.destinations).message(this.notifications[0].content).send(this.notifications)
-            .then(requested => {
-                log.info(`SMS NOTIFICATION RESPONSE - `, { requested });
+            .then(results => {
+                log.info(`SMS NOTIFICATION RESPONSE - `, results);
 
-                if (!requested) {
-                    const ids = this.notifications.map(n => n.id);
+                if (results.COMPLETED && results.COMPLETED.length > 0) {
+                    this.repo.updateMany({ status: Status.COMPLETED }, { id: { in: results.COMPLETED } });
+                }
 
-                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: ids } });
+                if (results.FAILED && results.FAILED.length > 0) {
+                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: results.FAILED } });
 
-                    this.retry(ids);
+                    this.retry(results.FAILED);
                 }
             }).catch(err => log.error(err));
     };
 
     retry = (ids: bigint[]) => {
-        Help.sleep(this.tries * 45).then(async () => {
-            if (this.tries > 2) {
+        Help.sleep(this.tries * 10).then(async () => {
+            if (this.tries > 1) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
 

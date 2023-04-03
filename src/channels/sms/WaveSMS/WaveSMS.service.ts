@@ -1,10 +1,12 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
-import { Provider } from '../../../utils/enums';
+import { Provider, Status, Telco } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
 import { WaveSMS, WaveSMSConfig, WaveSMSResponse } from '@nabcellent/wavesms';
 import prisma from '../../../db/prisma';
+import { getTelcoFromPhone } from '../../../utils/helpers';
+import { SMSNotificationResults } from '../../../utils/types';
 
 const Notifiable = prisma.notifiable;
 
@@ -24,7 +26,7 @@ export default class WaveSMSService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to;
+        this.#to = to.filter(n => getTelcoFromPhone(n) === Telco.SAFARICOM);
 
         return this;
     };
@@ -43,7 +45,7 @@ export default class WaveSMSService implements ServiceInterface {
         return balance;
     };
 
-    send: (notifications: Notification[]) => Promise<boolean> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
         log.info('WAVESMS: SEND NOTIFICATIONS - ', { notifications });
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
@@ -58,19 +60,33 @@ export default class WaveSMSService implements ServiceInterface {
             });
 
         if (responses) {
-            return await this.#save(notifications, responses);
+            const res = await this.#save(notifications, responses)
+
+            const nonSafNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM);
+            nonSafNotifications.map(n => res.FAILED?.push(n.id))
+
+            return res;
         } else {
-            return false;
+
+            return { FAILED: notifications.map(n => n.id) };
         }
     };
 
-    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<boolean> => {
+    #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<SMSNotificationResults> => {
         log.info(`WAVESMS: Save Response`);
+
+        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {
             let response = responses.find(res => {
                 return String(notification.destination).slice(-9) == String(res.mobile).slice(-9);
             });
+
+            if (response?.code === 1007) {
+                results.FAILED?.push(notification.id);
+            } else if (response?.code === 200) {
+                results.REQUESTED?.push(notification.id);
+            }
 
             return {
                 notification_id: notification.id,
@@ -85,7 +101,7 @@ export default class WaveSMSService implements ServiceInterface {
 
         await Notifiable.createMany({ data: notifiables });
 
-        return true;
+        return results;
     };
 
     query = async (messageId) => {
