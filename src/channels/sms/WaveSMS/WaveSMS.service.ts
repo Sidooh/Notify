@@ -58,6 +58,7 @@ export default class WaveSMSService implements ServiceInterface {
 
                 return undefined;
             });
+
         if (responses) {
             const nonSafNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM);
 
