@@ -58,11 +58,11 @@ export default class WaveSMSService implements ServiceInterface {
 
                 return undefined;
             });
-
         if (responses) {
-            const res = await this.#save(notifications, responses)
-
             const nonSafNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM);
+
+            const res = await this.#save(notifications.filter(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM), responses)
+
             nonSafNotifications.map(n => res.FAILED?.push(n.id))
 
             return res;

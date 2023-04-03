@@ -54,7 +54,7 @@ export class SMS implements NotificationInterface {
     };
 
     retry = (ids: bigint[]) => {
-        Help.sleep(this.tries * 10).then(async () => {
+        Help.sleep(this.tries * 45).then(async () => {
             if (this.tries > 1) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
