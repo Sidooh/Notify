@@ -163,13 +163,13 @@ export default class NotificationRepository {
         const process = async (notifiableId, messageId, provider) => {
             log.info(`Querying: ${messageId}`);
 
-            const updateNotification = async (status: Status) => {
-                await Notifiable.update({
-                    where: { id: notifiableId },
-                    data : {
-                        status, notification: { update: { status } }
-                    }
-                });
+            const update = async (status: Status, data: Prisma.XOR<Prisma.NotifiableUpdateInput, Prisma.NotifiableUncheckedUpdateInput>) => {
+                data.status = status;
+                data.notification = {
+                    update: { status }
+                };
+
+                await Notifiable.update({ where: { id: notifiableId }, data });
             };
 
             if (provider === Provider.WAVESMS) {
@@ -177,9 +177,17 @@ export default class NotificationRepository {
                     const report = await new WaveSMSService().query(messageId);
 
                     if (report.delivery_description === 'DeliveredToTerminal') {
-                        await updateNotification(Status.COMPLETED);
+                        await update(Status.COMPLETED, {
+                            status_code: report.code,
+                            description: report.delivery_description,
+                            updated_at : report.delivery_time
+                        });
                     } else if ([1007].includes(report.code)) {
-                        await updateNotification(Status.FAILED);
+                        await update(Status.FAILED, {
+                            status_code: report.code,
+                            description: report.delivery_description,
+                            updated_at : report.delivery_time
+                        });
                     }
                 } catch (error) {
                     log.error(`Failed to report: ${messageId}`, { error });
