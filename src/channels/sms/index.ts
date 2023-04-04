@@ -3,8 +3,8 @@ import WebSMSService from './WebSMS/WebSMS.service';
 import ATService from './AT/AT.service';
 import { log } from '../../utils/logger';
 import { Notification } from '@prisma/client';
-import { Channel, EventType, Provider, Status } from '../../utils/enums';
-import { Help, SMSSettings } from '../../utils/helpers';
+import { Channel, EventType, Provider, Status, Telco } from '../../utils/enums';
+import { getTelcoFromPhone, Help, SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 import WaveSMSService from './WaveSMS/WaveSMS.service';
 import { env } from '../../utils/validate.env';
@@ -54,14 +54,16 @@ export class SMS implements NotificationInterface {
 
     retry = (ids: bigint[]) => {
         Help.sleep(this.tries * env.SMS_RETRY_INTERVAL).then(async () => {
-            if (this.tries > env.SMS_RETRIES) {
+            this.notifications = await this.repo.findMany({ where: { id: { in: ids } } });
+
+            //  TODO: Remove once we get airtel on WAVE.
+            const notSafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM)
+            if (this.tries > env.SMS_RETRIES || notSafaricom) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
 
                 this.tries = 0;
             }
-
-            this.notifications = await this.repo.findMany({ where: { id: { in: ids } } });
 
             if (this.smsSettings.providers.length > 0) {
                 //  Find next provider with the highest priority
