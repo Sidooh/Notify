@@ -45,8 +45,6 @@ export class SMS implements NotificationInterface {
                 }
 
                 if (results.FAILED && results.FAILED.length > 0) {
-                    this.repo.updateMany({ status: Status.FAILED }, { id: { in: results.FAILED } });
-
                     this.retry(results.FAILED);
                 }
             }).catch(err => log.error(err));
@@ -80,6 +78,8 @@ export class SMS implements NotificationInterface {
 
                 this.send();
             } else {
+                this.repo.updateMany({ status: Status.FAILED }, { id: { in: ids } });
+
                 let message = `Failed to send notification(s) to:\n`;
                 this.notifications.map(n => message += `#${n.id} - ${n.destination}\n`);
 
