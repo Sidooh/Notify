@@ -77,7 +77,10 @@ export default function validateEnv() {
         WAVESMS_THRESHOLD: num({ default: 500 }),
         WEBSMS_THRESHOLD : num({ default: 500 }),
         AT_SMS_THRESHOLD : num({ default: 500 }),
-        AT_USSD_THRESHOLD: num({ default: 500 })
+        AT_USSD_THRESHOLD: num({ default: 500 }),
+
+        SMS_RETRY_INTERVAL: num({ default: 45 }),
+        SMS_RETRIES: num({ default: 2 })
     });
 }
 

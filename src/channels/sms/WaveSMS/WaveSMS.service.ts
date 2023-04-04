@@ -1,6 +1,6 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
-import { Provider, Status, Telco } from '../../../utils/enums';
+import { Provider, Telco } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
 import { WaveSMS, WaveSMSConfig, WaveSMSResponse } from '@nabcellent/wavesms';
@@ -26,7 +26,7 @@ export default class WaveSMSService implements ServiceInterface {
     }
 
     to = (to: string[]) => {
-        this.#to = to.filter(n => getTelcoFromPhone(n) === Telco.SAFARICOM);
+        this.#to = to;
 
         return this;
     };
@@ -40,17 +40,19 @@ export default class WaveSMSService implements ServiceInterface {
     balance = async () => {
         const balance = await this.#WaveSMS.balance.fetch();
 
-        log.info('WAVESMS: BALANCE - ', { balance });
+        log.info('[SRV WAVESMS]: Balance - ', { balance });
 
         return balance;
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
-        log.info('WAVESMS: SEND NOTIFICATIONS - ', { notifications });
+        log.info('[SRV WAVESMS]: Send - ', { notifications });
+
+        this.#to = this.#to.filter(n => getTelcoFromPhone(n) === Telco.SAFARICOM)
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
             .then(data => {
-                log.info(`WAVESMS: RESPONSES`, data);
+                log.info(`[SRV WAVESMS]: Responses`, data);
 
                 return data;
             }).catch(error => {
@@ -62,21 +64,20 @@ export default class WaveSMSService implements ServiceInterface {
         if (responses) {
             const nonSafNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM);
 
-            const res = await this.#save(notifications.filter(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM), responses)
+            const res = await this.#save(notifications.filter(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM), responses);
 
-            nonSafNotifications.map(n => res.FAILED?.push(n.id))
+            nonSafNotifications.map(n => res.FAILED?.push(n.id));
 
             return res;
         } else {
-
             return { FAILED: notifications.map(n => n.id) };
         }
     };
 
     #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<SMSNotificationResults> => {
-        log.info(`WAVESMS: Save Response`);
+        log.info(`[SRV WAVESMS]: Save`);
 
-        const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
+        const results: SMSNotificationResults = { REQUESTED: [], FAILED: [] };
 
         const notifiables = notifications.map(notification => {
             let response = responses.find(res => {
