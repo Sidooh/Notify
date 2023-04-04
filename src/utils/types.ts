@@ -1,6 +1,11 @@
 import Joi from 'joi';
 
-export type SMSNotificationResults = { COMPLETED: bigint[], FAILED: bigint[] }
+export type SMSNotificationResults = {
+    REQUESTED?: bigint[],
+    COMPLETED?: bigint[],
+    PENDING?: bigint[],
+    FAILED?: bigint[]
+}
 
 export type NotifyRequestObjects = {
     query?: Joi.Schema,

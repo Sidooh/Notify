@@ -1,5 +1,5 @@
 import Joi, { ValidationError } from 'joi';
-import { ENV, Provider } from '../../utils/enums';
+import { ENV, Provider, Status } from '../../utils/enums';
 import prisma from '../../db/prisma';
 import { validateExists } from '../../utils/helpers';
 import { NotifyRequest } from '../../utils/types';
@@ -39,7 +39,8 @@ export const SmsProviderRequest: NotifyRequest = {
         body  : Joi.object({
             name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT),
             priority   : Joi.number().valid(1, 2, 3),
-            environment: Joi.string().valid(...Object.values(ENV).map(e => e))
+            environment: Joi.string().valid(...Object.values(ENV).map(e => e)),
+            status     : Joi.string().valid(Status.ACTIVE, Status.INACTIVE)
         })
     },
     destroy: {

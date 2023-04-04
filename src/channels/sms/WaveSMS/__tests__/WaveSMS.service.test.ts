@@ -2,6 +2,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { WaveSMS } from '@nabcellent/wavesms';
 import WaveSMSService from '../WaveSMS.service';
 import { Channel, EventType, Status } from '../../../../utils/enums';
+import { SMSNotificationResults } from '../../../../utils/types';
 
 let wave: WaveSMS, service: WaveSMSService, notification = {
     id         : 1n,
@@ -68,7 +69,9 @@ describe('WaveSMS service', () => {
 
     describe('send', () => {
         it('should send a message', async function() {
-            const sendSpy = vi.spyOn(service, 'send').mockResolvedValue(true);
+            const sendSpy = vi.spyOn(service, 'send').mockResolvedValue({
+                COMPLETED: [], FAILED: []
+            } as SMSNotificationResults);
             const messageSpy = vi.spyOn(service, 'message');
 
             const res = await service.message('Hello World!').send([notification]);
@@ -78,7 +81,7 @@ describe('WaveSMS service', () => {
             expect(messageSpy).toHaveBeenCalledWith('Hello World!');
             expect(messageSpy).toHaveReturnedWith(service);
 
-            expect(res).toStrictEqual(true);
+            expect(res).toStrictEqual({ COMPLETED: [], FAILED: [] });
         });
     });
 });

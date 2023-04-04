@@ -1,11 +1,11 @@
 import Controller from './controller';
-import { CallbackRepository } from '../../repositories/callback.repository';
 import { Request, Response } from 'express';
 import { log } from '../../utils/logger';
+import NotificationRepository from '../../repositories/notification.repository';
 
 export class CallbackController extends Controller {
 
-    constructor(private repo = new CallbackRepository) {
+    constructor(private repo = new NotificationRepository) {
         super('/callbacks');
 
         this.router.all(`${this.basePath}/wavesms`, this.#wavesms);

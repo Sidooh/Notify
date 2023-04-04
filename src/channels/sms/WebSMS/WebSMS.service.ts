@@ -6,8 +6,6 @@ import { env } from '../../../utils/validate.env';
 import db from '../../../db/prisma';
 import { WebSms, WebSmsConfig, WebSmsResponseData } from '@nabcellent/websms';
 import { SMSNotificationResults } from '../../../utils/types';
-import { SMS } from '../index';
-import { Help } from '../../../utils/helpers';
 
 const Notifiable = db.notifiable;
 
@@ -56,7 +54,7 @@ export default class WebSMSService implements ServiceInterface {
         return balance;
     };
 
-    send: (notifications: Notification[]) => Promise<boolean> = async (notifications: Notification[]) => {
+    send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
         log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
 
         const responses = await this.#WebSMS.sms.text(this.#message).to(this.#to).send()
@@ -84,11 +82,11 @@ export default class WebSMSService implements ServiceInterface {
         if (responses) {
             return await this.#save(notifications, responses);
         } else {
-            return false;
+            return { FAILED: notifications.map(n => n.id) };
         }
     };
 
-    #save = async (notifications: Notification[], responses: WebSmsResponseData[]): Promise<boolean> => {
+    #save = async (notifications: Notification[], responses: WebSmsResponseData[]): Promise<SMSNotificationResults> => {
         log.info(`WEBSMS: Save Callback`);
 
         const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
@@ -100,7 +98,7 @@ export default class WebSMSService implements ServiceInterface {
 
             let status = response?.code === 0 ? Status.COMPLETED : Status.FAILED;
 
-            results[status].push(notification.id);
+            results[status]!.push(notification.id);
 
             return {
                 notification_id: notification.id,
@@ -116,15 +114,6 @@ export default class WebSMSService implements ServiceInterface {
 
         await Notifiable.createMany({ data: notifiables });
 
-        if(results.COMPLETED.length > 0) {
-            await db.notification.updateMany({ where: { id: { in: results.COMPLETED } }, data: { status: Status.COMPLETED } })
-        }
-        if(results.FAILED.length > 0) {
-            await db.notification.updateMany({ where: { id: { in: results.FAILED } }, data: { status: Status.FAILED } })
-
-            new SMS(notifications, await Help.getSMSSettings()).retry(results.FAILED)
-        }
-
-        return true;
+        return results;
     };
 }

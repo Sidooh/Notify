@@ -11,10 +11,9 @@ import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
 export class JobController extends Controller {
     constructor() {
         super('/jobs');
-        this.#initRoutes();
-    }
 
-    #initRoutes(): void {
+        //  Initialize Routes
+        this.router.post(`${this.basePath}/query-notifications`, this.#queryNotifications);
         this.router.post(`${this.basePath}/providers/check-balances`, this.#checkServiceBalances);
     }
 
@@ -48,4 +47,10 @@ export class JobController extends Controller {
 
         return res.send(this.successResponse(Status.COMPLETED));
     };
+
+    #queryNotifications = async (req: Request, res: Response) => {
+        await new NotificationRepository().queryStatus()
+
+        return res.send(this.successResponse(Status.COMPLETED));
+    }
 }

@@ -39,6 +39,11 @@ export const NotificationRequest: NotifyRequest = {
             params: Joi.object({
                 notification: Joi.number().external(id => validateExists(prisma.notification, id)).required()
             })
+        },
+        checkNotification: {
+            params: Joi.object({
+                notification: Joi.number().external(id => validateExists(prisma.notification, id)).required()
+            })
         }
     }
 ;

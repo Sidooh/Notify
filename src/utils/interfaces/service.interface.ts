@@ -1,6 +1,6 @@
 import { Notification } from '@prisma/client';
-import { SentMessageInfo } from 'nodemailer';
+import { SMSNotificationResults } from '../types';
 
 export default interface ServiceInterface {
-    send(notifications: Notification[]): Promise<boolean | SentMessageInfo>;
+    send(notifications: Notification[]): Promise<SMSNotificationResults | any>;
 }
