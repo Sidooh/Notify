@@ -46,7 +46,7 @@ export class SmsProviderController extends Controller {
             provider = await this.repo.update({ name, environment, status }, { id: provider.id });
         }
 
-        if (priority !== provider.priority) {
+        if (priority && priority !== provider.priority) {
             provider = await this.repo.updatePriority(provider.id, provider.priority, priority) as SmsProvider;
         }
 

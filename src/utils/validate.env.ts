@@ -38,10 +38,12 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
-        WAVESMS_API_KEY   : str(),
-        WAVESMS_PARTNER_ID: str(),
-        WAVESMS_SENDER_ID : str({ default: 'Test' }),
-        WAVESMS_COST      : num({ default: .2 }),
+        WAVESMS_API_KEY      : str(),
+        WAVESMS_PARTNER_ID   : str(),
+        WAVESMS_SENDER_ID    : str(),
+        WAVESMS_COST         : num({ default: .2 }),
+
+        WAVESMS_DEV_SENDER_ID: str({ default: 'Test' }),
 
         WEBSMS_SANDBOX   : bool({ default: true }),
         WEBSMS_API_URL   : url({ default: 'https://api.onfonmedia.co.ke/v1/sms' }),
@@ -80,7 +82,7 @@ export default function validateEnv() {
         AT_USSD_THRESHOLD: num({ default: 500 }),
 
         SMS_RETRY_INTERVAL: num({ default: 45 }),
-        SMS_RETRIES: num({ default: 2 })
+        SMS_RETRIES       : num({ default: 2 })
     });
 }
 
