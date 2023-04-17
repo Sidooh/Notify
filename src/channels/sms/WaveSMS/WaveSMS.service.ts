@@ -1,6 +1,6 @@
 import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
-import { Provider, Telco } from '../../../utils/enums';
+import { ENV, Provider, Telco } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
 import { env } from '../../../utils/validate.env';
 import { WaveSMS, WaveSMSConfig, WaveSMSResponse } from '@nabcellent/wavesms';
@@ -15,12 +15,16 @@ export default class WaveSMSService implements ServiceInterface {
     #to: string[] = [];
     #WaveSMS: WaveSMS;
 
-    constructor() {
+    constructor(appEnv = process.env.NODE_ENV) {
         let config: WaveSMSConfig = {
             apiKey   : env.WAVESMS_API_KEY,
             partnerId: env.WAVESMS_PARTNER_ID,
             senderId : env.WAVESMS_SENDER_ID
         };
+
+        if (appEnv === ENV.DEVELOPMENT) {
+            config.senderId = env.WAVESMS_DEV_SENDER_ID
+        }
 
         this.#WaveSMS = new WaveSMS(config);
     }
@@ -49,7 +53,7 @@ export default class WaveSMSService implements ServiceInterface {
         log.info('[SRV WAVESMS]: Send - ', { notifications });
 
         //  TODO: Remove once we get airtel on WAVE.
-        this.#to = this.#to.filter(n => getTelcoFromPhone(n) === Telco.SAFARICOM)
+        this.#to = this.#to.filter(n => getTelcoFromPhone(n) !== Telco.AIRTEL)
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
             .then(data => {
@@ -64,11 +68,11 @@ export default class WaveSMSService implements ServiceInterface {
 
         if (responses) {
             //  TODO: Remove once we get airtel on WAVE.
-            const nonSafNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM);
+            const airtelNotifications = notifications.filter(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL);
 
-            const res = await this.#save(notifications.filter(n => getTelcoFromPhone(n.destination) === Telco.SAFARICOM), responses);
+            const res = await this.#save(notifications.filter(n => getTelcoFromPhone(n.destination) !== Telco.AIRTEL), responses);
 
-            nonSafNotifications.map(n => res.FAILED?.push(n.id));
+            airtelNotifications.map(n => res.FAILED?.push(n.id));
 
             return res;
         } else {

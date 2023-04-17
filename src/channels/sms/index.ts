@@ -33,7 +33,7 @@ export class SMS implements NotificationInterface {
                 this.service = new WebSMSService(this.smsSettings.websms_env);
                 break;
             default:
-                this.service = new WaveSMSService();
+                this.service = new WaveSMSService(this.smsSettings.wavesms_env);
         }
 
         await this.service.to(this.notifications.map(n => n.destination)).message(this.notifications[0].content).send(this.notifications)
@@ -55,8 +55,8 @@ export class SMS implements NotificationInterface {
             this.notifications = await this.repo.findMany({ where: { id: { in: ids } } });
 
             //  TODO: Remove once we get airtel on WAVE.
-            const notSafaricom = this.notifications.every(n => getTelcoFromPhone(n.destination) !== Telco.SAFARICOM)
-            if (this.tries > env.SMS_RETRIES || notSafaricom) {
+            const isAirtel = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL)
+            if (this.tries > env.SMS_RETRIES || isAirtel) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));
 
