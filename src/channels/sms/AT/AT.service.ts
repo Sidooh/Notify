@@ -20,7 +20,7 @@ export default class ATService implements ServiceInterface {
     #to: string[] = [];
     #AT;
 
-    constructor(appEnv = process.env.NODE_ENV, product = ATApp.SMS) {
+    constructor(appEnv = env.AT_SANDBOX, product = ATApp.SMS) {
         let credentials = {
             apiKey  : String(env.AT_SMS_API_KEY),
             username: String(env.AT_SMS_USERNAME)

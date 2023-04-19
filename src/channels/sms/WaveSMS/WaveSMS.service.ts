@@ -15,7 +15,7 @@ export default class WaveSMSService implements ServiceInterface {
     #to: string[] = [];
     #WaveSMS: WaveSMS;
 
-    constructor(appEnv = process.env.NODE_ENV) {
+    constructor(appEnv = env.WAVESMS_SANDBOX) {
         let config: WaveSMSConfig = {
             apiKey   : env.WAVESMS_API_KEY,
             partnerId: env.WAVESMS_PARTNER_ID,
@@ -23,7 +23,7 @@ export default class WaveSMSService implements ServiceInterface {
         };
 
         if (appEnv === ENV.DEVELOPMENT) {
-            config.senderId = env.WAVESMS_DEV_SENDER_ID
+            config.senderId = env.WAVESMS_DEV_SENDER_ID;
         }
 
         this.#WaveSMS = new WaveSMS(config);
@@ -53,7 +53,7 @@ export default class WaveSMSService implements ServiceInterface {
         log.info('[SRV WAVESMS]: Send - ', { notifications });
 
         //  TODO: Remove once we get airtel on WAVE.
-        this.#to = this.#to.filter(n => getTelcoFromPhone(n) !== Telco.AIRTEL)
+        this.#to = this.#to.filter(n => getTelcoFromPhone(n) !== Telco.AIRTEL);
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
             .then(data => {
