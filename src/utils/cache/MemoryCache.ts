@@ -1,4 +1,5 @@
 import NodeCache from 'node-cache';
+import { ICache } from './index';
 
 type CacheValue = any;
 
@@ -8,7 +9,7 @@ interface CacheOptions {
     useClones?: boolean;
 }
 
-class Cache {
+class Cache implements ICache {
     private cache: NodeCache;
 
     constructor(ttlSeconds: number, options: CacheOptions = {}) {
@@ -20,20 +21,16 @@ class Cache {
         });
     }
 
-    async get<V = any>(key: string, defaultValue: CacheValue = null): Promise<V> {
+    get<V = any>(key: string, defaultValue?: V): V | undefined {
         const value = this.cache.get<V>(key);
 
         if (value !== undefined) return value;
 
-        if (typeof defaultValue === 'function') {
-            const result = await defaultValue();
-
-            this.cache.set(key, result);
-
-            return result;
-        }
-
         return defaultValue;
+    }
+
+    getMany<V>(keys: string[]): { [x: string]: V } {
+        return this.cache.mget<V>(keys);
     }
 
     async put(key: string, value: CacheValue, ttlSeconds?: number): Promise<void> {
@@ -44,7 +41,13 @@ class Cache {
         }
     }
 
-    async forget(key: string): Promise<void> {
+    async putMany(entries: { key: string, value: any, ttl?: number }[]) {
+        entries.forEach(e => {
+            this.put(e.key, e.value, e.ttl);
+        });
+    }
+
+    forget(key: string | string[]): void {
         this.cache.del(key);
     }
 
@@ -55,11 +58,11 @@ class Cache {
     async remember<V = any>(key: string, ttlSeconds: number, callback: () => Promise<V>): Promise<V> {
         const value = await this.get(key);
 
-        if (value !== null) return value;
+        if (value) return value;
 
         const result = await callback();
 
-        await this.put(key, result, ttlSeconds);
+        this.cache.set(key, result, ttlSeconds);
 
         return result;
     }
@@ -77,30 +80,38 @@ class Cache {
         return result;
     }
 
-    async increment(key: string, value: number = 1): Promise<number> {
-        const result = await this.get(key, 0);
-        const newValue = parseInt(result) + parseInt(String(value));
+    increment(key: string, value: number = 1): number {
+        const result = this.get(key, 0);
+        const newValue = Number(result) + parseInt(String(value));
 
-        await this.put(key, newValue);
-
-        return newValue;
-    }
-
-    async decrement(key: string, value: number = 1): Promise<number> {
-        const result = await this.get(key, 0);
-        const newValue = parseInt(result) - parseInt(String(value));
-
-        await this.put(key, newValue);
+        this.put(key, newValue);
 
         return newValue;
     }
 
-    async pull(key: string, defaultValue: CacheValue = null): Promise<CacheValue> {
-        const value = await this.get(key, defaultValue);
+    decrement(key: string, value: number = 1): number {
+        const result = this.get(key, 0);
+        const newValue = Number(result) - parseInt(String(value));
 
-        await this.forget(key);
+        this.put(key, newValue);
+
+        return newValue;
+    }
+
+    pull<V>(key: string, defaultValue?: V): V | undefined {
+        const value = this.get(key, defaultValue);
+
+        this.cache.del(key);
 
         return value;
+    }
+
+    has(key: string): boolean {
+        return this.cache.has(key);
+    }
+
+    getTTL<T>(key: string): number | undefined {
+        return this.cache.getTtl(key);
     }
 }
 

@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { ICache } from './index';
 
 interface CacheItem<T = any> {
     data: T;
     expiration: number;
 }
 
-class Cache {
+class Cache implements ICache {
     private cachePath: string;
     private prefix?: string;
     private defaultTtl: number;
@@ -51,16 +52,8 @@ class Cache {
 
     putMany(entries: { key: string, value: any, ttl?: number }[]) {
         entries.forEach(e => {
-            this.put(e.key, e.value, e.ttl);
+            this.put(e.key, e.value, e.ttl ?? this.defaultTtl);
         });
-    }
-
-    add(key: string, value: any, ttl: number = this.defaultTtl): boolean {
-        if (this.has(key)) return false;
-
-        this.put(key, value, ttl);
-
-        return true;
     }
 
     forever(key: string, value: any): void {
@@ -70,7 +63,9 @@ class Cache {
     increment(key: string, value: number = 1): number {
         const currentValue = this.get(key, 0);
         const newValue = Number(currentValue) + value;
+
         this.put(key, newValue);
+
         return newValue;
     }
 
@@ -78,24 +73,26 @@ class Cache {
         return this.increment(key, -value);
     }
 
-    pull(key: string, defaultValue?: any): any {
-        const value = this.get(key, defaultValue);
+    pull<V>(key: string, defaultValue?: V): V {
+        const value = this.get<V>(key, defaultValue);
 
         this.forget(key);
 
         return value;
     }
 
-    forget(key: string): boolean {
-        const cacheFilePath = this.getCacheFilePath(key);
-
-        if (fs.existsSync(cacheFilePath)) {
-            fs.unlinkSync(cacheFilePath);
-
-            return true;
+    forget(keys: string | string[]): void {
+        if (!Array.isArray(keys)) {
+            keys = [keys];
         }
 
-        return false;
+        keys.forEach(key => {
+            const cacheFilePath = this.getCacheFilePath(key);
+
+            if (fs.existsSync(cacheFilePath)) {
+                fs.unlinkSync(cacheFilePath);
+            }
+        });
     }
 
     flush(): void {
@@ -122,10 +119,14 @@ class Cache {
         return this.get(key) !== undefined;
     }
 
-    private loadCacheItem<T>(key: string): CacheItem<T> | null {
+    getTTL(key: string): number | undefined {
+        return this.loadCacheItem(key)?.expiration;
+    }
+
+    private loadCacheItem<T>(key: string): CacheItem<T> | undefined {
         const cacheFilePath = this.getCacheFilePath(key);
 
-        if (!fs.existsSync(cacheFilePath)) return null;
+        if (!fs.existsSync(cacheFilePath)) return undefined;
 
         const cacheData = fs.readFileSync(cacheFilePath, 'utf8');
 
@@ -143,16 +144,6 @@ class Cache {
         const data = JSON.stringify(cacheItem);
 
         fs.writeFileSync(cacheFilePath, data, 'utf-8');
-    }
-
-    public getExpirationTime<T>(key: string): number {
-        const item = this.loadCacheItem<T>(key);
-
-        if (!item) {
-            return 0;
-        }
-
-        return item.expiration;
     }
 
     private deleteCacheDirectory(): void {
@@ -199,5 +190,5 @@ class Cache {
     }
 }
 
-const FileCache = new Cache('storage/cache');
+const FileCache = new Cache('storage/cache')
 export default FileCache;

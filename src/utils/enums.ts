@@ -54,3 +54,9 @@ export enum Telco {
     SAFARICOM = 'SAFARICOM',
     TELKOM = 'TELKOM',
 }
+
+export enum CacheDriver {
+    FILE = 'file',
+    MEMORY = 'memory',
+    DATABASE = 'database'
+}

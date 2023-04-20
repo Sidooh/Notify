@@ -1,7 +1,10 @@
 import { bool, cleanEnv, num, port, str, url } from 'envalid';
+import { CacheDriver } from './enums';
 
 export default function validateEnv() {
     return cleanEnv(process.env, {
+        CACHE_DRIVER: str<CacheDriver>({ default: 'file', choices: [CacheDriver.FILE, CacheDriver.MEMORY] }),
+
         PORT: port({ default: 8003 }),
 
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
@@ -28,7 +31,7 @@ export default function validateEnv() {
         MAIL_PASSWORD : str(),
         MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
-        AT_SANDBOX       : str({ default: 'development' }),
+        AT_SANDBOX     : str({ default: 'development' }),
         AT_SMS_API_KEY : str(),
         AT_SMS_USERNAME: str(),
         AT_SMS_FROM    : str(),
@@ -39,7 +42,7 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
-        WAVESMS_SANDBOX       : str({ default: 'development' }),
+        WAVESMS_SANDBOX   : str({ default: 'development' }),
         WAVESMS_API_KEY   : str(),
         WAVESMS_PARTNER_ID: str(),
         WAVESMS_SENDER_ID : str(),
