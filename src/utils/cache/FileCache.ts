@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-interface CacheItem {
-    data: any;
+interface CacheItem<T = any> {
+    data: T;
     expiration: number;
 }
 
@@ -21,13 +21,13 @@ class Cache {
         }
     }
 
-    get(cacheKey: string, defaultValue?: any): any {
-        const cacheItem = this.loadCacheItem(cacheKey);
+    get<T>(key: string, defaultValue?: any): T {
+        const cacheItem = this.loadCacheItem<T>(key);
 
         if (!cacheItem) return defaultValue;
 
         if (cacheItem.expiration !== 0 && cacheItem.expiration < Date.now()) {
-            this.forget(cacheKey);
+            this.forget(key);
 
             return defaultValue;
         }
@@ -35,48 +35,59 @@ class Cache {
         return cacheItem.data;
     }
 
-    put(cacheKey: string, value: any, ttl: number = this.defaultTtl): void {
+    getMany<V>(keys: string[]): { [x: string]: V } {
+        return keys.reduce((p, c) => ({ ...p, [c]: this.get<V>(c) }), {});
+    }
+
+    put(key: string, value: any, ttl: number = this.defaultTtl): void {
         const expiration = ttl === 0 ? 0 : Date.now() + ttl * 1000;
-        const cacheItem: CacheItem = {
+        const cacheItem: CacheItem<any> = {
             data      : value,
             expiration: expiration
         };
-        this.saveCacheItem(cacheKey, cacheItem);
+
+        this.saveCacheItem(key, cacheItem);
     }
 
-    add(cacheKey: string, value: any, ttl: number = this.defaultTtl): boolean {
-        if (this.has(cacheKey)) {
-            return false;
-        }
-        this.put(cacheKey, value, ttl);
+    putMany(entries: { key: string, value: any, ttl?: number }[]) {
+        entries.forEach(e => {
+            this.put(e.key, e.value, e.ttl);
+        });
+    }
+
+    add(key: string, value: any, ttl: number = this.defaultTtl): boolean {
+        if (this.has(key)) return false;
+
+        this.put(key, value, ttl);
+
         return true;
     }
 
-    forever(cacheKey: string, value: any): void {
-        this.put(cacheKey, value, 0);
+    forever(key: string, value: any): void {
+        this.put(key, value, 0);
     }
 
-    increment(cacheKey: string, value: number = 1): number {
-        const currentValue = this.get(cacheKey, 0);
+    increment(key: string, value: number = 1): number {
+        const currentValue = this.get(key, 0);
         const newValue = Number(currentValue) + value;
-        this.put(cacheKey, newValue);
+        this.put(key, newValue);
         return newValue;
     }
 
-    decrement(cacheKey: string, value: number = 1): number {
-        return this.increment(cacheKey, -value);
+    decrement(key: string, value: number = 1): number {
+        return this.increment(key, -value);
     }
 
-    pull(cacheKey: string, defaultValue?: any): any {
-        const value = this.get(cacheKey, defaultValue);
+    pull(key: string, defaultValue?: any): any {
+        const value = this.get(key, defaultValue);
 
-        this.forget(cacheKey);
+        this.forget(key);
 
         return value;
     }
 
-    forget(cacheKey: string): boolean {
-        const cacheFilePath = this.getCacheFilePath(cacheKey);
+    forget(key: string): boolean {
+        const cacheFilePath = this.getCacheFilePath(key);
 
         if (fs.existsSync(cacheFilePath)) {
             fs.unlinkSync(cacheFilePath);
@@ -91,38 +102,38 @@ class Cache {
         this.deleteCacheDirectory();
     }
 
-    remember(cacheKey: string, ttl: number, callback: Function): any {
-        const value = this.get(cacheKey);
+    async remember<T>(key: string, ttl: number, callback: () => Promise<T>): Promise<T> {
+        const value = this.get<T>(key);
 
-        if (value !== undefined) return value;
+        if (value) return value;
 
-        const newValue = callback();
+        const result = await callback();
 
-        this.put(cacheKey, newValue, ttl);
+        this.put(key, result, ttl);
 
-        return newValue;
+        return result;
     }
 
-    rememberForever(cacheKey: string, callback: Function): any {
-        return this.remember(cacheKey, 0, callback);
+    async rememberForever<T>(key: string, callback: () => Promise<T>): Promise<T> {
+        return await this.remember(key, 0, callback);
     }
 
-    has(cacheKey: string): boolean {
-        return this.get(cacheKey) !== undefined;
+    has(key: string): boolean {
+        return this.get(key) !== undefined;
     }
 
-    private loadCacheItem(cacheKey: string): CacheItem | null {
-        const cacheFilePath = this.getCacheFilePath(cacheKey);
+    private loadCacheItem<T>(key: string): CacheItem<T> | null {
+        const cacheFilePath = this.getCacheFilePath(key);
 
         if (!fs.existsSync(cacheFilePath)) return null;
 
         const cacheData = fs.readFileSync(cacheFilePath, 'utf8');
 
-        return JSON.parse(cacheData) as CacheItem;
+        return JSON.parse(cacheData) as CacheItem<T>;
     }
 
-    private saveCacheItem(cacheKey: string, cacheItem: CacheItem): void {
-        const cacheFilePath = this.getCacheFilePath(cacheKey);
+    private saveCacheItem(key: string, cacheItem: CacheItem<any>): void {
+        const cacheFilePath = this.getCacheFilePath(key);
         const cacheDirectory = path.dirname(cacheFilePath);
 
         if (!fs.existsSync(cacheDirectory)) {
@@ -134,12 +145,14 @@ class Cache {
         fs.writeFileSync(cacheFilePath, data, 'utf-8');
     }
 
-    private deleteCacheFile(cacheKey: string): void {
-        const cacheFilePath = this.getCacheFilePath(cacheKey);
+    public getExpirationTime<T>(key: string): number {
+        const item = this.loadCacheItem<T>(key);
 
-        if (fs.existsSync(cacheFilePath)) {
-            fs.unlinkSync(cacheFilePath);
+        if (!item) {
+            return 0;
         }
+
+        return item.expiration;
     }
 
     private deleteCacheDirectory(): void {
@@ -174,13 +187,13 @@ class Cache {
                 }
             });
 
-            fs.rmdirSync(directoryPath);
+            fs.rmSync(directoryPath);
         }
     }
 
-    private getCacheFilePath(cacheKey: string): string {
+    private getCacheFilePath(key: string): string {
         const prefix = this.prefix ? this.prefix + ':' : '';
-        const cacheFileName = `${prefix}${cacheKey}.cache`;
+        const cacheFileName = `${prefix}${key}.cache`;
 
         return path.join(this.cachePath, cacheFileName);
     }
