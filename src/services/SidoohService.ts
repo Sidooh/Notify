@@ -5,9 +5,7 @@ import MemoryCache from '../utils/cache/MemoryCache';
 
 export default class SidoohService {
     static http = async (): Promise<AxiosInstance> => {
-        let token = await MemoryCache.remember<string>('auth_token', (60 * 15), async () => {
-            return await this.authenticate();
-        });
+        let token = await MemoryCache.remember('auth_token', 1, async () => await this.authenticate());
 
         return axios.create({
             headers     : {
