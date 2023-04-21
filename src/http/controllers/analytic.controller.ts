@@ -16,7 +16,8 @@ export class AnalyticController extends Controller {
     #initRoutes(): void {
         this.router.get(`${this.basePath}/notifications`, this.#notifications);
         this.router.get(`${this.basePath}/notification-costs`, this.#notificationCosts);
-        this.router.get(`${this.basePath}/vendors-slos`, this.#vendorsSLOs);
+        this.router.get(`${this.basePath}/notifications-slo`, this.#notificationsSLO);
+        this.router.get(`${this.basePath}/vendors-slo`, this.#vendorsSLO);
     }
 
     #notifications = async (req: Request, res: Response) => {
@@ -44,11 +45,19 @@ export class AnalyticController extends Controller {
         return res.send(this.successResponse(data));
     };
 
-    #vendorsSLOs = async (req: Request, res: Response) => {
-        let data = await FileCache.remember('vendor_slos', (3600 * 24 * 7), async () => {
+    #notificationsSLO = async (req: Request, res: Response) => {
+        const data = await FileCache.remember('notifications_slo', (3600 * 24 * 7), async () => {
+            return await prisma.$queryRaw`SELECT YEAR(created_at) AS year, status, COUNT(*) as count
+                                          FROM notifications
+                                          GROUP BY year, status;`;
+        });
+
+        return res.send(this.successResponse(data));
+    };
+
+    #vendorsSLO = async (req: Request, res: Response) => {
+        let data = await FileCache.remember('vendor_slo', (3600 * 24 * 7), async () => {
             return {
-                notifications : (await prisma.$queryRaw`SELECT ROUND(SUM(CASE WHEN status = 'COMPLETED' THEN 1 END) / COUNT(*) * 100) AS slo
-                                                        FROM notifications;` as SLOResult)[0].slo,
                 wavesms       : (await prisma.$queryRaw`SELECT ROUND(SUM(CASE WHEN status = 'COMPLETED' THEN 1 END) / COUNT(*) * 100) AS slo
                                                         FROM notifiables
                                                         WHERE provider = ${Provider.WAVESMS};` as SLOResult)[0].slo,
