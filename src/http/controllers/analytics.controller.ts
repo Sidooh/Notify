@@ -21,7 +21,7 @@ export class AnalyticsController extends Controller {
     }
 
     #notifications = async (req: Request, res: Response) => {
-        if(req.query['bypass-cache'] === 'true') FileCache.forget('count_notifications_analytics')
+        if(req.query.bypass_cache === 'true') FileCache.forget('count_notifications_analytics')
 
         let data = await FileCache.remember('count_notifications_analytics', (3600 * 24), async () => {
             return await prisma.$queryRaw`SELECT status, DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
@@ -34,7 +34,7 @@ export class AnalyticsController extends Controller {
     };
 
     #notificationCosts = async (req: Request, res: Response) => {
-        if(req.query['bypass-cache'] === 'true') FileCache.forget('notification_costs_analytics')
+        if(req.query.bypass_cache === 'true') FileCache.forget('notification_costs_analytics')
 
         let data = await FileCache.remember('notification_costs_analytics', (3600 * 24), async () => {
             return await prisma.$queryRaw`SELECT status,
@@ -50,7 +50,7 @@ export class AnalyticsController extends Controller {
     };
 
     #notificationsSLO = async (req: Request, res: Response) => {
-        if(req.query['bypass-cache'] === 'true') FileCache.forget('notifications_slo')
+        if(req.query.bypass_cache === 'true') FileCache.forget('notifications_slo')
 
         const data = await FileCache.remember('notifications_slo', (3600 * 24 * 7), async () => {
             return await prisma.$queryRaw`SELECT YEAR(created_at) AS year, status, COUNT(*) as count
@@ -62,7 +62,7 @@ export class AnalyticsController extends Controller {
     };
 
     #vendorsSLO = async (req: Request, res: Response) => {
-        if(req.query['bypass-cache'] === 'true') FileCache.forget('vendor_slo')
+        if(req.query.bypass_cache === 'true') FileCache.forget('vendor_slo')
 
         let data = await FileCache.remember('vendor_slo', (3600 * 24 * 7), async () => {
             return {
