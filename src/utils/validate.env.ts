@@ -1,7 +1,10 @@
 import { bool, cleanEnv, num, port, str, url } from 'envalid';
+import { CacheDriver } from './enums';
 
 export default function validateEnv() {
     return cleanEnv(process.env, {
+        CACHE_DRIVER: str<CacheDriver>({ default: 'file', choices: [CacheDriver.FILE, CacheDriver.MEMORY] }),
+
         PORT: port({ default: 8003 }),
 
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
@@ -28,6 +31,7 @@ export default function validateEnv() {
         MAIL_PASSWORD : str(),
         MAIL_FROM_NAME: str({ default: 'SIDOOH' }),
 
+        AT_SANDBOX     : str({ default: 'development' }),
         AT_SMS_API_KEY : str(),
         AT_SMS_USERNAME: str(),
         AT_SMS_FROM    : str(),
@@ -38,14 +42,15 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
-        WAVESMS_API_KEY      : str(),
-        WAVESMS_PARTNER_ID   : str(),
-        WAVESMS_SENDER_ID    : str(),
-        WAVESMS_COST         : num({ default: .2 }),
+        WAVESMS_SANDBOX   : str({ default: 'development' }),
+        WAVESMS_API_KEY   : str(),
+        WAVESMS_PARTNER_ID: str(),
+        WAVESMS_SENDER_ID : str(),
+        WAVESMS_COST      : num({ default: .2 }),
 
         WAVESMS_DEV_SENDER_ID: str({ default: 'Test' }),
 
-        WEBSMS_SANDBOX   : bool({ default: true }),
+        WEBSMS_SANDBOX   : str({ default: 'development' }),
         WEBSMS_API_URL   : url({ default: 'https://api.onfonmedia.co.ke/v1/sms' }),
         WEBSMS_ACCESS_KEY: str(),
         WEBSMS_API_KEY   : str(),

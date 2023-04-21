@@ -14,7 +14,7 @@ export default class WebSMSService implements ServiceInterface {
     #to: string[] = [];
     #WebSMS: WebSms;
 
-    constructor(appEnv = process.env.NODE_ENV) {
+    constructor(appEnv = env.WEBSMS_SANDBOX) {
         let config: WebSmsConfig = {
             accessKey: env.WEBSMS_ACCESS_KEY,
             apiKey   : env.WEBSMS_API_KEY,
