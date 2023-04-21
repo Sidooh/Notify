@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
-import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import ATService, { ATApp } from '../../channels/sms/AT/AT.service';
 import Controller from './controller';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
-import prisma from '../../db/prisma';
 import NotificationRepository from '../../repositories/notification.repository';
+import FileCache from '../../utils/cache/FileCache';
+import db from '../../db/prisma';
 
-const Notification = prisma.notification;
+const Notification = db.notification;
 
 export class DashboardController extends Controller {
     constructor() {
@@ -25,32 +25,37 @@ export class DashboardController extends Controller {
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
-        let data = await prisma.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
+        let data = await FileCache.remember('dashboard_chart', 3600, async () => {
+            return await db.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
                                           FROM notifications
                                           GROUP BY date
                                           ORDER BY date`;
+        });
 
         return res.send(this.successResponse(data));
     };
 
     #getSummaries = async (req: Request, res: Response) => {
-        const smsSettings = await Help.getSMSSettings();
-
         const startOfDay = moment().startOf('day').toDate();
-        return res.send(this.successResponse({
-            total_notifications      : await Notification.count(),
-            total_notifications_today: await Notification.count({
-                where: { created_at: { gte: startOfDay } }
-            }),
 
-            sms_costs      : await prisma.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
-            sms_costs_today: await prisma.notifiable.aggregate({
-                where: { created_at: { gte: startOfDay } },
-                _sum : { cost: true }
-            }).then(r => r._sum.cost ?? 0),
+        const data = await FileCache.remember('dashboard_summaries', (3600), async () => {
+            return {
+                total_notifications      : await Notification.count(),
+                total_notifications_today: await Notification.count({
+                    where: { created_at: { gte: startOfDay } }
+                }),
 
-            default_sms_provider: smsSettings.default_provider
-        }));
+                sms_costs      : await db.notifiable.aggregate({ _sum: { cost: true } }).then(r => r._sum.cost),
+                sms_costs_today: await db.notifiable.aggregate({
+                    where: { created_at: { gte: startOfDay } },
+                    _sum : { cost: true }
+                }).then(r => r._sum.cost ?? 0),
+
+                default_sms_provider: (await db.setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value
+            }
+        })
+
+        return res.send(this.successResponse(data));
     };
 
     #getRecentNotifications = async (req: Request, res: Response) => {
@@ -67,11 +72,11 @@ export class DashboardController extends Controller {
         return res.send(this.successResponse({
             wavesms_balance       : await new WaveSMSService().balance(),
             websms_balance        : await new WebSMSService().balance(),
-            africastalking_balance: await new ATService().balance() / .8,
+            africastalking_balance: await new ATService().balance() / .8
         }));
     };
 
-    #getUSSDBalance = async(req:Request, res:Response)=> {
-        return res.send(this.successResponse(await new ATService(process.env.NODE_ENV, ATApp.USSD).balance() * .8))
-    }
+    #getUSSDBalance = async (req: Request, res: Response) => {
+        return res.send(this.successResponse(await new ATService(process.env.NODE_ENV, ATApp.USSD).balance() * .8));
+    };
 }

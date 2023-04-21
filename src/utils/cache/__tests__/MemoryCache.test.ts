@@ -25,6 +25,7 @@ describe('MemoryCache', () => {
             const updatedValue = 'updatedValue';
 
             MemoryCache.put(key, initialValue, 1);
+
             const originalExpirationTime = MemoryCache.getTTL(key);
 
             // Wait for 1.5 seconds to ensure cache entry has expired
