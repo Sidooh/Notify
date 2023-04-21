@@ -16,6 +16,7 @@ import * as Tracing from '@sentry/tracing';
 import { env } from './utils/validate.env';
 import { JobController } from './http/controllers/job.controller';
 import { CallbackController } from './http/controllers/callback.controller';
+import { AnalyticController } from './http/controllers/analytic.controller';
 
 class App {
     public app: Application;
@@ -71,7 +72,8 @@ class App {
             new NotificationController,
             new SettingController,
             new SmsProviderController,
-            new DashboardController
+            new DashboardController,
+            new AnalyticController
         ].forEach(controller => this.app.use('/api/v1', [Auth], controller.router));
 
         //  Unauthenticated Routes
