@@ -49,7 +49,7 @@
       "@types/nodemailer": "^6.4.6",
       "@types/supertest": "^2.0.12",
       "@vitest/coverage-c8": "^0.29.2",
-      "prisma": "^4.11.0",
+      "prisma": "^4.13.0",
       "supertest": "^6.3.1",
       "ts-node": "^10.9.1",
       "typescript": "^4.9.3",

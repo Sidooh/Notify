@@ -55,7 +55,7 @@ export class SMS implements NotificationInterface {
             this.notifications = await this.repo.findMany({ where: { id: { in: ids } } });
 
             //  TODO: Remove once we get airtel on WAVE.
-            const isAirtel = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL)
+            const isAirtel = this.notifications.every(n => getTelcoFromPhone(n.destination) === Telco.AIRTEL);
             if (this.tries > env.SMS_RETRIES || isAirtel) {
                 this.triedProviders.push(this.smsSettings.default_provider);
                 this.smsSettings.providers = this.smsSettings.providers.filter(p => !this.triedProviders.includes(p.name));

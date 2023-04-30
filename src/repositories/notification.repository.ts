@@ -164,12 +164,9 @@ export default class NotificationRepository {
             log.info(`Querying: ${messageId}`);
 
             const update = async (status: Status, data: Prisma.XOR<Prisma.NotifiableUpdateInput, Prisma.NotifiableUncheckedUpdateInput>) => {
-                data.status = status;
-                data.notification = {
-                    update: { status }
-                };
-
-                await Notifiable.update({ where: { id: notifiableId }, data });
+                await Notifiable.update({
+                    where: { id: notifiableId }, data: { status, notification: { update: { status } } }
+                });
             };
 
             if (provider === Provider.WAVESMS) {

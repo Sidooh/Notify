@@ -21,8 +21,9 @@ export class JobController extends Controller {
         if (!env.SP_BALANCE_NOTIFICATION_ENABLED) return res.send({});
 
         const smsSettings = await Help.getSMSSettings();
+
         const websms = await new WebSMSService(smsSettings.websms_env).balance();
-        const wavesms = await new WaveSMSService().balance();
+        const wavesms = await new WaveSMSService(smsSettings.wavesms_env).balance();
         const africasTalking = {
             sms : await new ATService(smsSettings.africastalking_env).balance(),
             ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance() * .8

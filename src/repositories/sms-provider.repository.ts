@@ -2,6 +2,7 @@ import db from '../db/prisma';
 import { Prisma, SmsProvider as SmsProviderType } from '@prisma/client';
 import { log } from '../utils/logger';
 import { BadRequestError } from '../exceptions/bad-request.err';
+import FileCache from '../utils/cache/FileCache';
 
 const SmsProvider = db.smsProvider;
 
@@ -19,12 +20,12 @@ export class SmsProviderRepository {
     }
 
     update = async (data: Prisma.SmsProviderUpdateInput, where: Prisma.SmsProviderWhereUniqueInput) => {
+        FileCache.forget('sms_provider_settings')
+
         return await SmsProvider.update({ data, where });
     };
 
     async updatePriority(id: bigint, currentPriority: number, newPriority: number): Promise<SmsProviderType | null> {
-        const count = await SmsProvider.count()
-
         await db.$queryRaw`UPDATE sms_providers
                            SET priority = CASE
                                               WHEN priority = ${currentPriority} THEN ${newPriority}
