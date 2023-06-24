@@ -90,7 +90,7 @@ export default class WaveSMSService implements ServiceInterface {
                 return String(notification.destination).slice(-9) == String(res.mobile).slice(-9);
             });
 
-            if (response?.code === 1007) {
+            if (!response?.code || [1007, 1004].includes(response?.code)) {
                 results.FAILED?.push(notification.id);
             } else if (response?.code === 200) {
                 results.REQUESTED?.push(notification.id);
