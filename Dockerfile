@@ -1,9 +1,11 @@
 # Build Stage 1
 # This build created a staging docker image
 #
-FROM node:lts-slim as build
+FROM node:lts-slim as base
 
 WORKDIR /app
+
+ENV NODE_ENV=production
 
 COPY ["package.json", "yarn.lock", ".yarnrc.yml", "./"]
 COPY [".yarn/plugins/", "./.yarn/plugins/"]
@@ -14,7 +16,6 @@ RUN yarn
 COPY ["src/", "./src/"]
 COPY ["tsconfig.json", "prisma", "./"]
 
-ENV NODE_ENV=production
 RUN apt-get update -y && apt-get install -y openssl
 RUN npx prisma generate
 RUN yarn build
@@ -24,11 +25,10 @@ RUN yarn build
 # Build Stage 2
 # This build takes the production build from staging build
 #
-FROM build
-WORKDIR /app
+FROM base
 
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/dist .
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/dist .
 
 EXPOSE 8003
 
