@@ -7,6 +7,8 @@ import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
 import NotificationRepository from '../../repositories/notification.repository';
 import FileCache from '../../utils/cache/FileCache';
 import db from '../../db/prisma';
+import { Prisma } from '@prisma/client';
+import { log } from '../../utils/logger';
 
 const Notification = db.notification;
 
@@ -25,14 +27,28 @@ export class DashboardController extends Controller {
     }
 
     #dashboardChart = async (req: Request, res: Response) => {
-        let data = await FileCache.remember('dashboard_chart', 3600, async () => {
-            return await db.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
+        try {
+            let data = await FileCache.remember('dashboard_chart', 3600, async () => {
+                return await db.$queryRaw`SELECT DATE_FORMAT(created_at, '%Y%m%d%H') as date, COUNT(id) as count
                                           FROM notifications
                                           GROUP BY date
                                           ORDER BY date`;
-        });
+            });
 
-        return res.send(this.successResponse(data));
+            return res.send(this.successResponse(data));
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                log.error(e.code);
+
+                if (e.code === 'P2002') {
+                    console.log(
+                        'There is a unique constraint violation, a new user cannot be created with this email'
+                    )
+                }
+            }
+
+            throw e
+        }
     };
 
     #getSummaries = async (req: Request, res: Response) => {
