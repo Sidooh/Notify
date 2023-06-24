@@ -14,6 +14,8 @@ RUN yarn
 COPY ["src/", "./src/"]
 COPY ["tsconfig.json", "prisma", "./"]
 
+ENV NODE_ENV=production
+RUN apt-get update -y && apt-get install -y openssl
 RUN npx prisma generate
 RUN yarn build
 
@@ -22,7 +24,7 @@ RUN yarn build
 # Build Stage 2
 # This build takes the production build from staging build
 #
-FROM node:lts-slim
+FROM build
 WORKDIR /app
 
 COPY --from=build /app/node_modules ./node_modules
