@@ -63,24 +63,19 @@ export default class ATService implements ServiceInterface {
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
-        const options = {
+        return await this.#AT.send({
             to     : this.#to,
             from   : env.AT_SMS_FROM,
             message: this.#message
-        };
+        }).then(async (response: any) => {
+            log.info('AT: RESPONSE - ', response);
 
-        log.info('AT: SEND NOTIFICATION - ', options);
+            return await this.#save(notifications, response);
+        }).catch((error: any) => {
+            log.error(error);
 
-        return await this.#AT.send(options)
-            .then(async (response: any) => {
-                log.info('AT: RESPONSE - ', response);
-
-                return await this.#save(notifications, response);
-            }).catch((error: any) => {
-                log.error(error);
-
-                return { COMPLETED: [], FAILED: notifications.map(n => Number(n.id)) };
-            });
+            return { COMPLETED: [], FAILED: notifications.map(n => Number(n.id)) };
+        });
     };
 
     #save = async (notifications: Notification[], callback: any): Promise<SMSNotificationResults> => {

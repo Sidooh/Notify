@@ -65,8 +65,6 @@ export default class NotificationRepository {
     };
 
     notify = async (channel, content, event_type, destinations) => {
-        log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
-
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
         if (!Array.isArray(destinations)) destinations = [destinations];
 
@@ -80,10 +78,6 @@ export default class NotificationRepository {
     };
 
     send = async (channel: Channel | string, notifications: NotificationType[]): Promise<void | boolean> => {
-        const destinations = notifications.map(n => n.destination);
-
-        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
-
         let channelService;
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
@@ -156,7 +150,7 @@ export default class NotificationRepository {
             }
         });
 
-        new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
+        new SMS([notifiable.notification], await Help.getSMSSettings()).send();
     };
 
     queryStatus = async (notifiableId?: bigint) => {

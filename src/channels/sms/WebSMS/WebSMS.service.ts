@@ -55,8 +55,6 @@ export default class WebSMSService implements ServiceInterface {
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
-        log.info('WEBSMS: SEND NOTIFICATION - ', { message: this.#message, to: this.#to });
-
         const responses = await this.#WebSMS.sms.text(this.#message).to(this.#to).send()
             .then(response => {
                 log.info(`WEBSMS: RESPONSE`, response);
@@ -87,8 +85,6 @@ export default class WebSMSService implements ServiceInterface {
     };
 
     #save = async (notifications: Notification[], responses: WebSmsResponseData[]): Promise<SMSNotificationResults> => {
-        log.info(`WEBSMS: Save Callback`);
-
         const results: SMSNotificationResults = { [Status.COMPLETED]: [], [Status.FAILED]: [] };
 
         const notifiables = notifications.map(notification => {

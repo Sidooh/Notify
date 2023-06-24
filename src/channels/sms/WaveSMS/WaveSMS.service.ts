@@ -50,8 +50,6 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
-        log.info('[SRV WAVESMS]: Send - ', { notifications });
-
         //  TODO: Remove once we get airtel on WAVE.
         this.#to = this.#to.filter(n => getTelcoFromPhone(n) !== Telco.AIRTEL);
 
@@ -81,8 +79,6 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<SMSNotificationResults> => {
-        log.info(`[SRV WAVESMS]: Save`);
-
         const results: SMSNotificationResults = { REQUESTED: [], FAILED: [] };
 
         const notifiables = notifications.map(notification => {
