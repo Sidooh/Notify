@@ -62,6 +62,7 @@ class App {
         this.app.use(helmet());
         this.app.use(json());
         this.app.use(urlencoded({ extended: false }));
+        // @ts-ignore
         this.app.use(cookieParser());
         this.app.use(User);
     }
