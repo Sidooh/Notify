@@ -7,14 +7,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY ["package.json", "yarn.lock", ".yarnrc.yml", "./"]
+COPY ["package.json", "yarn.lock", ".yarnrc.yml", "tsconfig.json", "prisma", "./"]
 COPY [".yarn/plugins/", "./.yarn/plugins/"]
 COPY [".yarn/releases/", "./.yarn/releases/"]
+COPY ["src/", "./src/"]
 
 RUN yarn
-
-COPY ["src/", "./src/"]
-COPY ["tsconfig.json", "prisma", "./"]
 
 RUN apt-get update -y && apt-get install -y openssl
 RUN npx prisma generate
