@@ -1,4 +1,3 @@
-import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { ENV, Provider, Status } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
@@ -6,10 +5,11 @@ import { env } from '../../../utils/validate.env';
 import db from '../../../db/prisma';
 import { WebSms, WebSmsConfig, WebSmsResponseData } from '@nabcellent/websms';
 import { SMSNotificationResults } from '../../../utils/types';
+import SmsServiceInterface from '../../../utils/interfaces/sms-service.interface';
 
 const Notifiable = db.notifiable;
 
-export default class WebSMSService implements ServiceInterface {
+export default class WebSMSService implements SmsServiceInterface {
     #message: string = '';
     #to: string[] = [];
     #WebSMS: WebSms;
@@ -89,7 +89,7 @@ export default class WebSMSService implements ServiceInterface {
 
         const notifiables = notifications.map(notification => {
             const response = responses.find(res => {
-                return String(notification.destination).slice(-9) == String(res.phone).slice(-9);
+                return notification.destination.slice(-9) == String(res.phone).slice(-9);
             });
 
             let status = response?.code === 0 ? Status.COMPLETED : Status.FAILED;

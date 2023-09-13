@@ -8,6 +8,7 @@ export enum Status {
 export enum Provider {
     WEBSMS = 'WEBSMS',
     WAVESMS = 'WAVESMS',
+    WASILIANA = 'WASILIANA',
     AT = 'AFRICASTALKING',
     SLACK = 'SLACK',
     GMAIL = 'GMAIL',

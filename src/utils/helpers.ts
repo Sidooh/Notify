@@ -1,4 +1,4 @@
-import { Provider, Telco } from './enums';
+import { Provider, Status, Telco } from './enums';
 import jwt from 'jsonwebtoken';
 import { env } from './validate.env';
 import moment from 'moment';
@@ -12,6 +12,7 @@ const SmsProvider = db.smsProvider;
 export type SMSSettings = {
     default_provider: string,
     websms_env?: string,
+    wasiliana_env?: string,
     wavesms_env?: string,
     africastalking_env?: string,
     providers: SmsProvider[]
@@ -29,13 +30,15 @@ export const Help = {
     getSMSSettings: async (): Promise<SMSSettings> => {
         return await FileCache.remember('sms_provider_settings', (3600 * 24 * 30), async () => {
             const providers = await SmsProvider.findMany({
-                select: { id: true, name: true, priority: true, environment: true }
+                select: { id: true, name: true, priority: true, environment: true },
+                where : { status: Status.ACTIVE }
             });
 
             return {
                 default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value ?? Provider.WEBSMS,
                 websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment,
                 wavesms_env       : providers?.find(p => p.name === Provider.WAVESMS)?.environment,
+                wasiliana_env     : providers?.find(p => p.name === Provider.WASILIANA)?.environment,
                 africastalking_env: providers?.find(p => p.name === Provider.AT)?.environment,
                 providers         : providers?.sort((a, b) => a.priority - b.priority) as SmsProvider[]
             };
@@ -79,4 +82,18 @@ export const getTelcoFromPhone = (phone: string | number) => {
     } else if (phone.match(faibaRegEx)) {
         return Telco.FAIBA;
     }
+};
+
+export const partition = <T>(collection: T[], callback: (item: T) => boolean): [T[], T[]] => {
+    const [pass, fail]: [T[], T[]] = [[], []];
+
+    for (const item of collection) {
+        if (callback(item)) {
+            pass.push(item);
+        } else {
+            fail.push(item);
+        }
+    }
+
+    return [pass, fail];
 };

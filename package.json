@@ -16,6 +16,7 @@
       "test:ui": "vitest --ui"
    },
    "dependencies": {
+      "@nabcellent/wasiliana": "^0.2.1",
       "@nabcellent/wavesms": "^2.0.7",
       "@nabcellent/websms": "^3.0.3",
       "@prisma/client": "4.16.1",

@@ -1,4 +1,3 @@
-import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { AfricasTalking } from './Lib/client';
 import { ENV, Provider, Status } from '../../../utils/enums';
@@ -6,6 +5,7 @@ import { env } from '../../../utils/validate.env';
 import prisma from '../../../db/prisma';
 import { Notification } from '@prisma/client';
 import { SMSNotificationResults } from '../../../utils/types';
+import SmsServiceInterface from '../../../utils/interfaces/sms-service.interface';
 
 const Notifiable = prisma.notifiable;
 
@@ -15,7 +15,7 @@ export enum ATApp {
 }
 
 
-export default class ATService implements ServiceInterface {
+export default class ATService implements SmsServiceInterface {
     #message: string = '';
     #to: string[] = [];
     #AT;

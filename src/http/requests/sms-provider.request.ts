@@ -8,7 +8,7 @@ const SMSProvider = prisma.smsProvider;
 
 export const SmsProviderRequest: NotifyRequest = {
     store  : Joi.object({
-        name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT).external(async (value) => {
+        name       : Joi.string().valid(Provider.WASILIANA, Provider.WAVESMS, Provider.WEBSMS, Provider.AT).external(async (value) => {
             const provider = await SMSProvider.findFirst({ where: { name: value } });
 
             if (provider) throw new ValidationError('Name already exists!', [{
@@ -19,7 +19,7 @@ export const SmsProviderRequest: NotifyRequest = {
 
             return value;
         }).required(),
-        priority   : Joi.number().valid(1, 2, 3).external(async (value, helpers) => {
+        priority   : Joi.number().integer().min(1).max(4).external(async (value, helpers) => {
             const provider = await SMSProvider.findFirst({ where: { priority: value } });
 
             if (provider) throw new ValidationError('Priority already taken!', [{
@@ -37,7 +37,7 @@ export const SmsProviderRequest: NotifyRequest = {
             provider: Joi.number().label('id').external(id => validateExists(SMSProvider, id)).required()
         }),
         body  : Joi.object({
-            name       : Joi.string().valid(Provider.WAVESMS, Provider.WEBSMS, Provider.AT),
+            name       : Joi.string().valid(Provider.WASILIANA, Provider.WAVESMS, Provider.WEBSMS, Provider.AT),
             priority   : Joi.number().valid(1, 2, 3),
             environment: Joi.string().valid(...Object.values(ENV).map(e => e)),
             status     : Joi.string().valid(Status.ACTIVE, Status.INACTIVE)

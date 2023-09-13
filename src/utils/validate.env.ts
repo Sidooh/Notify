@@ -42,6 +42,11 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
+        WASILIANA_SANDBOX   : str({ default: 'development' }),
+        WASILIANA_API_KEY   : str(),
+        WASILIANA_SENDER_ID : str(),
+        WASILIANA_COST      : num({ default: .2 }),
+
         WAVESMS_SANDBOX   : str({ default: 'development' }),
         WAVESMS_API_KEY   : str(),
         WAVESMS_PARTNER_ID: str(),

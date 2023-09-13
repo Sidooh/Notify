@@ -8,14 +8,16 @@ import { SMSSettings } from '../../utils/helpers';
 import NotificationRepository from '../../repositories/notification.repository';
 import WaveSMSService from './WaveSMS/WaveSMS.service';
 import { env } from '../../utils/validate.env';
+import WasilianaService from './Wasiliana/Wasiliana.service';
+import SmsServiceInterface from '../../utils/interfaces/sms-service.interface';
 
 export class SMS implements NotificationInterface {
     tries = 1;
     retryCount = 0;
-    currentProviderIndex = 0
+    currentProviderIndex = 0;
     smsSettings: SMSSettings;
     notifications: Notification[];
-    service: ATService | WebSMSService | WaveSMSService;
+    service: SmsServiceInterface;
     repo: NotificationRepository;
 
     constructor(notifications: Notification[], smsSettings: SMSSettings) {
@@ -40,6 +42,9 @@ export class SMS implements NotificationInterface {
                 break;
             case Provider.WEBSMS:
                 this.service = new WebSMSService(this.smsSettings.websms_env);
+                break;
+            case Provider.WASILIANA:
+                this.service = new WasilianaService(this.smsSettings.wasiliana_env);
                 break;
             default:
                 this.service = new WaveSMSService(this.smsSettings.wavesms_env);
@@ -82,5 +87,5 @@ export class SMS implements NotificationInterface {
                     }
                 }
             }).catch(err => log.error(err));
-    }
+    };
 }
