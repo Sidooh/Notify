@@ -366,15 +366,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nabcellent/wasiliana@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "@nabcellent/wasiliana@npm:0.2.1"
+"@nabcellent/wasiliana@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@nabcellent/wasiliana@npm:0.3.0"
   dependencies:
     axios: ^1.5.0
     libphonenumber-js: ^1.10.44
     moment: ^2.29.4
     winston: ^3.10.0
-  checksum: 2ada0ae8ee7d4323f8e1c6a4603cddae4cd0bcf093d896aefe6593f4f85a3b011b081fd80b81cb4dd98fb46cd228b5dbbac8d3fdb37de7d7fafa93f2032ca819
+  checksum: 099b5ef766a01a2feec18a5ed81ec0997a79441e9f87962b938ad0c9dd86ce2b6cdaf5cdb5f90f27390113afc09f96a826683059a1fbea7d73126d72b1ca385c
   languageName: node
   linkType: hard
 
@@ -3686,7 +3686,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sidooh-notify@workspace:."
   dependencies:
-    "@nabcellent/wasiliana": ^0.2.1
+    "@nabcellent/wasiliana": ^0.3.0
     "@nabcellent/wavesms": ^2.0.7
     "@nabcellent/websms": ^3.0.3
     "@prisma/client": 4.16.1

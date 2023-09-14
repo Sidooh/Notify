@@ -17,7 +17,6 @@ export default function validateEnv() {
         DB_USERNAME   : str({ default: '' }),
         DB_PASSWORD   : str({ default: '' }),
         DB_SOCKET     : str({ default: '' }),
-        SYNCHRONIZE_DB: bool({ default: false }),
 
         //  Prisma Config
         DATABASE_URL: str(),

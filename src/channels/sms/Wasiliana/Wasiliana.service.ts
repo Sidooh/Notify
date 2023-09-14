@@ -44,7 +44,9 @@ export default class WasilianaService implements SmsServiceInterface {
         //  TODO: Remove once we get airtel & telkom.
         this.#to = this.#to.filter(n => getTelcoFromPhone(n) === Telco.SAFARICOM);
 
-        const responses = await this.#wasiliana.sms.text(this.#message).to(this.#to).send()
+        const notificationIds = notifications.map(n => n.id);
+        const responses = await this.#wasiliana.sms.text(this.#message).to(this.#to)
+            .messageId(notificationIds.join()).send()
             .then(data => {
                 log.info(`[SRV WASILIANA]: Response`, data);
 

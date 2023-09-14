@@ -3,7 +3,7 @@ import { Channel, Provider, Status } from '../utils/enums';
 import { Mail } from '../channels/mail';
 import { SMS } from '../channels/sms';
 import { Slack } from '../channels/slack';
-import { Help, SMSSettings } from '../utils/helpers';
+import { Help } from '../utils/helpers';
 import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { Notification as NotificationType, Prisma } from '@prisma/client';
@@ -16,9 +16,6 @@ const Notifiable = db.notifiable;
 export type NotificationIndexBuilder = { where?: Prisma.NotificationWhereInput, withRelations?: string }
 
 export default class NotificationRepository {
-    triedProviders: string[] = [];
-    smsSettings: SMSSettings;
-
     index = async ({ where, withRelations }: NotificationIndexBuilder) => {
         const relations = withRelations?.split(',');
 

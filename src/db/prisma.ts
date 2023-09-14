@@ -15,4 +15,7 @@ BigInt.prototype.toJSON = function(): string {
     return this.toString();
 };
 
+export const Notification = db.notification;
+export const Notifiable = db.notifiable;
+
 export default db;
