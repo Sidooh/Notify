@@ -108,7 +108,7 @@ export default class WaveSMSService implements SmsServiceInterface {
         return results;
     };
 
-    query = async (messageId) => {
+    query = async (messageId: string | number) => {
         return await this.#WaveSMS.sms.getDeliveryReport(messageId);
     };
 }

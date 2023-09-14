@@ -151,16 +151,16 @@ export default class NotificationRepository {
     };
 
     queryStatus = async (notifiableId?: bigint) => {
-        const process = async (notifiableId, messageId, provider) => {
+        const process = async (notifiableId: bigint, messageId: string | null, provider: Provider) => {
             log.info(`Querying: ${messageId}`);
 
             const update = async (status: Status, data: Prisma.XOR<Prisma.NotifiableUpdateInput, Prisma.NotifiableUncheckedUpdateInput>) => {
                 await Notifiable.update({
-                    where: { id: notifiableId }, data: { status, notification: { update: { status } } }
+                    where: { id: notifiableId }, data: { status, notification: { update: { ...data, status } } }
                 });
             };
 
-            if (provider === Provider.WAVESMS) {
+            if (provider === Provider.WAVESMS && messageId) {
                 try {
                     const report = await new WaveSMSService().query(messageId);
 
@@ -186,13 +186,15 @@ export default class NotificationRepository {
         };
 
         if (notifiableId) {
-            const n = await Notifiable.findFirst({ where: { id: notifiableId, status: Status.PENDING } });
+            const n = await Notifiable.findFirst({
+                where: { id: notifiableId, status: Status.PENDING }
+            });
 
             if (!n) {
                 return log.error('Nothing to Query!');
             }
 
-            await process(n.id, n.message_id, n.provider);
+            await process(n.id, n.message_id, n.provider as Provider);
         } else {
             const notifiables = await Notifiable.findMany({
                 where: { status: Status.PENDING }
@@ -201,7 +203,7 @@ export default class NotificationRepository {
             if (notifiables.length > 0) {
                 for (const n of notifiables) {
                     if (n.message_id) {
-                        await process(n.id, n.message_id, n.provider);
+                        await process(n.id, n.message_id, n.provider as Provider);
                     }
                 }
             } else {
