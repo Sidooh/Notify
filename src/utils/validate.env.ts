@@ -3,22 +3,13 @@ import { CacheDriver } from './enums';
 
 export default function validateEnv() {
     return cleanEnv(process.env, {
-        CACHE_DRIVER: str<CacheDriver>({ default: 'file', choices: [CacheDriver.FILE, CacheDriver.MEMORY] }),
+        CACHE_DRIVER: str<CacheDriver>({ default: CacheDriver.FILE, choices: [CacheDriver.FILE, CacheDriver.MEMORY] }),
 
         PORT: port({ default: 8003 }),
 
         LOG_LEVEL: str({ default: 'info', choices: ['info'] }),
         JWT_KEY  : str(),
 
-        //  Typeorm Configs
-        DB_HOST       : str({ default: '127.0.0.1' }),
-        DB_PORT       : num({ default: 3306 }),
-        DB_DATABASE   : str({ default: '' }),
-        DB_USERNAME   : str({ default: '' }),
-        DB_PASSWORD   : str({ default: '' }),
-        DB_SOCKET     : str({ default: '' }),
-
-        //  Prisma Config
         DATABASE_URL: str(),
 
         MAIL_HOST     : str({ default: 'smtp.gmail.com' }),
@@ -41,10 +32,10 @@ export default function validateEnv() {
         AT_USSD_API_KEY : str(),
         AT_USSD_USERNAME: str(),
 
-        WASILIANA_SANDBOX   : str({ default: 'development' }),
-        WASILIANA_API_KEY   : str(),
-        WASILIANA_SENDER_ID : str(),
-        WASILIANA_COST      : num({ default: .2 }),
+        WASILIANA_SANDBOX  : str({ default: 'development' }),
+        WASILIANA_API_KEY  : str(),
+        WASILIANA_SENDER_ID: str(),
+        WASILIANA_COST     : num({ default: .2 }),
 
         WAVESMS_SANDBOX   : str({ default: 'development' }),
         WAVESMS_API_KEY   : str(),
@@ -62,10 +53,10 @@ export default function validateEnv() {
         WEBSMS_SENDER_ID : str(),
         WEBSMS_COST      : num({ default: .3 }),
 
-        WEBSMS_DEV_ACCESS_KEY: str({ default: undefined }),
-        WEBSMS_DEV_API_KEY   : str({ default: undefined }),
-        WEBSMS_DEV_CLIENT_ID : str({ default: undefined }),
-        WEBSMS_DEV_SENDER_ID : str({ default: undefined }),
+        WEBSMS_DEV_ACCESS_KEY: str({ default: '' }),
+        WEBSMS_DEV_API_KEY   : str({ default: '' }),
+        WEBSMS_DEV_CLIENT_ID : str({ default: '' }),
+        WEBSMS_DEV_SENDER_ID : str({ default: '' }),
 
         SLACK_HOOK_URL: url({ default: '' }),
         SLACK_LOGGING : str({

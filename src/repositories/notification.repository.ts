@@ -9,6 +9,7 @@ import { NotFoundError } from '../exceptions/not-found.err';
 import { Notification as NotificationType, Prisma } from '@prisma/client';
 import db from '../db/prisma';
 import WaveSMSService from '../channels/sms/WaveSMS/WaveSMS.service';
+import NotificationInterface from "../utils/interfaces/notification.interface";
 
 const Notification = db.notification;
 const Notifiable = db.notifiable;
@@ -75,7 +76,7 @@ export default class NotificationRepository {
     };
 
     send = async (channel: Channel | string, notifications: NotificationType[]): Promise<void | boolean> => {
-        let channelService;
+        let channelService: NotificationInterface;
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
         } else if (channel === Channel.SMS) {

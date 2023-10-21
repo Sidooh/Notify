@@ -10,7 +10,6 @@ export enum Provider {
     WAVESMS = 'WAVESMS',
     WASILIANA = 'WASILIANA',
     AT = 'AFRICASTALKING',
-    SLACK = 'SLACK',
     GMAIL = 'GMAIL',
 }
 
@@ -18,7 +17,6 @@ export enum Channel {
     SLACK = 'SLACK',
     SMS = 'SMS',
     MAIL = 'MAIL',
-    APP = 'APP',
 }
 
 export enum ENV {

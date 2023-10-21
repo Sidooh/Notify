@@ -34,23 +34,28 @@ export class SMS implements NotificationInterface {
     };
 
     #dispatch = async i => {
-        const provider = this.smsSettings.providers[i];
+        let provider = this.smsSettings.providers[i]?.name;
 
-        switch (provider.name) {
+        if (!provider) {
+            provider = this.smsSettings.default_provider
+            log.warning(`Providers not set! Defaulting to ${provider}`)
+        }
+
+        switch (provider) {
             case Provider.AT:
                 this.service = new ATService(this.smsSettings.africastalking_env);
                 break;
             case Provider.WEBSMS:
                 this.service = new WebSMSService(this.smsSettings.websms_env);
                 break;
-            case Provider.WASILIANA:
-                this.service = new WasilianaService(this.smsSettings.wasiliana_env);
+            case Provider.WAVESMS:
+                this.service = new WaveSMSService(this.smsSettings.wavesms_env);
                 break;
             default:
-                this.service = new WaveSMSService(this.smsSettings.wavesms_env);
+                this.service = new WasilianaService(this.smsSettings.wasiliana_env);
         }
 
-        log.info(`Sending SMS with ${provider.name}...`);
+        log.info(`Sending SMS with ${provider}...`);
 
         await this.service.to(this.notifications.map(n => n.destination)).message(this.notifications[0].content).send(this.notifications)
             .then(async results => {
@@ -61,7 +66,7 @@ export class SMS implements NotificationInterface {
                 }
 
                 if (results.FAILED && results.FAILED.length > 0) {
-                    log.info(`Failed to send SMS with ${provider.name}`);
+                    log.info(`Failed to send SMS with ${provider}`);
                     this.retryCount++;
 
                     this.notifications = await this.repo.findMany({ where: { id: { in: results.FAILED } } });
@@ -70,7 +75,7 @@ export class SMS implements NotificationInterface {
                         // Incremental delay of 30 seconds per retry
                         const delay = this.retryCount * env.SMS_RETRY_INTERVAL;
 
-                        log.info(`Retrying with ${provider.name} (${this.retryCount} attempt) in ${delay} seconds...`);
+                        log.info(`Retrying with ${provider} (${this.retryCount} attempt) in ${delay} seconds...`);
 
                         setTimeout(async () => await this.#dispatch(i), delay * 1000);
                     } else if (i < this.smsSettings.providers.length - 1) {

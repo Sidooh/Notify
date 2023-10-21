@@ -35,7 +35,7 @@ export const Help = {
             });
 
             return {
-                default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value ?? Provider.WEBSMS,
+                default_provider  : (await Setting.findUnique({ where: { key: 'default_sms_provider' } }))?.value ?? Provider.WASILIANA,
                 websms_env        : providers?.find(p => p.name === Provider.WEBSMS)?.environment,
                 wavesms_env       : providers?.find(p => p.name === Provider.WAVESMS)?.environment,
                 wasiliana_env     : providers?.find(p => p.name === Provider.WASILIANA)?.environment,
