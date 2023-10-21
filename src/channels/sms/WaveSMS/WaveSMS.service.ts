@@ -1,4 +1,3 @@
-import ServiceInterface from '../../../utils/interfaces/service.interface';
 import { log } from '../../../utils/logger';
 import { ENV, Provider, Telco } from '../../../utils/enums';
 import { Notification } from '@prisma/client';
@@ -7,10 +6,11 @@ import { WaveSMS, WaveSMSConfig, WaveSMSResponse } from '@nabcellent/wavesms';
 import prisma from '../../../db/prisma';
 import { getTelcoFromPhone } from '../../../utils/helpers';
 import { SMSNotificationResults } from '../../../utils/types';
+import SmsServiceInterface from '../../../utils/interfaces/sms-service.interface';
 
 const Notifiable = prisma.notifiable;
 
-export default class WaveSMSService implements ServiceInterface {
+export default class WaveSMSService implements SmsServiceInterface {
     #message: string = '';
     #to: string[] = [];
     #WaveSMS: WaveSMS;
@@ -50,8 +50,6 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     send: (notifications: Notification[]) => Promise<SMSNotificationResults> = async (notifications: Notification[]) => {
-        log.info('[SRV WAVESMS]: Send - ', { notifications });
-
         //  TODO: Remove once we get airtel on WAVE.
         this.#to = this.#to.filter(n => getTelcoFromPhone(n) !== Telco.AIRTEL);
 
@@ -81,13 +79,11 @@ export default class WaveSMSService implements ServiceInterface {
     };
 
     #save = async (notifications: Notification[], responses: WaveSMSResponse[]): Promise<SMSNotificationResults> => {
-        log.info(`[SRV WAVESMS]: Save`);
-
         const results: SMSNotificationResults = { REQUESTED: [], FAILED: [] };
 
         const notifiables = notifications.map(notification => {
             let response = responses.find(res => {
-                return String(notification.destination).slice(-9) == String(res.mobile).slice(-9);
+                return notification.destination.slice(-9) == String(res.mobile).slice(-9);
             });
 
             if (!response?.code || [1007, 1004].includes(response?.code)) {
@@ -112,7 +108,7 @@ export default class WaveSMSService implements ServiceInterface {
         return results;
     };
 
-    query = async (messageId) => {
+    query = async (messageId: string | number) => {
         return await this.#WaveSMS.sms.getDeliveryReport(messageId);
     };
 }

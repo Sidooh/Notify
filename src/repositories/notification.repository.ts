@@ -3,12 +3,13 @@ import { Channel, Provider, Status } from '../utils/enums';
 import { Mail } from '../channels/mail';
 import { SMS } from '../channels/sms';
 import { Slack } from '../channels/slack';
-import { Help, SMSSettings } from '../utils/helpers';
+import { Help } from '../utils/helpers';
 import { BadRequestError } from '../exceptions/bad-request.err';
 import { NotFoundError } from '../exceptions/not-found.err';
 import { Notification as NotificationType, Prisma } from '@prisma/client';
 import db from '../db/prisma';
 import WaveSMSService from '../channels/sms/WaveSMS/WaveSMS.service';
+import NotificationInterface from "../utils/interfaces/notification.interface";
 
 const Notification = db.notification;
 const Notifiable = db.notifiable;
@@ -16,9 +17,6 @@ const Notifiable = db.notifiable;
 export type NotificationIndexBuilder = { where?: Prisma.NotificationWhereInput, withRelations?: string }
 
 export default class NotificationRepository {
-    triedProviders: string[] = [];
-    smsSettings: SMSSettings;
-
     index = async ({ where, withRelations }: NotificationIndexBuilder) => {
         const relations = withRelations?.split(',');
 
@@ -65,8 +63,6 @@ export default class NotificationRepository {
     };
 
     notify = async (channel, content, event_type, destinations) => {
-        log.info(`CREATE ${channel} NOTIFICATION for ${event_type}`);
-
         if (channel === Channel.SLACK) destinations = ['Sidooh'];
         if (!Array.isArray(destinations)) destinations = [destinations];
 
@@ -80,11 +76,7 @@ export default class NotificationRepository {
     };
 
     send = async (channel: Channel | string, notifications: NotificationType[]): Promise<void | boolean> => {
-        const destinations = notifications.map(n => n.destination);
-
-        log.info(`SEND ${channel} NOTIFICATION to ${destinations.join(',')}`);
-
-        let channelService;
+        let channelService: NotificationInterface;
         if (channel === Channel.MAIL) {
             channelService = new Mail(notifications);
         } else if (channel === Channel.SMS) {
@@ -156,20 +148,20 @@ export default class NotificationRepository {
             }
         });
 
-        new SMS([notifiable.notification], await Help.getSMSSettings()).retry([notifiable.notification_id]);
+        new SMS([notifiable.notification], await Help.getSMSSettings()).send();
     };
 
     queryStatus = async (notifiableId?: bigint) => {
-        const process = async (notifiableId, messageId, provider) => {
+        const process = async (notifiableId: bigint, messageId: string | null, provider: Provider) => {
             log.info(`Querying: ${messageId}`);
 
             const update = async (status: Status, data: Prisma.XOR<Prisma.NotifiableUpdateInput, Prisma.NotifiableUncheckedUpdateInput>) => {
                 await Notifiable.update({
-                    where: { id: notifiableId }, data: { status, notification: { update: { status } } }
+                    where: { id: notifiableId }, data: { status, notification: { update: { ...data, status } } }
                 });
             };
 
-            if (provider === Provider.WAVESMS) {
+            if (provider === Provider.WAVESMS && messageId) {
                 try {
                     const report = await new WaveSMSService().query(messageId);
 
@@ -195,13 +187,15 @@ export default class NotificationRepository {
         };
 
         if (notifiableId) {
-            const n = await Notifiable.findFirst({ where: { id: notifiableId, status: Status.PENDING } });
+            const n = await Notifiable.findFirst({
+                where: { id: notifiableId, status: Status.PENDING }
+            });
 
             if (!n) {
                 return log.error('Nothing to Query!');
             }
 
-            await process(n.id, n.message_id, n.provider);
+            await process(n.id, n.message_id, n.provider as Provider);
         } else {
             const notifiables = await Notifiable.findMany({
                 where: { status: Status.PENDING }
@@ -210,7 +204,7 @@ export default class NotificationRepository {
             if (notifiables.length > 0) {
                 for (const n of notifiables) {
                     if (n.message_id) {
-                        await process(n.id, n.message_id, n.provider);
+                        await process(n.id, n.message_id, n.provider as Provider);
                     }
                 }
             } else {

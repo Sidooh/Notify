@@ -12,7 +12,7 @@ import { NotFoundError } from './exceptions/not-found.err';
 import { User } from './http/middleware/user.middleware';
 import { Auth } from './http/middleware/auth.middleware';
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
+import { Integrations } from '@sentry/tracing';
 import { env } from './utils/validate.env';
 import { JobController } from './http/controllers/job.controller';
 import { CallbackController } from './http/controllers/callback.controller';
@@ -28,14 +28,14 @@ class App {
 
         /** --------------------------------    INIT SENTRY
          * */
-        if (process.env.NODE_ENV !== 'test') {
+        if (!env.isTest) {
             Sentry.init({
                 dsn         : env.SENTRY_DSN,
                 integrations: [
                     // enable HTTP calls tracing
                     new Sentry.Integrations.Http({ tracing: true }),
                     // enable Express.js middleware tracing
-                    new Tracing.Integrations.Express({ app: this.app })
+                    new Integrations.Express({ app: this.app })
                 ],
 
                 // Set tracesSampleRate to 1.0 to capture 100%
