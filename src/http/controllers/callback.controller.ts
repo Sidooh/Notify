@@ -19,24 +19,18 @@ export class CallbackController extends Controller {
     #wasiliana = async ({ body }: Request, res: Response) => {
         log.info('...[CB]: WASILIANA...', { body });
 
-        const notificationIds: bigint[] = body.correlator.split(',').map(id => Number(id));
+        let status: Status = [1, 2].includes(Number(body.deliveryStatus))
+            ? Status.COMPLETED : Status.FAILED;
 
-        if (notificationIds.length > 0) {
-            let status: Status = [1, 2].includes(Number(body.deliveryStatus))
-                ? Status.COMPLETED : Status.FAILED;
+        const notificationIds: bigint[] = body.message_uid.split(',').map(id => Number(id));
 
-            await Notification.updateMany({ where: { id: { in: notificationIds } }, data: { status: status } });
+        await Notification.updateMany({ where: { id: { in: notificationIds } }, data: { status } });
 
-            let data: { status: Status, description?: string } = { status: status };
+        let data: { status: Status, description?: string } = { status: status };
 
-            if (body.failure_reason) data.description = body.failure_reason;
+        if (body.failure_reason) data.description = body.failure_reason;
 
-            await Notifiable.updateMany({
-                where: {
-                    notification_id: { in: notificationIds }, phone: { in: body.phone }
-                }, data
-            });
-        }
+        await Notifiable.updateMany({ where: { notification_id: { in: notificationIds } }, data });
 
         res.send();
     };
