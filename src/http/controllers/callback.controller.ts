@@ -30,9 +30,12 @@ export class CallbackController extends Controller {
 
         const notificationIds: bigint[] = body.message_uid.split(',').map(id => Number(id));
 
-        await Notification.updateMany({ where: { id: { in: notificationIds } }, data: { status } });
+        await Notification.updateMany({
+            where: { id: { in: notificationIds } },
+            data : { status, updated_at: new Date }
+        });
 
-        let data: { status: Status, description?: string } = { status: status };
+        let data: { status: Status, description?: string, updated_at: Date } = { status: status, updated_at: new Date };
 
         if (body.failure_reason) data.description = body.failure_reason;
 
