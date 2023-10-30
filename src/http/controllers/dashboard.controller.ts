@@ -90,7 +90,6 @@ export class DashboardController extends Controller {
             wasiliana_balance       : (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value,
             wavesms_balance       : await new WaveSMSService().balance(),
             websms_balance        : await new WebSMSService().balance(),
-            africastalking_balance: await new ATService().balance() / .8
         }));
     };
 
