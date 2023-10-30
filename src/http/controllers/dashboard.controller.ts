@@ -6,9 +6,10 @@ import Controller from './controller';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
 import NotificationRepository from '../../repositories/notification.repository';
 import FileCache from '../../utils/cache/FileCache';
-import db from '../../db/prisma';
+import db, { Setting } from '../../db/prisma';
 import { Prisma } from '@prisma/client';
 import { log } from '../../utils/logger';
+import { SettingKey } from "../../utils/enums";
 
 const Notification = db.notification;
 
@@ -86,6 +87,7 @@ export class DashboardController extends Controller {
 
     #getProviderBalances = async (req: Request, res: Response) => {
         return res.send(this.successResponse({
+            wasiliana_balance       : (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value,
             wavesms_balance       : await new WaveSMSService().balance(),
             websms_balance        : await new WebSMSService().balance(),
             africastalking_balance: await new ATService().balance() / .8
