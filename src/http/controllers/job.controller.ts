@@ -23,7 +23,7 @@ export class JobController extends Controller {
 
         const smsSettings = await Help.getSMSSettings();
 
-        const websms = await new WebSMSService('production').balance();
+        const websms = await new WebSMSService(smsSettings.websms_env).balance();
         const wavesms = await new WaveSMSService(smsSettings.wavesms_env).balance();
         const wasiliana = (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value;
         const africasTalking = await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance() * .8
