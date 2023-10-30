@@ -87,9 +87,9 @@ export class DashboardController extends Controller {
 
     #getProviderBalances = async (req: Request, res: Response) => {
         return res.send(this.successResponse({
-            wasiliana_balance       : (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value,
-            wavesms_balance       : await new WaveSMSService().balance(),
-            websms_balance        : await new WebSMSService().balance(),
+            wasiliana_balance: (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value,
+            wavesms_balance  : await new WaveSMSService().balance(),
+            websms_balance   : await new WebSMSService().balance(),
         }));
     };
 
