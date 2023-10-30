@@ -4,9 +4,10 @@ import { env } from '../../utils/validate.env';
 import { Help } from '../../utils/helpers';
 import WebSMSService from '../../channels/sms/WebSMS/WebSMS.service';
 import NotificationRepository from '../../repositories/notification.repository';
-import { Channel, EventType, Status } from '../../utils/enums';
+import { Channel, EventType, SettingKey, Status } from '../../utils/enums';
 import ATService, { ATApp } from '../../channels/sms/AT/AT.service';
 import WaveSMSService from '../../channels/sms/WaveSMS/WaveSMS.service';
+import { Setting } from "../../db/prisma";
 
 export class JobController extends Controller {
     constructor() {
@@ -24,20 +25,21 @@ export class JobController extends Controller {
 
         const websms = await new WebSMSService(smsSettings.websms_env).balance();
         const wavesms = await new WaveSMSService(smsSettings.wavesms_env).balance();
-        const africasTalking = {
-            sms : await new ATService(smsSettings.africastalking_env).balance(),
-            ussd: await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance() * .8
-        };
+        const wasiliana = (await Setting.findUnique({ where: { key: SettingKey.WASILIANA_SMS_BALANCE } }))?.value;
+        const africasTalking = await new ATService(smsSettings.africastalking_env, ATApp.USSD).balance() * .8
 
         let message = `Provider Balances:\n`;
 
+        const wasilianaIsBelowThresh = Number(wasiliana) <= env.WAVESMS_THRESHOLD;
         const wavesmsIsBelowThresh = wavesms <= env.WAVESMS_THRESHOLD;
         const websmsIsBelowThresh = websms <= env.WEBSMS_THRESHOLD;
-        const ATAirtimeIsBelowBelowThresh = africasTalking.sms <= env.AT_SMS_THRESHOLD;
-        const ATUSSDIsBelowThresh = africasTalking.ussd <= env.AT_USSD_THRESHOLD;
+        const ATUSSDIsBelowThresh = africasTalking <= env.AT_USSD_THRESHOLD;
 
-        if (wavesmsIsBelowThresh || websmsIsBelowThresh || ATAirtimeIsBelowBelowThresh || ATUSSDIsBelowThresh) {
-            message += `\t - WaveSMS: ${wavesms}\n\t - WebSMS: ${websms}\n\t - AT SMS: ${africasTalking.sms}\n\n\t - AT USSD: ${africasTalking.ussd}\n`;
+        if (wasilianaIsBelowThresh || wavesmsIsBelowThresh || websmsIsBelowThresh || ATUSSDIsBelowThresh) {
+            message += `\t - Wasiliana: ${wasiliana ?? 'N/A'}\n\t 
+            - WaveSMS: ${wavesms}\n\t 
+            - WebSMS: ${websms}\n\n\t 
+            - AT USSD: ${africasTalking}\n`;
         }
 
         if (message.includes('-')) {

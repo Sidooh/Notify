@@ -59,3 +59,7 @@ export enum CacheDriver {
     MEMORY = 'memory',
     DATABASE = 'database'
 }
+
+export enum SettingKey {
+    WASILIANA_SMS_BALANCE = 'wasiliana_sms_balance'
+}

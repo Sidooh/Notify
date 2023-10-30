@@ -2,8 +2,8 @@ import Controller from './controller';
 import { Request, Response } from 'express';
 import { log } from '../../utils/logger';
 import NotificationRepository from '../../repositories/notification.repository';
-import { Notifiable, Notification } from '../../db/prisma';
-import { Status } from '../../utils/enums';
+import { Notifiable, Notification, Setting } from '../../db/prisma';
+import { SettingKey, Status } from '../../utils/enums';
 
 export class CallbackController extends Controller {
 
@@ -19,24 +19,24 @@ export class CallbackController extends Controller {
     #wasiliana = async ({ body }: Request, res: Response) => {
         log.info('...[CB]: WASILIANA...', { body });
 
-        const notificationIds: bigint[] = body.correlator.split(',').map(id => Number(id));
+        await Setting.upsert({
+            where : { key: SettingKey.WASILIANA_SMS_BALANCE },
+            update: { value: String(body.unit_balance) },
+            create: { key: SettingKey.WASILIANA_SMS_BALANCE, value: String(body.unit_balance) }
+        })
 
-        if (notificationIds.length > 0) {
-            let status: Status = [1, 2].includes(Number(body.deliveryStatus))
-                ? Status.COMPLETED : Status.FAILED;
+        let status: Status = [1, 2].includes(Number(body.deliveryStatus))
+            ? Status.COMPLETED : Status.FAILED;
 
-            await Notification.updateMany({ where: { id: { in: notificationIds } }, data: { status: status } });
+        const notificationIds: bigint[] = body.message_uid.split(',').map(id => Number(id));
 
-            let data: { status: Status, description?: string } = { status: status };
+        await Notification.updateMany({ where: { id: { in: notificationIds } }, data: { status } });
 
-            if (body.failure_reason) data.description = body.failure_reason;
+        let data: { status: Status, description?: string } = { status: status };
 
-            await Notifiable.updateMany({
-                where: {
-                    notification_id: { in: notificationIds }, phone: { in: body.phone }
-                }, data
-            });
-        }
+        if (body.failure_reason) data.description = body.failure_reason;
+
+        await Notifiable.updateMany({ where: { notification_id: { in: notificationIds } }, data });
 
         res.send();
     };
