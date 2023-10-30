@@ -2,8 +2,8 @@ import Controller from './controller';
 import { Request, Response } from 'express';
 import { log } from '../../utils/logger';
 import NotificationRepository from '../../repositories/notification.repository';
-import { Notifiable, Notification } from '../../db/prisma';
-import { Status } from '../../utils/enums';
+import { Notifiable, Notification, Setting } from '../../db/prisma';
+import { SettingKey, Status } from '../../utils/enums';
 
 export class CallbackController extends Controller {
 
@@ -18,6 +18,12 @@ export class CallbackController extends Controller {
 
     #wasiliana = async ({ body }: Request, res: Response) => {
         log.info('...[CB]: WASILIANA...', { body });
+
+        await Setting.upsert({
+            where : { key: SettingKey.WASILIANA_SMS_BALANCE },
+            update: { value: String(body.unit_balance) },
+            create: { key: SettingKey.WASILIANA_SMS_BALANCE, value: String(body.unit_balance) }
+        })
 
         let status: Status = [1, 2].includes(Number(body.deliveryStatus))
             ? Status.COMPLETED : Status.FAILED;
