@@ -123,7 +123,7 @@ export default class NotificationRepository {
             where: { id: notifiable.id },
             data : {
                 status      : Status.COMPLETED,
-                notification: { update: { status: Status.COMPLETED } }
+                notification: { update: { status: Status.COMPLETED, updated_at: new Date } }
             }
         });
     };
@@ -144,7 +144,7 @@ export default class NotificationRepository {
             where: { id: notifiable.id },
             data : {
                 status      : Status.FAILED,
-                notification: { update: { status: Status.FAILED } }
+                notification: { update: { status: Status.FAILED, updated_at: new Date } }
             }
         });
 
