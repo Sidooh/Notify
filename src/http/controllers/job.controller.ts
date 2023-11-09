@@ -36,10 +36,7 @@ export class JobController extends Controller {
         const ATUSSDIsBelowThresh = africasTalking <= env.AT_USSD_THRESHOLD;
 
         if (wasilianaIsBelowThresh || wavesmsIsBelowThresh || websmsIsBelowThresh || ATUSSDIsBelowThresh) {
-            message += `\t - Wasiliana: ${wasiliana ?? 'N/A'}\n\t 
-            - WaveSMS: ${wavesms}\n\t 
-            - WebSMS: ${websms}\n\n\t 
-            - AT USSD: ${africasTalking}\n`;
+            message += `\t - Wasiliana: ${wasiliana ?? 'N/A'}\n\t - WaveSMS: ${wavesms}\n\t - WebSMS: ${websms}\n\n\t - AT USSD: ${africasTalking}\n`;
         }
 
         if (message.includes('-')) {
