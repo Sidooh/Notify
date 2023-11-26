@@ -1,6 +1,6 @@
 {
    "name": "sidooh-notify",
-   "packageManager": "yarn@3.5.0",
+   "packageManager": "yarn@4.0.2",
    "version": "1.0.0",
    "description": "Sidooh notification service",
    "repository": "https://github.com/Sidooh/Notify",

@@ -30,7 +30,7 @@ export class JobController extends Controller {
 
         let message = `Provider Balances:\n`;
 
-        const wasilianaIsBelowThresh = Number(wasiliana) <= env.WAVESMS_THRESHOLD;
+        const wasilianaIsBelowThresh = Number(wasiliana) <= env.WASILIANA_THRESHOLD;
         const wavesmsIsBelowThresh = wavesms <= env.WAVESMS_THRESHOLD;
         const websmsIsBelowThresh = websms <= env.WEBSMS_THRESHOLD;
         const ATUSSDIsBelowThresh = africasTalking <= env.AT_USSD_THRESHOLD;
