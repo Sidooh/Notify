@@ -8,7 +8,6 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY ["package.json", "yarn.lock", ".yarnrc.yml", "tsconfig.json", "prisma", "./"]
-COPY [".yarn/plugins/", "./.yarn/plugins/"]
 COPY [".yarn/releases/", "./.yarn/releases/"]
 COPY ["src/", "./src/"]
 
