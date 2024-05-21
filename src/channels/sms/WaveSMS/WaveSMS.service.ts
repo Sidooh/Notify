@@ -55,7 +55,7 @@ export default class WaveSMSService implements SmsServiceInterface {
 
         const responses = await this.#WaveSMS.sms.text(this.#message).to(this.#to).send()
             .then(data => {
-                log.info(`[SRV WAVESMS]: Responses`, data);
+                log.info(`[SRV WAVESMS]: RES`, data);
 
                 return data;
             }).catch(error => {

@@ -81,7 +81,7 @@ export class DashboardController extends Controller {
                 id    : true, destination: true, channel: true, event_type: true, content: true,
                 status: true, created_at: true
             },
-            orderBy: { id: 'desc' }, take: 50
+            orderBy: { id: 'desc' }, take: 300
         })));
     };
 
