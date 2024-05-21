@@ -55,7 +55,7 @@ export class SMS implements NotificationInterface {
                 this.service = new WasilianaService(this.smsSettings.wasiliana_env);
         }
 
-        log.info(`Sending SMS with ${provider}...`);
+        log.info(`Sending SMS with ${provider}...`, this.notifications);
 
         await this.service.to(this.notifications.map(n => n.destination)).message(this.notifications[0].content).send(this.notifications)
             .then(async results => {

@@ -48,7 +48,7 @@ export default class WasilianaService implements SmsServiceInterface {
         const responses = await this.#wasiliana.sms.text(this.#message).to(this.#to)
             .messageId(notificationIds.join()).send()
             .then(data => {
-                log.info(`[SRV WASILIANA]: Response`, data);
+                log.info(`[SRV WASILIANA]: RES`, data);
 
                 return data;
             }).catch(error => {
