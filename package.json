@@ -36,7 +36,7 @@
       "libphonenumber-js": "^1.10.48",
       "moment": "^2.29.4",
       "node-cache": "^5.1.2",
-      "nodemailer": "^6.9.6",
+      "nodemailer": "^6.9.9",
       "winston": "^3.11.0",
       "winston-slack-webhook-transport": "^2.3.2"
    },
