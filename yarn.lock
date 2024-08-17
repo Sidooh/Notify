@@ -3155,10 +3155,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^6.9.6":
-  version: 6.9.6
-  resolution: "nodemailer@npm:6.9.6"
-  checksum: fa0041c242ae5eb484a4aa74cae626aded143a3af363f2dd1c9309defc485fda71ecd008efe560fa12c1b44fe4e53ec3f2538903cecc05b4f0eeca850ac86d4c
+"nodemailer@npm:^6.9.9":
+  version: 6.9.14
+  resolution: "nodemailer@npm:6.9.14"
+  checksum: 749d1a3ef440d6147c37ad850f5be065d55d87cd46a4470372d4e443593838a5ddd78c69623817a804ddede3212fa28ac069b5b8266e892b27e1dcff75103def
   languageName: node
   linkType: hard
 
@@ -3845,7 +3845,7 @@ __metadata:
     libphonenumber-js: "npm:^1.10.48"
     moment: "npm:^2.29.4"
     node-cache: "npm:^5.1.2"
-    nodemailer: "npm:^6.9.6"
+    nodemailer: "npm:^6.9.9"
     nodemon: "npm:^3.0.1"
     prisma: "npm:^5.4.2"
     supertest: "npm:^6.3.3"
